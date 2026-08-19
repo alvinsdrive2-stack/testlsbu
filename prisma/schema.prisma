@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Section {
+  PRETEST
+  POSTTEST
+}
+
+enum ActivityStatus {
+  PRETEST_OPEN
+  POSTTEST_OPEN
+  CLOSED
+}
+
+enum ParticipantStage {
+  REGISTERED
+  PRETEST_DONE
+  POSTTEST_PASSED
+}
+
+model Module {
+  id                   String     @id @default(cuid())
+  title                String
+  description          String?
+  shuffleQuestions     Boolean    @default(false)
+  shuffleOptions       Boolean    @default(false)
+  pretestDurationMin   Int        @default(30)
+  posttestDurationMin  Int        @default(30)
+  pretestPassingGrade  Int        @default(0)
+  posttestPassingGrade Int        @default(70)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  questions            Question[]
+  materials            Material[]
+  activities           Activity[]
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  moduleId  String
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  section   Section
+  text      String
+  order     Int
+  options   Option[]
+  answers   Answer[]
+
+  @@index([moduleId, section])
+}
+
+model Option {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean
+  answers    Answer[]
+
+  @@index([questionId])
+}
+
+model Material {
+  id       String @id @default(cuid())
+  moduleId String
+  module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title    String
+  content  String
+  videoUrl String?
+  order    Int
+
+  @@index([moduleId])
+}
+
+model Activity {
+  id          String           @id @default(cuid())
+  moduleId    String
+  module      Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title       String
+  status      ActivityStatus   @default(PRETEST_OPEN)
+  createdAt   DateTime         @default(now())
+  participants Participant[]
+
+  @@index([moduleId])
+}
+
+model Participant {
+  id              String           @id @default(cuid())
+  activityId      String
+  activity        Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  token           String           @unique @default(uuid())
+  nama            String
+  badanUsaha      String
+  npwp            String
+  wa              String
+  email           String
+  isGapensiMember Boolean
+  stage           ParticipantStage @default(REGISTERED)
+  attempts        Attempt[]
+  createdAt       DateTime         @default(now())
+
+  @@index([activityId])
+}
+
+model Attempt {
+  id            String      @id @default(cuid())
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  section       Section
+  seed          Int
+  score         Int?
+  passed        Boolean?
+  startedAt     DateTime    @default(now())
+  submittedAt   DateTime?
+  answers       Answer[]
+
+  @@index([participantId, section])
+}
+
+model Answer {
+  id         String    @id @default(cuid())
+  attemptId  String
+  attempt    Attempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionId   String?
+  option     Option?   @relation(fields: [optionId], references: [id])
+
+  @@unique([attemptId, questionId])
+}
