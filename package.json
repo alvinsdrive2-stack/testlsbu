@@ -13,7 +13,8 @@
     "jose": "^6.2.9",
     "next": "15.5.23",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -25,6 +26,7 @@
     "eslint-config-next": "15.5.23",
     "prisma": "^6.19.3",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }
