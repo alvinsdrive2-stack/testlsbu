@@ -1,18 +1,18 @@
-import { verifyAdmin } from "@/lib/session";
+import Link from "next/link";
+import { AdminShell } from "@/components/admin/AdminShell";
 
-export default async function AdminDashboardPage() {
-  const isAdmin = await verifyAdmin();
-
-  if (!isAdmin) {
-    return <p>Sesi tidak valid.</p>;
-  }
-
+export default function AdminDashboardPage() {
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <h1 className="text-2xl font-bold">Dashboard Admin</h1>
-      <p className="mt-2 text-gray-600">
-        Placeholder — modul builder dan kegiatan menyusul.
-      </p>
-    </main>
+    <AdminShell title="Dashboard">
+      <Link
+        href="/admin/modules"
+        className="block rounded-[var(--radius-card)] border border-hairline bg-surface p-6 hover:bg-canvas"
+      >
+        <p className="text-h2 font-semibold">Modul</p>
+        <p className="mt-1 text-sm text-ink-secondary">
+          Kelola soal, materi, dan pengaturan ujian.
+        </p>
+      </Link>
+    </AdminShell>
   );
 }
