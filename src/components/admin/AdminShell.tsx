@@ -60,7 +60,7 @@ export function AdminShell({
           {eyebrow ? (
             <p className="label-eyebrow mb-2 text-ink-secondary">{eyebrow}</p>
           ) : null}
-          <h1 className="text-[var(--text-hero)] font-bold tracking-tight">
+          <h1 className="text-[clamp(40px,8vw,96px)] font-bold leading-none tracking-tight">
             {title}
           </h1>
           <div className="mt-12 space-y-12">{children}</div>
