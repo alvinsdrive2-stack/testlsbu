@@ -76,7 +76,7 @@ export function ExamRunner({
   return (
     <div>
       <div className="sticky top-14 z-10 border-b border-hairline bg-surface/95 px-4 py-4 backdrop-blur-xl sm:px-6">
-        <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <div className="flex items-center gap-3">
             <p className="text-[15px] tabular-nums text-ink-secondary">
               Terjawab {answeredCount} dari {questions.length}
@@ -106,7 +106,7 @@ export function ExamRunner({
             {minutes}:{String(seconds).padStart(2, "0")}
           </p>
         </div>
-        <div className="mx-auto mt-2 flex max-w-2xl gap-1.5 overflow-x-auto pb-0.5">
+        <div className="mx-auto mt-2 flex max-w-3xl gap-1.5 overflow-x-auto pb-0.5">
           {questions.map((q, i) => {
             const answered = Boolean(answers[q.id]);
             return (
@@ -134,7 +134,7 @@ export function ExamRunner({
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl space-y-4 px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-6">
         {questions.map((q, i) => {
           const selected = answers[q.id];
           return (

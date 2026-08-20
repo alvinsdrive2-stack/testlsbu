@@ -255,7 +255,7 @@ export default async function PosttestPage({
     <div className="min-h-screen">
       <TopBar title={activity.title} />
       <main className="py-8">
-        <div className="mx-auto mb-6 max-w-2xl px-4 sm:px-6">
+        <div className="mx-auto mb-6 max-w-3xl px-4 sm:px-6">
           <p className="label-eyebrow text-ink-secondary">Ujian Akhir</p>
           <h1 className="mt-1 text-[var(--text-h1)] font-bold tracking-tight text-ink">
             Posttest
