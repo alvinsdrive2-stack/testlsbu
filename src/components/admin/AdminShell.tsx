@@ -56,7 +56,7 @@ export function AdminShell({
           </div>
           <MobileNav />
         </header>
-        <main className="mx-auto max-w-3xl px-6 py-12 md:py-16">
+        <main className="mx-auto my-[2.5vh] min-h-[95vh] max-w-11/12  bg-white px-6 py-8 shadow-2xl">
           {eyebrow ? (
             <p className="label-eyebrow mb-2 text-ink-secondary">{eyebrow}</p>
           ) : null}
