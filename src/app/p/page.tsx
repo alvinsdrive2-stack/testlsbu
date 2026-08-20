@@ -152,7 +152,7 @@ export default async function ParticipantDashboardPage() {
         }
       />
 
-      <main className="mx-auto grid max-w-[2304px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)_300px]">
+      <main className="mx-auto grid max-w-[1843px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)_300px]">
         {/* Kolom kiri: menu + progress */}
         <aside className="hidden md:block">
           <div className="sticky top-20 space-y-4">
@@ -202,7 +202,7 @@ export default async function ParticipantDashboardPage() {
         <div className="min-w-0">
           <section
             id="nilai"
-            className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] sm:p-8"
+            className="border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] sm:p-8"
           >
             <p className="label-eyebrow text-ink-secondary">Status kegiatan</p>
             <h1 className="mt-2 text-[var(--text-h1)] font-bold tracking-tight text-ink">
@@ -249,7 +249,7 @@ export default async function ParticipantDashboardPage() {
                     return (
                       <article
                         key={m.id}
-                        className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]"
+                        className="border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]"
                       >
                         <div className="flex items-start gap-4">
                           <span
