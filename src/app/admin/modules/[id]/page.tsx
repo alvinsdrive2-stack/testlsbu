@@ -3,6 +3,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { prisma } from "@/lib/prisma";
 import { SettingsForm } from "./SettingsForm";
 import { QuestionSection } from "./QuestionSection";
+import { MaterialSection } from "./MaterialSection";
 
 export default async function ModuleBuilderPage({
   params,
@@ -17,6 +18,9 @@ export default async function ModuleBuilderPage({
         orderBy: { order: "asc" },
         include: { options: true },
       },
+      materials: {
+        orderBy: { order: "asc" },
+      },
     },
   });
 
@@ -30,6 +34,7 @@ export default async function ModuleBuilderPage({
       <SettingsForm module={mod} />
       <QuestionSection moduleId={mod.id} section="PRETEST" questions={pretest} />
       <QuestionSection moduleId={mod.id} section="POSTTEST" questions={posttest} />
+      <MaterialSection moduleId={mod.id} materials={mod.materials} />
     </AdminShell>
   );
 }

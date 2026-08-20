@@ -12,6 +12,17 @@ const questionCreateSchema = z.object({
   text: z.string().min(3, "Soal minimal 3 karakter"),
 });
 
+const materialSchema = z.object({
+  moduleId: z.string().min(1),
+  title: z.string().min(3, "Judul materi minimal 3 karakter"),
+  content: z.string().min(1, "Konten tidak boleh kosong"),
+  videoUrl: z
+    .string()
+    .url("URL video tidak valid")
+    .optional()
+    .or(z.literal("")),
+});
+
 export async function createModule(formData: FormData) {
   const parsed = moduleCreateSchema.safeParse({
     title: formData.get("title"),
@@ -202,6 +213,72 @@ export async function deleteOption(formData: FormData) {
   if (option.isCorrect) throw new Error("Tidak bisa menghapus jawaban benar");
 
   await prisma.option.delete({ where: { id: optionId } });
+
+  revalidatePath(`/admin/modules/${moduleId}`);
+}
+
+export async function createMaterial(formData: FormData) {
+  const parsed = materialSchema.safeParse({
+    moduleId: formData.get("moduleId"),
+    title: formData.get("title"),
+    content: formData.get("content"),
+    videoUrl: formData.get("videoUrl") || "",
+  });
+
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0].message);
+  }
+
+  const { moduleId, videoUrl, ...data } = parsed.data;
+
+  const last = await prisma.material.findFirst({
+    where: { moduleId },
+    orderBy: { order: "desc" },
+    select: { order: true },
+  });
+
+  await prisma.material.create({
+    data: {
+      ...data,
+      moduleId,
+      videoUrl: videoUrl || null,
+      order: (last?.order ?? 0) + 1,
+    },
+  });
+
+  revalidatePath(`/admin/modules/${moduleId}`);
+}
+
+export async function updateMaterial(formData: FormData) {
+  const materialId = String(formData.get("materialId"));
+  const moduleId = String(formData.get("moduleId"));
+
+  const parsed = materialSchema.safeParse({
+    moduleId,
+    title: formData.get("title"),
+    content: formData.get("content"),
+    videoUrl: formData.get("videoUrl") || "",
+  });
+
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0].message);
+  }
+
+  const { videoUrl, ...data } = parsed.data;
+
+  await prisma.material.update({
+    where: { id: materialId },
+    data: { ...data, videoUrl: videoUrl || null },
+  });
+
+  revalidatePath(`/admin/modules/${moduleId}`);
+}
+
+export async function deleteMaterial(formData: FormData) {
+  const materialId = String(formData.get("materialId"));
+  const moduleId = String(formData.get("moduleId"));
+
+  await prisma.material.delete({ where: { id: materialId } });
 
   revalidatePath(`/admin/modules/${moduleId}`);
 }
