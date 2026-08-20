@@ -2,24 +2,26 @@
 
 @theme {
   --color-accent: #002b66;
-  --color-accent-hover: #003366;
+  --color-accent-hover: #003a85;
+  --color-flag: #c8102e;
   --color-highlight: #ffc107;
   --color-highlight-hover: #d99b00;
   --color-surface: #ffffff;
-  --color-canvas: #f8f9fa;
+  --color-canvas: #faf9f7;
   --color-ink: #212529;
-  --color-ink-secondary: #6c757d;
-  --color-hairline: #e9ecef;
+  --color-ink-secondary: #5f6368;
+  --color-hairline: #e4e1dc;
+  --color-hairline-strong: #c9c5be;
 
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --text-hero: clamp(28px, 3vw, 40px);
-  --text-h1: 24px;
-  --text-h2: 18px;
-  --text-body: 15px;
+  --text-hero: clamp(36px, 4.5vw, 60px);
+  --text-h1: clamp(24px, 2.5vw, 32px);
+  --text-h2: clamp(18px, 1.8vw, 24px);
+  --text-body: 16px;
 
-  --radius-card: 16px;
+  --radius-card: 8px;
 }
 
 body {
@@ -28,6 +30,13 @@ body {
   background: var(--color-canvas);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+@utility label-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 @media (prefers-reduced-motion: reduce) {

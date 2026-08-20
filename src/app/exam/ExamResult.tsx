@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export function ExamResult({
@@ -14,16 +13,16 @@ export function ExamResult({
   hrefLabel?: string;
 }) {
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
-      <Card className="max-w-md p-8 text-center">
-        <p className="text-h2 font-semibold">{title}</p>
-        <p className="mt-2 text-sm text-ink-secondary">{body}</p>
+    <main className="flex min-h-screen items-center justify-center px-6">
+      <div className="w-full max-w-md border-y border-hairline py-16 text-center">
+        <p className="text-[var(--text-h2)] font-bold tracking-tight">{title}</p>
+        <p className="mt-3 text-sm leading-relaxed text-ink-secondary">{body}</p>
         {href && hrefLabel ? (
-          <Link href={href} className="mt-6 inline-block">
+          <Link href={href} className="mt-8 inline-block">
             <Button type="button">{hrefLabel}</Button>
           </Link>
         ) : null}
-      </Card>
+      </div>
     </main>
   );
 }

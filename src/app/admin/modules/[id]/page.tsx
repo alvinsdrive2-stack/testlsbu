@@ -30,7 +30,7 @@ export default async function ModuleBuilderPage({
   const posttest = mod.questions.filter((q) => q.section === "POSTTEST");
 
   return (
-    <AdminShell title={mod.title}>
+    <AdminShell title={mod.title} eyebrow="Modul">
       <SettingsForm module={mod} />
       <QuestionSection moduleId={mod.id} section="PRETEST" questions={pretest} />
       <QuestionSection moduleId={mod.id} section="POSTTEST" questions={posttest} />

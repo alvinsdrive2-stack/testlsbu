@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveAnswer, submitAttempt } from "./actions";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export type ExamQuestion = {
@@ -11,6 +10,8 @@ export type ExamQuestion = {
   text: string;
   options: { id: string; text: string }[];
 };
+
+type SaveState = "idle" | "saving" | "saved" | "error";
 
 export function ExamRunner({
   attemptId,
@@ -25,6 +26,8 @@ export function ExamRunner({
 }) {
   const router = useRouter();
   const [answers, setAnswers] = useState<Record<string, string>>(initialAnswers);
+  const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [confirming, setConfirming] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittedRef = useRef(false);
 
@@ -35,6 +38,7 @@ export function ExamRunner({
     if (submittedRef.current) return;
     submittedRef.current = true;
     setSubmitting(true);
+    setConfirming(false);
     await submitAttempt(attemptId);
     router.refresh();
   }
@@ -52,45 +56,74 @@ export function ExamRunner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deadline]);
 
-  function select(questionId: string, optionId: string) {
+  async function select(questionId: string, optionId: string) {
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
-    void saveAnswer(attemptId, questionId, optionId);
+    setSaveState("saving");
+    try {
+      await saveAnswer(attemptId, questionId, optionId);
+      setSaveState("saved");
+    } catch {
+      setSaveState("error");
+    }
   }
 
   const minutes = Math.floor(timeLeft / 60000);
   const seconds = Math.floor((timeLeft % 60000) / 1000);
+  const urgent = timeLeft <= 60_000;
   const answeredCount = questions.filter((q) => answers[q.id]).length;
+  const unanswered = questions.length - answeredCount;
 
   return (
-    <div className="space-y-6">
-      <div className="sticky top-0 z-10 -mx-6 border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <p className="text-sm text-ink-secondary">
-            Terjawab {answeredCount} dari {questions.length}
-          </p>
+    <div>
+      <div className="sticky top-0 z-10 border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
+        <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-1">
+          <div className="flex items-center gap-3">
+            <p className="text-sm tabular-nums text-ink-secondary">
+              Terjawab {answeredCount} dari {questions.length}
+            </p>
+            {saveState !== "idle" ? (
+              <span
+                role="status"
+                className={`text-xs ${
+                  saveState === "error" ? "font-medium text-flag" : "text-ink-secondary"
+                }`}
+              >
+                {saveState === "saving"
+                  ? "Menyimpan…"
+                  : saveState === "saved"
+                    ? "Tersimpan otomatis"
+                    : "Gagal menyimpan — cek koneksi, jawaban terakhir belum masuk"}
+              </span>
+            ) : null}
+          </div>
           <p
-            className={`font-mono text-lg font-semibold tabular-nums ${
-              timeLeft <= 60_000 ? "text-red-600" : "text-ink"
+            aria-live={urgent ? "polite" : undefined}
+            className={`font-mono text-lg font-bold tabular-nums ${
+              urgent ? "text-flag" : "text-ink"
             }`}
           >
+            {urgent ? "Waktu hampir habis · " : ""}
             {minutes}:{String(seconds).padStart(2, "0")}
           </p>
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl space-y-4">
+      <div className="mx-auto max-w-2xl divide-y divide-hairline px-6">
         {questions.map((q, i) => (
-          <Card key={q.id} className="p-5">
-            <p className="text-[15px] font-medium">
-              {i + 1}. {q.text}
-            </p>
-            <div className="mt-3 space-y-2">
+          <section key={q.id} className="py-8">
+            <div className="flex gap-4">
+              <span className="label-eyebrow w-8 shrink-0 pt-1 text-flag">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <p className="font-medium leading-relaxed">{q.text}</p>
+            </div>
+            <div className="mt-4 space-y-2 pl-12">
               {q.options.map((opt) => {
                 const selected = answers[q.id] === opt.id;
                 return (
                   <label
                     key={opt.id}
-                    className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm transition-colors ${
+                    className={`flex cursor-pointer items-center gap-3 border px-3 py-2.5 text-sm transition-colors ${
                       selected
                         ? "border-accent bg-accent/5 font-medium"
                         : "border-hairline bg-surface hover:bg-canvas"
@@ -108,17 +141,50 @@ export function ExamRunner({
                 );
               })}
             </div>
-          </Card>
+          </section>
         ))}
 
-        <Button
-          type="button"
-          onClick={doSubmit}
-          disabled={submitting}
-          className="w-full"
-        >
-          {submitting ? "Mengirim..." : "Selesai & Kirim"}
-        </Button>
+        <div className="py-8">
+          {confirming ? (
+            <div className="border border-hairline-strong bg-surface p-6">
+              <p className="font-semibold">
+                {unanswered > 0
+                  ? `Masih ada ${unanswered} soal kosong.`
+                  : "Semua soal sudah terjawab."}
+              </p>
+              <p className="mt-1 text-sm text-ink-secondary">
+                Setelah dikirim, jawaban tidak bisa diubah.{" "}
+                {unanswered > 0 ? "Soal kosong dinilai salah." : ""}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  onClick={doSubmit}
+                  disabled={submitting}
+                >
+                  {submitting ? "Mengirim…" : "Kirim Sekarang"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={() => setConfirming(false)}
+                  disabled={submitting}
+                >
+                  Periksa Lagi
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              onClick={() => setConfirming(true)}
+              disabled={submitting}
+              className="w-full"
+            >
+              Selesai & Kirim
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

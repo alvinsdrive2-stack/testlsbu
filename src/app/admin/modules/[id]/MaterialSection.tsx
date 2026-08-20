@@ -3,6 +3,7 @@ import { createMaterial, updateMaterial, deleteMaterial } from "../actions";
 import { Card } from "@/components/ui/Card";
 import { TextArea, TextField } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { ConfirmButton } from "@/components/ui/ConfirmButton";
 
 export function MaterialSection({
   moduleId,
@@ -13,7 +14,9 @@ export function MaterialSection({
 }) {
   return (
     <section>
-      <h2 className="text-h1 font-semibold">Materi</h2>
+      <div className="mb-4 border-b border-hairline pb-2">
+        <h2 className="text-h2 font-bold">Materi</h2>
+      </div>
 
       <div className="mt-4 space-y-4">
         {materials.map((m, i) => (
@@ -23,9 +26,7 @@ export function MaterialSection({
               <form action={deleteMaterial}>
                 <input type="hidden" name="materialId" value={m.id} />
                 <input type="hidden" name="moduleId" value={moduleId} />
-                <Button variant="danger" type="submit">
-                  Hapus
-                </Button>
+                <ConfirmButton label="Hapus" />
               </form>
             </div>
             <form action={updateMaterial} className="mt-2 space-y-3">

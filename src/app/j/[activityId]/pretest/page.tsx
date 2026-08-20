@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getParticipantToken } from "@/lib/session";
 import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
@@ -117,10 +117,11 @@ export default async function PretestPage({
   return (
     <main className="min-h-screen py-8">
       <div className="mx-auto mb-6 max-w-2xl px-6">
-        <h1 className="text-[var(--text-hero)] font-semibold tracking-tight">
+        <p className="label-eyebrow text-flag">Ujian Diawali</p>
+        <h1 className="mt-2 text-[var(--text-h1)] font-bold tracking-tight">
           Pretest
         </h1>
-        <p className="text-sm text-ink-secondary">{activity.title}</p>
+        <p className="mt-1 text-sm text-ink-secondary">{activity.title}</p>
       </div>
       <ExamRunner
         attemptId={refreshed.id}

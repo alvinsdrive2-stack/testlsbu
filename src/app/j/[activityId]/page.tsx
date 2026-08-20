@@ -1,7 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getParticipantToken } from "@/lib/session";
-import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { registerParticipant } from "./actions";
@@ -32,31 +31,39 @@ export default async function JoinPage({
 
   if (activity.status === "CLOSED") {
     return (
-      <main className="flex min-h-screen items-center justify-center px-4">
-        <Card className="max-w-md p-8 text-center">
-          <p className="text-h2 font-semibold">Kegiatan sudah ditutup</p>
+      <main className="flex min-h-screen items-center justify-center px-6">
+        <div className="max-w-md border-y border-hairline py-12 text-center">
+          <p className="label-eyebrow text-flag">Kegiatan ditutup</p>
+          <p className="mt-3 text-h2 font-bold">Pendaftaran sudah berakhir</p>
           <p className="mt-2 text-sm text-ink-secondary">
             Hubungi admin untuk info lebih lanjut.
           </p>
-        </Card>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md space-y-6">
+    <main className="flex min-h-screen items-center px-6 py-16">
+      <div className="mx-auto grid w-full max-w-4xl gap-12 md:grid-cols-2">
         <div>
-          <h1 className="text-[var(--text-hero)] font-semibold tracking-tight">
+          <p className="label-eyebrow text-flag">Pendaftaran Peserta</p>
+          <h1 className="mt-3 text-[var(--text-h1)] font-bold leading-tight tracking-tight">
             {activity.title}
           </h1>
-          <p className="mt-1 text-sm text-ink-secondary">
-            {activity.module.title} · Isi data diri untuk memulai pretest
+          <p className="mt-4 leading-relaxed text-ink-secondary">
+            Modul {activity.module.title}. Isi data diri di samping untuk
+            memulai pretest.
           </p>
+          <div className="mt-8 space-y-3 border-t border-hairline pt-6 text-sm text-ink-secondary">
+            <p>1. Daftar dan kerjakan pretest</p>
+            <p>2. Pelajari materi pelatihan</p>
+            <p>3. Kerjakan posttest sampai lulus</p>
+          </div>
         </div>
 
-        <Card className="p-6">
-          <form action={registerParticipant} className="space-y-4">
+        <div className="border border-hairline bg-surface p-8">
+          <form action={registerParticipant} className="space-y-5">
             <input type="hidden" name="activityId" value={activity.id} />
             <TextField label="Nama peserta" name="nama" required minLength={3} />
             <TextField
@@ -80,7 +87,7 @@ export default async function JoinPage({
               Mulai Pretest
             </Button>
           </form>
-        </Card>
+        </div>
       </div>
     </main>
   );

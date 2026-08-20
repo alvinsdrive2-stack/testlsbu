@@ -3,16 +3,17 @@ import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
 import { submitAttempt } from "@/app/exam/actions";
 import { ExamRunner } from "@/app/exam/ExamRunner";
 import { ExamResult } from "@/app/exam/ExamResult";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { startPosttestRetry } from "./actions";
 
 function PosttestFailed({ score, token }: { score: number; token: string }) {
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
-      <Card className="max-w-md p-8 text-center">
-        <p className="text-h2 font-semibold">Nilai posttest kamu: {score}</p>
-        <p className="mt-2 text-sm text-ink-secondary">
+    <main className="flex min-h-screen items-center justify-center bg-accent px-6">
+      <div className="w-full max-w-md text-center">
+        <p className="label-eyebrow text-highlight">Nilai Posttest</p>
+        <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-white">
+          {score}
+        </p>
+        <p className="mt-2 text-sm text-white/70">
           Kamu belum lulus — bisa diulang kapan pun sampai lulus.
         </p>
         <form
@@ -20,11 +21,16 @@ function PosttestFailed({ score, token }: { score: number; token: string }) {
             "use server";
             await startPosttestRetry(token);
           }}
-          className="mt-6"
+          className="mt-8"
         >
-          <Button type="submit">Coba Lagi</Button>
+          <button
+            type="submit"
+            className="rounded-md bg-highlight px-6 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-highlight-hover hover:text-white"
+          >
+            Coba Lagi
+          </button>
         </form>
-      </Card>
+      </div>
     </main>
   );
 }
@@ -162,10 +168,11 @@ export default async function PosttestPage({
   return (
     <main className="min-h-screen py-8">
       <div className="mx-auto mb-6 max-w-2xl px-6">
-        <h1 className="text-[var(--text-hero)] font-semibold tracking-tight">
+        <p className="label-eyebrow text-flag">Ujian Akhir</p>
+        <h1 className="mt-2 text-[var(--text-h1)] font-bold tracking-tight">
           Posttest
         </h1>
-        <p className="text-sm text-ink-secondary">
+        <p className="mt-1 text-sm text-ink-secondary">
           {activity.title} · Passing grade {activity.module.posttestPassingGrade}
         </p>
       </div>

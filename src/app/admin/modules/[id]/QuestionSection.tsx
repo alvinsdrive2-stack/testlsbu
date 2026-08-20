@@ -11,6 +11,7 @@ import {
 import { Card } from "@/components/ui/Card";
 import { TextArea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { ConfirmButton } from "@/components/ui/ConfirmButton";
 
 type Section = "PRETEST" | "POSTTEST";
 
@@ -27,7 +28,9 @@ export function QuestionSection({
 
   return (
     <section>
-      <h2 className="text-h1 font-semibold">{title}</h2>
+      <div className="mb-4 border-b border-hairline pb-2">
+        <h2 className="text-h2 font-bold">{title}</h2>
+      </div>
 
       <div className="mt-4 space-y-4">
         {questions.map((q, i) => (
@@ -58,9 +61,7 @@ export function QuestionSection({
                 <form action={deleteQuestion}>
                   <input type="hidden" name="questionId" value={q.id} />
                   <input type="hidden" name="moduleId" value={moduleId} />
-                  <Button variant="danger" type="submit">
-                    Hapus
-                  </Button>
+                  <ConfirmButton label="Hapus" />
                 </form>
               </div>
             </div>
@@ -84,7 +85,7 @@ export function QuestionSection({
               {q.options.map((opt) => (
                 <div
                   key={opt.id}
-                  className="flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm"
+                  className="flex items-center justify-between gap-2 border border-hairline px-3 py-2 text-sm"
                 >
                   <span
                     className={
@@ -109,9 +110,7 @@ export function QuestionSection({
                     <form action={deleteOption}>
                       <input type="hidden" name="optionId" value={opt.id} />
                       <input type="hidden" name="moduleId" value={moduleId} />
-                      <Button variant="ghost" type="submit">
-                        Hapus
-                      </Button>
+                      <ConfirmButton label="Hapus" className="px-3 py-1 text-xs" />
                     </form>
                   </div>
                 </div>
@@ -131,7 +130,7 @@ export function QuestionSection({
                     id={`opt-${q.id}`}
                     name="text"
                     required
-                    className="w-full rounded-xl border border-hairline bg-surface px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full rounded-md border border-hairline-strong bg-surface px-3 py-2 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
                 <Button variant="secondary" type="submit">

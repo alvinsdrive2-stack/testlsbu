@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-20T00:00:00.000Z",
+  "title": "Design System: Gapensi Exam Platform",
+  "extensions": {
+    "colorMeta": {
+      "gapensi-navy": {
+        "role": "primary",
+        "displayName": "Gapensi Navy",
+        "canonical": "#002b66",
+        "tonalRamp": [
+          "#001024",
+          "#001a3f",
+          "#002b66",
+          "#003a85",
+          "#1f549e",
+          "#5b83b9",
+          "#9db4d4",
+          "#dde5ef"
+        ]
+      },
+      "merah-bata": {
+        "role": "secondary",
+        "displayName": "Merah Bata",
+        "canonical": "#c8102e",
+        "tonalRamp": [
+          "#3a0510",
+          "#63091b",
+          "#8f0c21",
+          "#c8102e",
+          "#dc3a52",
+          "#e8687a",
+          "#f1a0ac",
+          "#f9d8dd"
+        ]
+      },
+      "amber-panitia": {
+        "role": "tertiary",
+        "displayName": "Amber Panitia",
+        "canonical": "#ffc107",
+        "tonalRamp": [
+          "#3d2c00",
+          "#644900",
+          "#8a6600",
+          "#b08400",
+          "#d99b00",
+          "#ffc107",
+          "#ffd65c",
+          "#ffedb0"
+        ]
+      },
+      "putih-institusi": {
+        "role": "neutral",
+        "displayName": "Putih Institusional",
+        "canonical": "#faf9f7",
+        "tonalRamp": [
+          "#f2f0eb",
+          "#f4f2ee",
+          "#f6f4f0",
+          "#f8f6f3",
+          "#faf9f7",
+          "#fbfaf8",
+          "#fcfbfa",
+          "#fdfdfc"
+        ]
+      },
+      "tinta": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#212529"
+      },
+      "tinta-sekunder": {
+        "role": "neutral",
+        "displayName": "Tinta Sekunder",
+        "canonical": "#5f6368"
+      },
+      "garis-rambut": {
+        "role": "neutral",
+        "displayName": "Garis Rambut",
+        "canonical": "#e4e1dc"
+      },
+      "garis-rambut-tebal": {
+        "role": "neutral",
+        "displayName": "Garis Rambut Tebal",
+        "canonical": "#c9c5be"
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Judul halaman utama, sekali per halaman." },
+      "headline": { "displayName": "Headline", "purpose": "Status besar, nilai di bidang navy, judul section admin." },
+      "title": { "displayName": "Title", "purpose": "Judul materi dan kartu form." },
+      "body": { "displayName": "Body", "purpose": "Isi materi dan deskripsi, 65-75ch." },
+      "label": { "displayName": "Label Kapital", "purpose": "Eyebrow, label form, header tabel. Selalu uppercase." }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "color-state",
+        "value": "transition-colors 150ms ease",
+        "purpose": "Semua transisi state tombol, baris opsi, tautan. Sistem hanya menganimasikan warna."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Aksi utama solid navy: submit, buka posttest, simpan.",
+      "html": "<button class=\"ds-btn-primary\">Buat Kegiatan</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; background: #002b66; color: #ffffff; padding: 8px 16px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 150ms ease; } .ds-btn-primary:hover { background: #003a85; } .ds-btn-primary:focus-visible { outline: 2px solid #002b66; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Aksi sekunder outline: simpan draf, tambah opsi.",
+      "html": "<button class=\"ds-btn-secondary\">Simpan Soal</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; background: #ffffff; color: #212529; padding: 8px 16px; border: 1px solid #c9c5be; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 150ms ease; } .ds-btn-secondary:hover { background: #faf9f7; } .ds-btn-secondary:focus-visible { outline: 2px solid #002b66; outline-offset: 2px; }"
+    },
+    {
+      "name": "Confirm Button (armed)",
+      "kind": "button",
+      "refersTo": "confirm-button-armed",
+      "description": "Destructive dua-klik: klik pertama mengubah jadi merah solid 'Yakin? Klik lagi', reset 3 detik.",
+      "html": "<button class=\"ds-btn-confirm ds-btn-confirm--armed\">Yakin? Klik lagi</button>",
+      "css": ".ds-btn-confirm { display: inline-flex; align-items: center; background: #ffffff; color: #c8102e; padding: 8px 16px; border: 1px solid #c9c5be; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 150ms ease; } .ds-btn-confirm:hover { background: rgba(200,16,46,0.05); } .ds-btn-confirm--armed { background: #c8102e; color: #ffffff; border-color: #c8102e; } .ds-btn-confirm:focus-visible { outline: 2px solid #002b66; outline-offset: 2px; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Field dengan label kapital kecil di atas; border tegas, focus ring navy.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-demo\">Nama Peserta</label><input class=\"ds-input\" id=\"ds-demo\" placeholder=\"Nama lengkap\" /></div>",
+      "css": ".ds-field { display: block; } .ds-field-label { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #5f6368; } .ds-input { width: 100%; background: #ffffff; color: #212529; padding: 8px 12px; border: 1px solid #c9c5be; border-radius: 6px; font-size: 15px; } .ds-input:focus { outline: none; border-color: #002b66; box-shadow: 0 0 0 1px #002b66; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Wadah form/editor: putih, border garis rambut, radius 8px, tanpa shadow.",
+      "html": "<div class=\"ds-card\"><p class=\"ds-card-title\">Modul baru</p><p class=\"ds-card-body\">Kelola soal, materi, dan pengaturan ujian.</p></div>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid #e4e1dc; border-radius: 8px; padding: 24px; } .ds-card-title { font-size: 18px; font-weight: 600; color: #212529; margin: 0; } .ds-card-body { font-size: 14px; color: #5f6368; margin: 8px 0 0; }"
+    },
+    {
+      "name": "Admin Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-link-active",
+      "description": "Tautan nav header admin; aktif = garis bawah 2px merah bata.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link ds-nav-link--active\" href=\"#\">Modul</a><a class=\"ds-nav-link\" href=\"#\">Kegiatan</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 32px; } .ds-nav-link { padding-bottom: 4px; border-bottom: 2px solid transparent; font-size: 14px; font-weight: 500; color: #5f6368; text-decoration: none; transition: color 150ms ease; } .ds-nav-link:hover { color: #212529; } .ds-nav-link--active { border-bottom-color: #c8102e; color: #212529; } .ds-nav-link:focus-visible { outline: 2px solid #002b66; outline-offset: 2px; }"
+    },
+    {
+      "name": "Exam Option Row",
+      "kind": "custom",
+      "refersTo": "exam-option-selected",
+      "description": "Baris opsi jawaban; terpilih = border navy penuh + tint 5% + font 600. Tanpa stripe kiri.",
+      "html": "<label class=\"ds-option ds-option--selected\"><input type=\"radio\" checked name=\"q\" />Konstruksi bangunan gedung</label><label class=\"ds-option\"><input type=\"radio\" name=\"q\" />Konstruksi jalan dan jembatan</label>",
+      "css": ".ds-option { display: flex; align-items: center; gap: 12px; background: #ffffff; border: 1px solid #e4e1dc; border-radius: 6px; padding: 10px 12px; font-size: 14px; color: #212529; cursor: pointer; transition: background 150ms ease; } .ds-option:hover { background: #faf9f7; } .ds-option--selected { border-color: #002b66; background: rgba(0,43,102,0.05); font-weight: 600; } .ds-option input { width: 16px; height: 16px; accent-color: #002b66; } .ds-option:focus-within { outline: 2px solid #002b66; outline-offset: 2px; }"
+    },
+    {
+      "name": "Eyebrow Label",
+      "kind": "custom",
+      "refersTo": "eyebrow-label",
+      "description": "Penanda pembuka section: kapital kecil, tracking lebar, merah bata.",
+      "html": "<p class=\"ds-eyebrow\">Dashboard Peserta</p>",
+      "css": ".ds-eyebrow { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #c8102e; }"
+    },
+    {
+      "name": "Ledger List Row",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "Pola daftar sistem: baris divide-y dengan border-y, bukan kartu berulang.",
+      "html": "<div class=\"ds-ledger\"><a class=\"ds-ledger-row\" href=\"#\"><span class=\"ds-ledger-title\">Sertifikasi BUJK 2026</span><span class=\"ds-ledger-meta\">Pretest 2 · Posttest 1</span></a><a class=\"ds-ledger-row\" href=\"#\"><span class=\"ds-ledger-title\">Bimtek SBU Agustus</span><span class=\"ds-ledger-meta\">Pretest 5 · Posttest 5</span></a></div>",
+      "css": ".ds-ledger { border-top: 1px solid #e4e1dc; border-bottom: 1px solid #e4e1dc; } .ds-ledger-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; padding: 20px 0; text-decoration: none; border-bottom: 1px solid #e4e1dc; } .ds-ledger-row:last-child { border-bottom: none; } .ds-ledger-title { font-weight: 600; color: #212529; } .ds-ledger-row:hover .ds-ledger-title { color: #002b66; } .ds-ledger-meta { font-size: 14px; font-variant-numeric: tabular-nums; color: #5f6368; }"
+    },
+    {
+      "name": "Navy Status Band CTA",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "CTA amber di atas bidang navy — satu-satunya tempat amber hidup.",
+      "html": "<button class=\"ds-amber-cta\">Kerjakan Posttest</button>",
+      "css": ".ds-amber-cta { display: inline-flex; align-items: center; background: #ffc107; color: #002b66; padding: 10px 20px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 150ms ease, color 150ms ease; } .ds-amber-cta:hover { background: #d99b00; color: #ffffff; } .ds-amber-cta:focus-visible { outline: 2px solid #ffc107; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The National Ledger",
+    "overview": "Sistem ini berperilaku seperti dokumen resmi negara: garis-garis tegas membagi bidang, hierarki tipografi seperti pasal undang-undang, angka besar seperti data statistik nasional, dan label kecil kapital seperti kop surat kementerian. Setiap layar adalah satu halaman ledger: satu pernyataan, satu angka penting, satu tindakan. Kepadatan rendah, ritme vertikal lega, hampir tanpa bayangan. Kedalaman dibangun lewat garis rambut dan bidang warna solid. Identitas Indonesia muncul lewat satu benang merah bata yang jarang, bukan perayaan merah-putih. Sistem ini menolak SaaS gradient dashboard, glassmorphism, tombol pill, kartu radius 24-32px, icon-card overload, floating blobs, portal pemerintah generik, dan estetika template konstruksi.",
+    "keyCharacteristics": [
+      "Flat dan fisik: border > shadow, selalu",
+      "Satu benang merah per layar, tidak lebih",
+      "Label kapital kecil (12px, tracking 0.18em) sebagai penanda bagian",
+      "Angka besar tabular sebagai fakta institusional",
+      "Dark section navy dipakai strategis: status, skor, stepper",
+      "Amber hanya hidup di atas navy"
+    ],
+    "rules": [
+      { "name": "The One Red Thread Rule", "body": "Merah Bata muncul maksimal satu benang per view: eyebrow, ATAU nav aktif, ATAU nomor soal. Kalau dua elemen besar sama-sama merah dalam satu layar, satu salah.", "section": "colors" },
+      { "name": "The Amber-On-Navy Rule", "body": "Amber hanya boleh sebagai teks/border/CTA di atas bidang navy. Amber di atas putih institusional dilarang keras (kontras AA gagal).", "section": "colors" },
+      { "name": "The Small Caps Ledger Rule", "body": "Setiap section dibuka label kapital kecil, bukan ikon, bukan dekorasi. Kalau sebuah area butuh penanda, label kapital adalah jawaban pertama dan biasanya satu-satunya.", "section": "typography" },
+      { "name": "The Big Number Rule", "body": "Angka yang penting (nilai, jumlah peserta, timer) tampil besar, tabular-nums, tanpa dekorasi. Angka institusional tidak butuh kartu.", "section": "typography" },
+      { "name": "The Ledger Line Rule", "body": "Pembagian antar area memakai garis 1px Garis Rambut (#e4e1dc), penuh, bukan bayangan, bukan stripe samping. Daftar item = divide-y dengan border-y, bukan kartu berulang.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do pakai garis rambut 1px (#e4e1dc) untuk semua pembagian area — daftar, tabel, section.",
+      "Do buka setiap area dengan label kapital kecil merah bata atau tinta sekunder.",
+      "Do tampilkan angka penting besar dengan tabular-nums, tanpa kartu pembungkus.",
+      "Do pakai bidang navy penuh untuk status/skor peserta, dengan CTA amber di dalamnya.",
+      "Do pastikan setiap state layar menyebut langkah berikutnya.",
+      "Do pertahankan kontras AA: teks di navy hanya putih atau amber; amber tidak pernah di atas putih.",
+      "Do sediakan state lengkap untuk komponen interaktif: default, hover, focus-visible, disabled, error."
+    ],
+    "donts": [
+      "Don't pakai SaaS gradient dashboard, glassmorphism, neumorphism, floating blobs, atau 3D abstract shapes.",
+      "Don't bikin tombol pill atau kartu radius 24-32px — radius maksimum sistem 8px.",
+      "Don't pakai stripe samping berwarna (border-left/right >1px) sebagai aksen; larangan absolut.",
+      "Don't bungkus daftar dalam grid kartu seragam berulang — pakai baris divide-y.",
+      "Don't jadikan merah bata warna dominan; satu benang merah per layar.",
+      "Don't pakai ikon dekoratif atau icon-card overload; tipografi dan fotografi yang bekerja.",
+      "Don't tambahkan bayangan pada elemen diam; sistem ini flat.",
+      "Don't andalkan warna saja untuk menyampaikan state.",
+      "Don't pakai gradien pada teks (background-clip: text) — selalu warna solid.",
+      "Don't modal sebagai jawaban pertama; konfirmasi inline lebih dulu."
+    ]
+  }
+}
