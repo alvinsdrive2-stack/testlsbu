@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 const nav = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/modules", label: "Modul" },
+  { href: "/admin/activities", label: "Kegiatan" },
 ];
 
 export function AdminShell({
