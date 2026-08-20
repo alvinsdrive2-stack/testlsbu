@@ -14,6 +14,16 @@ export function AdminShell({
 }) {
   return (
     <div className="min-h-screen md:flex">
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/bg.jpg"
+          alt=""
+          className="h-full w-full scale-110 object-cover blur-[56px]"
+        />
+        <div className="absolute inset-0 bg-accent/10" />
+      </div>
+
       <div className="fixed right-4 top-4 z-30">
         <ProfileMenu />
       </div>
