@@ -152,7 +152,7 @@ export default async function ParticipantDashboardPage() {
         }
       />
 
-      <main className="mx-auto grid max-w-[1152px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)_300px]">
+      <main className="mx-auto grid max-w-[2304px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)_300px]">
         {/* Kolom kiri: menu + progress */}
         <aside className="hidden md:block">
           <div className="sticky top-20 space-y-4">

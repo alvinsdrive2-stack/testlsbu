@@ -7,7 +7,7 @@ export function TopBar({
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-hairline bg-surface/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-14 max-w-[1152px] items-center justify-between gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-14 max-w-[2304px] items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
