@@ -122,9 +122,9 @@ export default async function ActivityDetailPage({
 
   return (
     <AdminShell title={activity.title} eyebrow={activity.module.title}>
-      <section className="border-y border-hairline py-8">
+      <section className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
         <p className="label-eyebrow text-ink-secondary">Status kegiatan</p>
-        <p className="mt-1 text-h1 font-bold">
+        <p className="mt-1 text-h1 font-bold text-accent">
           {STATUS_LABEL[activity.status]}
         </p>
         {totalParticipants > 0 ? (
@@ -165,17 +165,19 @@ export default async function ActivityDetailPage({
             <CopyAllLinks rows={posttestParticipants} />
           ) : null}
         </div>
-        <div className="divide-y divide-hairline border-y border-hairline">
-          <div className="py-4">
-            <CopyLink path={joinPath} label="Link pendaftaran peserta (pretest)" />
+        <div className="rounded-[var(--radius-card)] border border-hairline bg-surface px-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+          <div className="divide-y divide-hairline">
+            <div className="py-4">
+              <CopyLink path={joinPath} label="Link pendaftaran peserta (pretest)" />
+            </div>
+            {activity.status === "POSTTEST_OPEN"
+              ? participants.map((p) => (
+                  <div key={p.id} className="py-4">
+                    <CopyLink path={`/t/${p.token}`} label={`Posttest · ${p.nama}`} />
+                  </div>
+                ))
+              : null}
           </div>
-          {activity.status === "POSTTEST_OPEN"
-            ? participants.map((p) => (
-                <div key={p.id} className="py-4">
-                  <CopyLink path={`/t/${p.token}`} label={`Posttest · ${p.nama}`} />
-                </div>
-              ))
-            : null}
         </div>
         {activity.status === "POSTTEST_OPEN" &&
         posttestParticipants.length === 0 ? (
@@ -243,7 +245,7 @@ export default async function ActivityDetailPage({
             <p className="text-sm tabular-nums text-ink-secondary">
               Menampilkan {start}–{end} dari {total}
             </p>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-[var(--radius-card)] border border-hairline bg-surface px-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-hairline-strong text-left">
@@ -256,7 +258,7 @@ export default async function ActivityDetailPage({
                     ].map((h) => (
                       <th
                         key={h}
-                        className="py-2 pr-6 text-xs font-semibold uppercase tracking-[0.12em] text-ink-secondary"
+                        className="py-3 pr-6 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-secondary"
                       >
                         {h}
                       </th>

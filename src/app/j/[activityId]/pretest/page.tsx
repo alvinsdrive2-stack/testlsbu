@@ -7,6 +7,7 @@ import { ExamRunner } from "@/app/exam/ExamRunner";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
 import { StartGate } from "@/components/ui/StartGate";
+import { TopBar } from "@/components/ui/TopBar";
 import { startPretest } from "./actions";
 
 export default async function PretestPage({
@@ -91,20 +92,21 @@ export default async function PretestPage({
       );
     }
     return (
-      <StartGate
-        eyebrow="Ujian Diawali"
-        title="Pretest"
-        activity={activity.title}
-        durationMin={activity.module.pretestDurationMin}
-        questionCount={questions.length}
-      >
-        <form action={startPretest} className="mt-8">
-          <input type="hidden" name="activityId" value={activityId} />
-          <Button variant="highlight" type="submit">
-            Mulai Pretest
-          </Button>
-        </form>
-      </StartGate>
+      <div className="min-h-screen">
+        <TopBar title={activity.title} />
+        <StartGate
+          eyebrow="Ujian Diawali"
+          title="Pretest"
+          activity={activity.title}
+          durationMin={activity.module.pretestDurationMin}
+          questionCount={questions.length}
+        >
+          <form action={startPretest} className="mt-8">
+            <input type="hidden" name="activityId" value={activityId} />
+            <Button type="submit">Mulai Pretest</Button>
+          </form>
+        </StartGate>
+      </div>
     );
   }
 
@@ -151,20 +153,23 @@ export default async function PretestPage({
   }
 
   return (
-    <main className="min-h-screen py-8">
-      <div className="mx-auto mb-8 max-w-2xl px-6">
-        <p className="label-eyebrow text-flag">Ujian Diawali</p>
-        <h1 className="mt-2 text-[var(--text-h1)] font-bold tracking-tight">
-          Pretest
-        </h1>
-        <p className="mt-2 text-base text-ink-secondary">{activity.title}</p>
-      </div>
-      <ExamRunner
-        attemptId={refreshed.id}
-        deadlineISO={deadline.toISOString()}
-        questions={examQuestions}
-        initialAnswers={initialAnswers}
-      />
-    </main>
+    <div className="min-h-screen">
+      <TopBar title={activity.title} />
+      <main className="py-8">
+        <div className="mx-auto mb-6 max-w-2xl px-4 sm:px-6">
+          <p className="label-eyebrow text-ink-secondary">Ujian Diawali</p>
+          <h1 className="mt-1 text-[var(--text-h1)] font-bold tracking-tight text-ink">
+            Pretest
+          </h1>
+          <p className="mt-1 text-base text-ink-secondary">{activity.title}</p>
+        </div>
+        <ExamRunner
+          attemptId={refreshed.id}
+          deadlineISO={deadline.toISOString()}
+          questions={examQuestions}
+          initialAnswers={initialAnswers}
+        />
+      </main>
+    </div>
   );
 }

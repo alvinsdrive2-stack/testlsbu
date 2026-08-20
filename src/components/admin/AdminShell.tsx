@@ -13,7 +13,7 @@ export function AdminShell({
 }) {
   return (
     <div className="min-h-screen md:flex">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-hairline bg-surface p-6 md:flex">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-hairline bg-surface p-6 md:flex">
         <Link href="/admin" className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -34,7 +34,7 @@ export function AdminShell({
         <form action={logout} className="mt-auto">
           <button
             type="submit"
-            className="text-sm font-medium text-ink-secondary hover:text-flag"
+            className="text-sm font-medium text-ink-secondary hover:text-accent"
           >
             Keluar
           </button>
@@ -58,7 +58,7 @@ export function AdminShell({
         </header>
         <main className="mx-auto max-w-3xl px-6 py-12 md:py-16">
           {eyebrow ? (
-            <p className="label-eyebrow mb-2 text-flag">{eyebrow}</p>
+            <p className="label-eyebrow mb-2 text-ink-secondary">{eyebrow}</p>
           ) : null}
           <h1 className="text-[var(--text-hero)] font-bold tracking-tight">
             {title}

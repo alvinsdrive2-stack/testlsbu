@@ -16,7 +16,7 @@ function Fieldset({
 }) {
   return (
     <fieldset>
-      <legend className="label-eyebrow mb-3 text-flag">{legend}</legend>
+      <legend className="label-eyebrow mb-3 text-ink-secondary">{legend}</legend>
       <div className="space-y-4">{children}</div>
     </fieldset>
   );
@@ -53,7 +53,7 @@ export function JoinForm({ activityId }: { activityId: string }) {
         <input
           type="checkbox"
           name="isGapensiMember"
-          className="size-4 accent-[#002b66]"
+          className="size-4 accent-accent"
         />
         Anggota Gapensi
       </label>

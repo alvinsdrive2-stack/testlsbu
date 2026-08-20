@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getParticipantToken } from "@/lib/session";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
-import { Reveal } from "@/components/ui/Reveal";
+import { TopBar } from "@/components/ui/TopBar";
 
 function youtubeEmbed(url: string): string | null {
   const match = url.match(
@@ -11,44 +11,14 @@ function youtubeEmbed(url: string): string | null {
   return match ? `https://www.youtube.com/embed/${match[1]}` : null;
 }
 
-function PhaseStepper({
-  pretestDone,
-  postPassed,
-}: {
-  pretestDone: boolean;
-  postPassed: boolean;
-}) {
-  const steps = [
-    { label: "Daftar", done: true },
-    { label: "Pretest", done: pretestDone },
-    { label: "Materi", done: pretestDone },
-    { label: "Posttest", done: postPassed },
-  ];
-
-  return (
-    <ol className="flex flex-wrap items-center gap-x-3 gap-y-2">
-      {steps.map((s, i) => (
-        <li key={s.label} className="flex items-center gap-3">
-          <span className="flex items-center gap-2">
-            <span
-              aria-hidden
-              className={`size-2 rounded-full ${
-                s.done ? "bg-highlight" : "border border-white/40 bg-transparent"
-              }`}
-            />
-            <span
-              className={`text-sm ${s.done ? "font-medium text-white" : "text-white/60"}`}
-            >
-              {s.label}
-            </span>
-          </span>
-          {i < steps.length - 1 ? (
-            <span aria-hidden className="h-px w-6 bg-white/25" />
-          ) : null}
-        </li>
-      ))}
-    </ol>
-  );
+function initials(nama: string): string {
+  return nama
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 }
 
 export default async function ParticipantDashboardPage() {
@@ -91,129 +61,304 @@ export default async function ParticipantDashboardPage() {
     (a) => a.section === "POSTTEST" && a.passed
   );
 
+  const stage = participant.stage;
+  const progress =
+    stage === "POSTTEST_PASSED" ? 100 : stage === "PRETEST_DONE" ? 50 : 25;
+  const stageLabel =
+    stage === "POSTTEST_PASSED"
+      ? "Posttest lulus · 4 dari 4"
+      : stage === "PRETEST_DONE"
+        ? "Pretest selesai · 3 dari 4"
+        : "Terdaftar · 2 dari 4";
+
+  const stages = [
+    { label: "Daftar", done: true },
+    { label: "Pretest", done: pretestDone },
+    { label: "Materi", done: pretestDone },
+    { label: "Posttest", done: postPassed },
+  ];
+
+  let cta: React.ReactNode = null;
+  if (postPassed) {
+    cta = (
+      <span className="inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-sm font-semibold text-success">
+        <span aria-hidden className="size-2 rounded-full bg-success" />
+        Lulus posttest
+      </span>
+    );
+  } else if (activity.status === "CLOSED") {
+    cta = (
+      <p className="text-sm leading-relaxed text-ink-secondary">
+        Kegiatan sudah ditutup. Hubungi admin untuk info lebih lanjut.
+      </p>
+    );
+  } else if (activity.status === "POSTTEST_OPEN") {
+    cta = pretestDone ? (
+      <Button href={`/t/${participant.token}`}>Kerjakan Posttest</Button>
+    ) : (
+      <p className="text-sm leading-relaxed text-ink-secondary">
+        Kamu belum menyelesaikan pretest dan kegiatan sudah lanjut ke tahap
+        posttest. Hubungi admin.
+      </p>
+    );
+  } else if (pretestDone) {
+    cta = (
+      <p className="text-sm leading-relaxed text-ink-secondary">
+        Pelajari materi di bawah. Posttest dibuka setelah admin mengakhiri sesi
+        pretest.
+      </p>
+    );
+  } else {
+    const hasActive = participant.attempts.some(
+      (a) => a.section === "PRETEST" && !a.submittedAt
+    );
+    cta = (
+      <Button href={`/j/${activity.id}/pretest`}>
+        {hasActive ? "Lanjut Pretest" : "Mulai Pretest"}
+      </Button>
+    );
+  }
+
+  const menu = [
+    { label: "Dashboard", href: "/p", active: true },
+    { label: "Nilai Pretest", href: "#nilai", active: false },
+    { label: "Materi", href: "#materi", active: false },
+    {
+      label: "Posttest",
+      href:
+        activity.status === "POSTTEST_OPEN" && pretestDone
+          ? `/t/${participant.token}`
+          : "#",
+      active: false,
+    },
+  ];
+
   return (
-    <main className="min-h-screen">
-      <Reveal>
-        <div className="mx-auto max-w-2xl px-6 py-16">
-          <p className="label-eyebrow text-flag">Dashboard Peserta</p>
-          <h1 className="mt-3 text-[var(--text-h1)] font-bold tracking-tight">
-            {participant.nama}
-          </h1>
-          <p className="mt-2 text-base text-ink-secondary">
-            {activity.title} · {activity.module.title}
-          </p>
+    <div className="min-h-screen">
+      <TopBar
+        title={activity.title}
+        right={
+          <span className="hidden items-center gap-2 sm:flex">
+            <span
+              aria-hidden
+              className="flex size-8 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-accent"
+            >
+              {initials(participant.nama)}
+            </span>
+            <span className="text-sm font-medium">{participant.nama}</span>
+          </span>
+        }
+      />
+
+      <main className="mx-auto grid max-w-[1152px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)_300px]">
+        {/* Kolom kiri: menu + progress */}
+        <aside className="hidden md:block">
+          <div className="sticky top-20 space-y-4">
+            <nav className="rounded-[var(--radius-card)] border border-hairline bg-surface p-2 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+              {menu.map((m) => (
+                <a
+                  key={m.label}
+                  href={m.href}
+                  aria-current={m.active ? "page" : undefined}
+                  className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                    m.active
+                      ? "bg-accent-soft text-accent"
+                      : "text-ink-secondary hover:bg-canvas hover:text-ink"
+                  }`}
+                >
+                  {m.label}
+                </a>
+              ))}
+            </nav>
+
+            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-4 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+              <p className="label-eyebrow text-ink-secondary">Progres</p>
+              <ol className="mt-3 space-y-2.5">
+                {stages.map((s) => (
+                  <li key={s.label} className="flex items-center gap-2.5">
+                    <span
+                      aria-hidden
+                      className={`size-2 shrink-0 rounded-full ${
+                        s.done ? "bg-success" : "border border-hairline-strong bg-surface"
+                      }`}
+                    />
+                    <span
+                      className={`text-sm ${
+                        s.done ? "font-medium" : "text-ink-secondary"
+                      }`}
+                    >
+                      {s.label}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </aside>
+
+        {/* Kolom tengah: status + materi */}
+        <div className="min-w-0">
+          <section
+            id="nilai"
+            className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] sm:p-8"
+          >
+            <p className="label-eyebrow text-ink-secondary">Status kegiatan</p>
+            <h1 className="mt-2 text-[var(--text-h1)] font-bold tracking-tight text-ink">
+              {activity.title}
+            </h1>
+            <p className="mt-1 text-base text-ink-secondary">
+              {activity.module.title}
+            </p>
+
+            <div className="mt-6">
+              <div
+                className="h-2 overflow-hidden rounded-full bg-canvas"
+                role="progressbar"
+                aria-valuenow={progress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Progres kegiatan"
+              >
+                <div
+                  className="h-full rounded-full bg-accent transition-all duration-500 ease-out"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="mt-2 text-xs font-medium text-ink-secondary">
+                {stageLabel}
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">{cta}</div>
+          </section>
+
+          <section id="materi" className="mt-8 scroll-mt-16">
+            <h2 className="text-h2 font-bold">Materi</h2>
+            {activity.module.materials.length === 0 ? (
+              <p className="mt-4 text-sm text-ink-secondary">
+                Belum ada materi dari admin.
+              </p>
+            ) : (
+              <div className="mt-4 space-y-4">
+                {activity.module.materials
+                  .sort((a, b) => a.order - b.order)
+                  .map((m, i) => {
+                    const embed = m.videoUrl ? youtubeEmbed(m.videoUrl) : null;
+                    return (
+                      <article
+                        key={m.id}
+                        className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]"
+                      >
+                        <div className="flex items-start gap-4">
+                          <span
+                            aria-hidden
+                            className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent-soft text-sm font-semibold tabular-nums text-accent"
+                          >
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <div className="min-w-0">
+                            <h3 className="text-h2 font-semibold">{m.title}</h3>
+                            <div className="mt-3 whitespace-pre-wrap text-[15px] leading-relaxed text-ink-secondary">
+                              {m.content}
+                            </div>
+                            {embed ? (
+                              <div className="mt-6 aspect-video overflow-hidden rounded-md border border-hairline">
+                                <iframe
+                                  src={embed}
+                                  title={m.title}
+                                  allowFullScreen
+                                  className="h-full w-full"
+                                />
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+              </div>
+            )}
+          </section>
         </div>
-      </Reveal>
 
-      <Reveal delay={80}>
-        <section className="bg-accent">
-          <div className="mx-auto max-w-2xl px-6 py-14">
-          <PhaseStepper pretestDone={pretestDone} postPassed={postPassed} />
-
-          <div className="mt-10 flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="label-eyebrow text-white/60">Nilai pretest</p>
-              <p className="mt-1 text-[var(--text-h1)] font-bold tabular-nums text-white">
+        {/* Kolom kanan: nilai + posttest + profil */}
+        <aside>
+          <div className="space-y-4 lg:sticky lg:top-20">
+            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+              <p className="label-eyebrow text-ink-secondary">Nilai Pretest</p>
+              <p className="mt-2 text-[var(--text-h1)] font-bold tabular-nums text-accent">
                 {pretestScore !== null ? pretestScore : "—"}
                 {pretestScore !== null ? (
-                  <span className="text-lg font-medium text-white/60">
+                  <span className="text-lg font-medium text-ink-secondary">
                     {" "}
                     / 100
                   </span>
                 ) : null}
               </p>
-              {pretestScore === null ? (
-                <p className="text-sm text-white/60">Belum dikerjakan</p>
+              <p className="mt-1 text-sm text-ink-secondary">
+                {pretestScore === null
+                  ? "Belum dikerjakan"
+                  : pretestScores.length > 1
+                    ? `Terbaik dari ${pretestScores.length} percobaan`
+                    : "Sudah dikerjakan"}
+              </p>
+            </div>
+
+            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+              <p className="label-eyebrow text-ink-secondary">Posttest</p>
+              {postPassed ? (
+                <p className="mt-2 text-sm font-semibold text-success">
+                  Sudah lulus
+                </p>
+              ) : activity.status === "POSTTEST_OPEN" ? (
+                pretestDone ? (
+                  <p className="mt-2 text-sm font-medium">
+                    Siap dikerjakan —{" "}
+                    <a
+                      href={`/t/${participant.token}`}
+                      className="text-accent hover:underline"
+                    >
+                      buka link
+                    </a>
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-ink-secondary">
+                    Tunggu pretest selesai
+                  </p>
+                )
+              ) : (
+                <p className="mt-2 text-sm text-ink-secondary">
+                  Dibuka setelah sesi pretest berakhir
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden
+                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-soft text-sm font-bold text-accent"
+                >
+                  {initials(participant.nama)}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">
+                    {participant.nama}
+                  </p>
+                  <p className="truncate text-[13px] text-ink-secondary">
+                    {participant.badanUsaha}
+                  </p>
+                </div>
+              </div>
+              {participant.isGapensiMember ? (
+                <p className="mt-3 inline-block rounded-md bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
+                  Anggota Gapensi
+                </p>
               ) : null}
             </div>
-            {postPassed ? (
-              <p className="border border-highlight px-4 py-1.5 text-sm font-semibold text-highlight">
-                Lulus posttest
-              </p>
-            ) : null}
           </div>
-
-          <div className="mt-8">
-            {postPassed ? null : activity.status === "CLOSED" ? (
-              <p className="text-sm leading-relaxed text-white/70">
-                Kegiatan sudah ditutup. Hubungi admin untuk info lebih lanjut.
-              </p>
-            ) : activity.status === "POSTTEST_OPEN" ? (
-              pretestDone ? (
-                <Button variant="highlight" href={`/t/${participant.token}`}>
-                  Kerjakan Posttest
-                </Button>
-              ) : (
-                <p className="text-sm leading-relaxed text-white/70">
-                  Kamu belum menyelesaikan pretest dan kegiatan sudah lanjut ke
-                  tahap posttest. Hubungi admin.
-                </p>
-              )
-            ) : pretestDone ? (
-              <p className="text-sm leading-relaxed text-white/70">
-                Pelajari materi di bawah. Posttest dibuka setelah admin
-                mengakhiri sesi pretest.
-              </p>
-            ) : (
-              <Button
-                variant="highlight"
-                href={`/j/${activity.id}/pretest`}
-              >
-                {participant.attempts.some(
-                  (a) => a.section === "PRETEST" && !a.submittedAt
-                )
-                  ? "Lanjut Pretest"
-                  : "Mulai Pretest"}
-              </Button>
-            )}
-          </div>
-        </div>
-        </section>
-      </Reveal>
-
-      <Reveal delay={120}>
-      <section className="mx-auto max-w-2xl px-6 py-16">
-        <h2 className="text-h2 font-bold">Materi</h2>
-        {activity.module.materials.length === 0 ? (
-          <p className="mt-4 text-sm text-ink-secondary">
-            Belum ada materi dari admin.
-          </p>
-        ) : (
-          <div className="mt-8 divide-y divide-hairline border-t border-hairline">
-            {activity.module.materials
-              .sort((a, b) => a.order - b.order)
-              .map((m, i) => {
-                const embed = m.videoUrl ? youtubeEmbed(m.videoUrl) : null;
-                return (
-                  <article key={m.id} className="py-10">
-                    <div className="flex gap-4">
-                      <span className="label-eyebrow w-8 shrink-0 pt-1 text-ink-secondary">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <div className="min-w-0">
-                        <h3 className="text-h2 font-semibold">{m.title}</h3>
-                        <div className="mt-3 whitespace-pre-wrap text-[15px] leading-relaxed text-ink-secondary">
-                          {m.content}
-                        </div>
-                        {embed ? (
-                          <div className="mt-6 aspect-video overflow-hidden rounded-md border border-hairline">
-                            <iframe
-                              src={embed}
-                              title={m.title}
-                              allowFullScreen
-                              className="h-full w-full"
-                            />
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-          </div>
-        )}
-      </section>
-      </Reveal>
-    </main>
+        </aside>
+      </main>
+    </div>
   );
 }

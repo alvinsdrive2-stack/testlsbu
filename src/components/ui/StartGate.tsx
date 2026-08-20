@@ -14,18 +14,22 @@ export function StartGate({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-accent px-6">
-      <div className="w-full max-w-md text-center">
-        <p className="label-eyebrow text-highlight">{eyebrow}</p>
-        <h1 className="mt-4 text-[var(--text-hero)] font-bold tracking-tight text-white">
+    <main className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-6 py-16">
+      <div className="w-full max-w-md rounded-[var(--radius-card)] border border-hairline bg-surface p-10 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+        <p className="label-eyebrow text-ink-secondary">{eyebrow}</p>
+        <h1 className="mt-3 text-[var(--text-h1)] font-bold tracking-tight text-accent">
           {title}
         </h1>
-        <p className="mt-2 text-sm text-white/70">{activity}</p>
-        <div className="mt-8 flex justify-center gap-8 border-y border-white/15 py-4 text-sm text-white/80">
-          <span>Durasi {durationMin} menit</span>
-          <span>{questionCount} soal</span>
+        <p className="mt-2 text-base text-ink-secondary">{activity}</p>
+        <div className="mt-6 flex gap-2 border-t border-hairline pt-6 text-sm text-ink-secondary">
+          <span className="rounded-md border border-hairline-strong px-3 py-1.5">
+            Durasi {durationMin} menit
+          </span>
+          <span className="rounded-md border border-hairline-strong px-3 py-1.5">
+            {questionCount} soal
+          </span>
         </div>
-        <p className="mt-4 text-sm text-white/60">
+        <p className="mt-4 text-sm text-ink-secondary">
           Jawaban tersimpan otomatis. Waktu berjalan begitu kamu mulai.
         </p>
         {children}

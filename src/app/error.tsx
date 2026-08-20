@@ -15,9 +15,9 @@ export default function Error({
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
-      <div className="w-full max-w-md border-y border-hairline py-16 text-center">
-        <p className="label-eyebrow text-flag">Terjadi masalah</p>
-        <h1 className="mt-3 text-[var(--text-h2)] font-bold tracking-tight">
+      <div className="w-full max-w-md rounded-[var(--radius-card)] border border-hairline bg-surface p-10 text-center shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+        <p className="label-eyebrow text-ink-secondary">Terjadi masalah</p>
+        <h1 className="mt-3 text-[var(--text-h2)] font-bold tracking-tight text-ink">
           Ups, ada yang tidak beres
         </h1>
         <p className="mt-3 text-[15px] leading-relaxed text-ink-secondary">

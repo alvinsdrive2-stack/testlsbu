@@ -12,8 +12,6 @@ import { TextArea, TextField } from "@/components/ui/Field";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 
-type FieldState = { error?: string };
-
 function ErrorNote({ error }: { error?: string }) {
   if (!error) return null;
   return <span className="text-sm text-flag">{error}</span>;

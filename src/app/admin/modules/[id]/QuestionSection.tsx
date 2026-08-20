@@ -19,8 +19,6 @@ import { ConfirmButton } from "@/components/ui/ConfirmButton";
 
 type Section = "PRETEST" | "POSTTEST";
 
-type FieldState = { error?: string };
-
 function ErrorNote({ error }: { error?: string }) {
   if (!error) return null;
   return <span className="text-sm text-flag">{error}</span>;

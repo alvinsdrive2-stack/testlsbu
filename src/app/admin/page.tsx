@@ -45,14 +45,14 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminShell title="Dashboard" eyebrow="Ringkasan">
-      <section className="grid grid-cols-3 divide-x divide-hairline border-y border-hairline">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {stats.map((s) => (
           <Link
             key={s.label}
             href={s.href}
-            className="px-6 py-10 transition-colors first:pl-0 hover:bg-surface"
+            className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] transition-colors hover:bg-canvas"
           >
-            <p className="text-[var(--text-h1)] font-bold tabular-nums">
+            <p className="text-[var(--text-h1)] font-bold tabular-nums text-accent">
               {s.value}
             </p>
             <p className="label-eyebrow mt-1 text-ink-secondary">{s.label}</p>
@@ -62,19 +62,21 @@ export default async function AdminDashboardPage() {
 
       <section className="space-y-4">
         <h2 className="text-h2 font-semibold">Progres peserta</h2>
-        <div className="border-y border-hairline">
-          {pipeline.map((p) => (
+        <div className="rounded-[var(--radius-card)] border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+          {pipeline.map((p, i) => (
             <div
               key={p.label}
-              className="flex items-center justify-between gap-4 py-4"
+              className={`flex items-center justify-between gap-4 px-6 py-4 ${
+                i > 0 ? "border-t border-hairline" : ""
+              }`}
             >
               <span className="flex items-center gap-3">
                 <span
                   aria-hidden
                   className={`size-2 rounded-full ${
                     p.count > 0
-                      ? "bg-highlight"
-                      : "border border-hairline-strong bg-transparent"
+                      ? "bg-success"
+                      : "border border-hairline-strong bg-surface"
                   }`}
                 />
                 <span className="text-sm font-medium">{p.label}</span>
@@ -103,16 +105,16 @@ export default async function AdminDashboardPage() {
             bagikan link pendaftaran ke peserta.
           </p>
         ) : (
-          <div className="divide-y divide-hairline border-y border-hairline">
-            {activities.map((a) => (
+          <div className="rounded-[var(--radius-card)] border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+            {activities.map((a, i) => (
               <Link
                 key={a.id}
                 href={`/admin/activities/${a.id}`}
-                className="group flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-5"
+                className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-6 py-5 transition-colors hover:bg-canvas ${
+                  i > 0 ? "border-t border-hairline" : ""
+                }`}
               >
-                <span className="font-semibold group-hover:text-accent">
-                  {a.title}
-                </span>
+                <span className="font-semibold">{a.title}</span>
                 <span className="text-sm text-ink-secondary">
                   {a.module.title} ·{" "}
                   <span className="font-medium text-accent">

@@ -75,7 +75,7 @@ export function ExamRunner({
 
   return (
     <div>
-      <div className="sticky top-0 z-10 border-b border-hairline bg-canvas/90 px-6 py-4 backdrop-blur-xl">
+      <div className="sticky top-14 z-10 border-b border-hairline bg-surface/95 px-4 py-4 backdrop-blur-xl sm:px-6">
         <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <div className="flex items-center gap-3">
             <p className="text-[15px] tabular-nums text-ink-secondary">
@@ -134,49 +134,61 @@ export function ExamRunner({
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl divide-y divide-hairline px-6">
-        {questions.map((q, i) => (
-          <section key={q.id} id={`q-${q.id}`} className="scroll-mt-28 py-10">
-            <div className="flex gap-4">
-              <span className="label-eyebrow w-9 shrink-0 pt-1 text-ink-secondary">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <p className="text-[17px] font-medium leading-relaxed">{q.text}</p>
-            </div>
-            <div className="mt-5 space-y-2.5 pl-13">
-              {q.options.map((opt) => {
-                const selected = answers[q.id] === opt.id;
-                return (
-                  <label
-                    key={opt.id}
-                    style={{
-                      transition:
-                        "all 200ms cubic-bezier(0.16, 1, 0.3, 1)",
-                    }}
-                    className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-md border px-4 py-3 text-base ${
-                      selected
-                        ? "border-accent bg-accent/5 font-medium"
-                        : "border-hairline bg-surface hover:bg-canvas active:scale-[0.99]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name={q.id}
-                      checked={selected}
-                      onChange={() => select(q.id, opt.id)}
-                      className="size-4 accent-accent"
-                    />
-                    {opt.text}
-                  </label>
-                );
-              })}
-            </div>
-          </section>
-        ))}
+      <div className="mx-auto max-w-2xl space-y-4 px-4 py-8 sm:px-6">
+        {questions.map((q, i) => {
+          const selected = answers[q.id];
+          return (
+            <section
+              key={q.id}
+              id={`q-${q.id}`}
+              className="scroll-mt-40 rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]"
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  aria-hidden
+                  className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent-soft text-sm font-semibold tabular-nums text-accent"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <p className="text-[17px] font-medium leading-relaxed">
+                  {q.text}
+                </p>
+              </div>
+              <div className="mt-5 space-y-2.5">
+                {q.options.map((opt) => {
+                  const isSelected = selected === opt.id;
+                  return (
+                    <label
+                      key={opt.id}
+                      style={{
+                        transition:
+                          "all 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+                      }}
+                      className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-md border px-4 py-3 text-base ${
+                        isSelected
+                          ? "border-accent bg-accent-soft/50 font-medium"
+                          : "border-hairline bg-surface hover:bg-canvas active:scale-[0.99]"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name={q.id}
+                        checked={isSelected}
+                        onChange={() => select(q.id, opt.id)}
+                        className="size-4 accent-accent"
+                      />
+                      {opt.text}
+                    </label>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
 
-        <div className="py-8">
+        <div className="pt-2 pb-8">
           {confirming ? (
-            <div className="border border-hairline-strong bg-surface p-6">
+            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
               <p className="font-semibold">
                 {unanswered > 0
                   ? `Masih ada ${unanswered} soal kosong.`

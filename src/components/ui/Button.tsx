@@ -1,15 +1,14 @@
 import Link from "next/link";
 import { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger" | "highlight";
+type Variant = "primary" | "secondary" | "ghost" | "danger";
 
 const variants: Record<Variant, string> = {
   primary: "bg-accent text-white hover:bg-accent-hover disabled:opacity-40",
   secondary:
     "bg-surface text-ink border border-hairline-strong hover:bg-canvas disabled:opacity-40",
-  ghost: "text-accent hover:bg-canvas disabled:opacity-40",
+  ghost: "text-accent hover:bg-accent-soft disabled:opacity-40",
   danger: "bg-surface text-flag border border-hairline-strong hover:bg-flag/5",
-  highlight: "bg-highlight text-accent hover:bg-highlight-hover disabled:opacity-40",
 };
 
 export function Button({

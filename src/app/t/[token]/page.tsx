@@ -5,7 +5,11 @@ import { ExamRunner } from "@/app/exam/ExamRunner";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
 import { StartGate } from "@/components/ui/StartGate";
+import { TopBar } from "@/components/ui/TopBar";
 import { startPosttestRetry } from "./actions";
+
+const CARD =
+  "rounded-[var(--radius-card)] border border-hairline bg-surface p-10 shadow-[0_1px_3px_rgba(15,20,25,0.06)]";
 
 function PosttestFailed({
   score,
@@ -20,60 +24,63 @@ function PosttestFailed({
 }) {
   const gap = Math.max(0, passingGrade - score);
   return (
-    <main className="flex min-h-screen items-center justify-center bg-accent px-6">
-      <div className="w-full max-w-md text-center">
-        <p className="label-eyebrow text-highlight">Nilai Posttest</p>
-        <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-white">
-          {score}
-        </p>
-        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
-          Passing grade {passingGrade} · Percobaan ke-{attempt}
-        </p>
-        <p className="mt-3 text-sm text-white/70">
-          {gap > 0 ? `Kurang ${gap} poin lagi buat lulus. ` : ""}
-          Pelajari materi di dashboard, lalu coba lagi kapan pun.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-2">
-          <form
-            action={async () => {
-              "use server";
-              await startPosttestRetry(token);
-            }}
-          >
-            <Button variant="highlight" type="submit">
-              Coba Lagi
+    <div className="min-h-screen">
+      <TopBar title="Posttest" />
+      <main className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-6 py-16">
+        <div className={`${CARD} w-full max-w-md text-center`}>
+          <p className="label-eyebrow text-ink-secondary">Nilai Posttest</p>
+          <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-accent">
+            {score}
+          </p>
+          <p className="mt-1 text-xs font-semibold text-ink-secondary">
+            Passing grade {passingGrade} · Percobaan ke-{attempt}
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+            {gap > 0 ? `Kurang ${gap} poin lagi buat lulus. ` : ""}
+            Pelajari materi di dashboard, lalu coba lagi kapan pun.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-2">
+            <form
+              action={async () => {
+                "use server";
+                await startPosttestRetry(token);
+              }}
+            >
+              <Button type="submit">Coba Lagi</Button>
+            </form>
+            <Button variant="secondary" href="/p">
+              Pelajari Materi
             </Button>
-          </form>
-          <Button variant="secondary" href="/p">
-            Pelajari Materi
-          </Button>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
 
 function PosttestPassed({ score }: { score: number }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-accent px-6">
-      <div className="w-full max-w-md text-center">
-        <p className="label-eyebrow text-highlight">Nilai Posttest</p>
-        <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-white">
-          {score}
-        </p>
-        <p className="mt-3 inline-flex border border-highlight px-4 py-1.5 text-sm font-semibold text-highlight">
-          Lulus
-        </p>
-        <p className="mt-4 text-sm text-white/70">
-          Kamu lulus posttest. Cek dashboard untuk melihat status dan materi.
-        </p>
-        <div className="mt-8">
-          <Button variant="secondary" href="/p">
-            Ke Dashboard
-          </Button>
+    <div className="min-h-screen">
+      <TopBar title="Posttest" />
+      <main className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-6 py-16">
+        <div className={`${CARD} w-full max-w-md text-center`}>
+          <p className="label-eyebrow text-ink-secondary">Nilai Posttest</p>
+          <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-accent">
+            {score}
+          </p>
+          <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-sm font-semibold text-success">
+            <span aria-hidden className="size-2 rounded-full bg-success" />
+            Lulus
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+            Kamu lulus posttest. Cek dashboard untuk melihat status dan materi.
+          </p>
+          <div className="mt-8">
+            <Button href="/p">Ke Dashboard</Button>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
 
@@ -177,25 +184,26 @@ export default async function PosttestPage({
       );
     }
     return (
-      <StartGate
-        eyebrow="Ujian Akhir"
-        title="Posttest"
-        activity={`${activity.title} · Passing grade ${activity.module.posttestPassingGrade}`}
-        durationMin={activity.module.posttestDurationMin}
-        questionCount={questions.length}
-      >
-        <form
-          action={async () => {
-            "use server";
-            await startPosttestRetry(token);
-          }}
-          className="mt-8"
+      <div className="min-h-screen">
+        <TopBar title={activity.title} />
+        <StartGate
+          eyebrow="Ujian Akhir"
+          title="Posttest"
+          activity={`${activity.title} · Passing grade ${activity.module.posttestPassingGrade}`}
+          durationMin={activity.module.posttestDurationMin}
+          questionCount={questions.length}
         >
-          <Button variant="highlight" type="submit">
-            Mulai Posttest
-          </Button>
-        </form>
-      </StartGate>
+          <form
+            action={async () => {
+              "use server";
+              await startPosttestRetry(token);
+            }}
+            className="mt-8"
+          >
+            <Button type="submit">Mulai Posttest</Button>
+          </form>
+        </StartGate>
+      </div>
     );
   }
 
@@ -244,22 +252,25 @@ export default async function PosttestPage({
   }
 
   return (
-    <main className="min-h-screen py-8">
-      <div className="mx-auto mb-8 max-w-2xl px-6">
-        <p className="label-eyebrow text-flag">Ujian Akhir</p>
-        <h1 className="mt-2 text-[var(--text-h1)] font-bold tracking-tight">
-          Posttest
-        </h1>
-        <p className="mt-2 text-base text-ink-secondary">
-          {activity.title} · Passing grade {activity.module.posttestPassingGrade}
-        </p>
-      </div>
-      <ExamRunner
-        attemptId={refreshed.id}
-        deadlineISO={deadline.toISOString()}
-        questions={examQuestions}
-        initialAnswers={initialAnswers}
-      />
-    </main>
+    <div className="min-h-screen">
+      <TopBar title={activity.title} />
+      <main className="py-8">
+        <div className="mx-auto mb-6 max-w-2xl px-4 sm:px-6">
+          <p className="label-eyebrow text-ink-secondary">Ujian Akhir</p>
+          <h1 className="mt-1 text-[var(--text-h1)] font-bold tracking-tight text-ink">
+            Posttest
+          </h1>
+          <p className="mt-1 text-base text-ink-secondary">
+            {activity.title} · Passing grade {activity.module.posttestPassingGrade}
+          </p>
+        </div>
+        <ExamRunner
+          attemptId={refreshed.id}
+          deadlineISO={deadline.toISOString()}
+          questions={examQuestions}
+          initialAnswers={initialAnswers}
+        />
+      </main>
+    </div>
   );
 }

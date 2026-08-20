@@ -29,7 +29,7 @@ export function SidebarNav() {
             aria-current={active ? "page" : undefined}
             className={`block border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
               active
-                ? "border-flag text-ink"
+                ? "border-accent text-ink"
                 : "border-transparent text-ink-secondary hover:text-ink"
             }`}
           >
@@ -55,7 +55,7 @@ export function MobileNav() {
             aria-current={active ? "page" : undefined}
             className={`border-b-2 pb-1 text-sm font-medium whitespace-nowrap transition-colors ${
               active
-                ? "border-flag text-ink"
+                ? "border-accent text-ink"
                 : "border-transparent text-ink-secondary hover:text-ink"
             }`}
           >

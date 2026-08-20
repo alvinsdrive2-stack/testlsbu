@@ -4,7 +4,7 @@ function Label({ htmlFor, children }: { htmlFor: string; children: React.ReactNo
   return (
     <label
       htmlFor={htmlFor}
-      className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-ink-secondary"
+      className="mb-1.5 block text-sm font-medium text-ink"
     >
       {children}
     </label>

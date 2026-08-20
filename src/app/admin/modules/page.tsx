@@ -29,16 +29,16 @@ export default async function ModulesPage() {
           <p className="label-eyebrow mb-3 text-ink-secondary">
             {modules.length} modul
           </p>
-          <div className="divide-y divide-hairline border-y border-hairline">
-            {modules.map((m) => (
+          <div className="rounded-[var(--radius-card)] border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+            {modules.map((m, i) => (
               <Link
                 key={m.id}
                 href={`/admin/modules/${m.id}`}
-                className="group flex items-baseline justify-between gap-4 py-5"
+                className={`flex items-baseline justify-between gap-4 px-6 py-5 transition-colors hover:bg-canvas ${
+                  i > 0 ? "border-t border-hairline" : ""
+                }`}
               >
-                <span className="font-semibold group-hover:text-accent">
-                  {m.title}
-                </span>
+                <span className="font-semibold">{m.title}</span>
                 <span className="shrink-0 text-sm tabular-nums text-ink-secondary">
                   Pretest {countFor(m.id, "PRETEST")} · Posttest{" "}
                   {countFor(m.id, "POSTTEST")}
