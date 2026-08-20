@@ -21,9 +21,14 @@ export function AdminShell({
             alt="Logo Gapensi"
             className="h-10 w-auto rounded-md"
           />
-          <span className="flex flex-col gap-0.5">
-            <span className="text-base font-bold leading-none tracking-tight text-accent">
-              GAPENSI
+          <span className="flex min-w-0 flex-col gap-1">
+            <span className="flex items-center gap-2">
+              <span className="text-base font-bold leading-none tracking-tight text-accent">
+                GAPENSI
+              </span>
+              <span className="inline-flex items-center rounded-full border border-hairline-strong bg-canvas px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-secondary">
+                v0.1
+              </span>
             </span>
             <span className="label-eyebrow text-ink-secondary">Panel Admin</span>
           </span>
@@ -31,14 +36,30 @@ export function AdminShell({
         <div className="mt-10">
           <SidebarNav />
         </div>
-        <form action={logout} className="mt-auto">
-          <button
-            type="submit"
-            className="text-sm font-medium text-ink-secondary hover:text-accent"
-          >
-            Keluar
-          </button>
-        </form>
+        <div className="mt-auto border-t border-hairline pt-4">
+          <form action={logout}>
+            <button
+              type="submit"
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-hairline-strong bg-surface px-3 py-2.5 text-sm font-semibold text-ink-secondary transition-colors hover:bg-canvas hover:text-ink"
+            >
+              <svg
+                viewBox="0 0 20 20"
+                aria-hidden
+                className="size-4 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M13.5 6.5L17 10l-3.5 3.5" />
+                <path d="M17 10H7.5" />
+                <path d="M11 3.5H4.5A1.5 1.5 0 0 0 3 5v10a1.5 1.5 0 0 0 1.5 1.5H11" />
+              </svg>
+              Keluar
+            </button>
+          </form>
+        </div>
       </aside>
 
       <div className="min-w-0 flex-1">
@@ -60,7 +81,7 @@ export function AdminShell({
           {eyebrow ? (
             <p className="label-eyebrow mb-2 text-ink-secondary">{eyebrow}</p>
           ) : null}
-          <h1 className="text-[clamp(40px,8vw,96px)] font-bold leading-none tracking-tight">
+          <h1 className="text-[clamp(30px,4vw,56px)] font-bold leading-none tracking-tight">
             {title}
           </h1>
           <div className="mt-12 space-y-12">{children}</div>

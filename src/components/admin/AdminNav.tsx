@@ -27,10 +27,10 @@ export function SidebarNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`block border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+            className={`block rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
               active
-                ? "border-accent text-ink"
-                : "border-transparent text-ink-secondary hover:text-ink"
+                ? "bg-accent-soft text-accent"
+                : "text-ink-secondary hover:bg-canvas hover:text-ink"
             }`}
           >
             {item.label}
