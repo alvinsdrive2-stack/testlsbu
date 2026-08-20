@@ -41,7 +41,12 @@ export async function createModule(formData: FormData) {
   redirect(`/admin/modules/${mod.id}`);
 }
 
-export async function updateModuleSettings(formData: FormData) {
+type SettingsState = { ok?: boolean; error?: string };
+
+export async function updateModuleSettings(
+  _prev: SettingsState,
+  formData: FormData
+): Promise<SettingsState> {
   const parsed = moduleSettingsSchema.safeParse({
     moduleId: formData.get("moduleId"),
     title: formData.get("title"),
@@ -55,7 +60,7 @@ export async function updateModuleSettings(formData: FormData) {
   });
 
   if (!parsed.success) {
-    throw new Error(parsed.error.issues[0].message);
+    return { ok: false, error: parsed.error.issues[0].message };
   }
 
   const { moduleId, ...data } = parsed.data;
@@ -63,6 +68,8 @@ export async function updateModuleSettings(formData: FormData) {
   await prisma.module.update({ where: { id: moduleId }, data });
 
   revalidatePath(`/admin/modules/${moduleId}`);
+
+  return { ok: true };
 }
 
 export async function createQuestion(formData: FormData) {

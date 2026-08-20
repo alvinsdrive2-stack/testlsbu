@@ -15,7 +15,12 @@ const registerSchema = z.object({
   isGapensiMember: z.boolean(),
 });
 
-export async function registerParticipant(formData: FormData) {
+type RegisterState = { error?: string };
+
+export async function registerParticipant(
+  _prev: RegisterState,
+  formData: FormData
+): Promise<RegisterState> {
   const activityId = String(formData.get("activityId"));
 
   const parsed = registerSchema.safeParse({
@@ -29,12 +34,12 @@ export async function registerParticipant(formData: FormData) {
   });
 
   if (!parsed.success) {
-    throw new Error(parsed.error.issues[0].message);
+    return { error: parsed.error.issues[0].message };
   }
 
   const activity = await prisma.activity.findUnique({ where: { id: activityId } });
   if (!activity || activity.status === "CLOSED") {
-    throw new Error("Kegiatan tidak tersedia");
+    return { error: "Kegiatan tidak tersedia. Hubungi admin." };
   }
 
   const participant = await prisma.participant.create({

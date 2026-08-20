@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { logout } from "@/app/admin/actions";
-import { AdminNav } from "./AdminNav";
+import { SidebarNav, MobileNav } from "./AdminNav";
 
 export function AdminShell({
   title,
@@ -12,39 +12,60 @@ export function AdminShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-hairline bg-surface">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <Link href="/admin" className="flex items-baseline gap-3">
-            <span className="text-lg font-bold tracking-tight text-accent">
+    <div className="min-h-screen md:flex">
+      <aside className="hidden w-60 shrink-0 flex-col border-r border-hairline bg-surface p-6 md:flex">
+        <Link href="/admin" className="flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/favicon.png"
+            alt="Logo Gapensi"
+            className="h-10 w-auto rounded-md"
+          />
+          <span className="flex flex-col gap-0.5">
+            <span className="text-base font-bold leading-none tracking-tight text-accent">
               GAPENSI
             </span>
-            <span className="hidden text-xs font-semibold uppercase tracking-[0.18em] text-ink-secondary sm:inline">
-              Panel Admin
-            </span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <AdminNav />
-            <form action={logout}>
-              <button
-                type="submit"
-                className="text-sm font-medium text-ink-secondary hover:text-flag"
-              >
-                Keluar
-              </button>
-            </form>
-          </div>
+            <span className="label-eyebrow text-ink-secondary">Panel Admin</span>
+          </span>
+        </Link>
+        <div className="mt-10">
+          <SidebarNav />
         </div>
-      </header>
-      <main className="mx-auto max-w-4xl px-6 py-16">
-        {eyebrow ? (
-          <p className="label-eyebrow mb-2 text-flag">{eyebrow}</p>
-        ) : null}
-        <h1 className="text-[var(--text-hero)] font-bold tracking-tight">
-          {title}
-        </h1>
-        <div className="mt-12 space-y-12">{children}</div>
-      </main>
+        <form action={logout} className="mt-auto">
+          <button
+            type="submit"
+            className="text-sm font-medium text-ink-secondary hover:text-flag"
+          >
+            Keluar
+          </button>
+        </form>
+      </aside>
+
+      <div className="min-w-0 flex-1">
+        <header className="border-b border-hairline bg-surface px-6 py-4 md:hidden">
+          <div className="mb-3 flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/favicon.png"
+              alt="Logo Gapensi"
+              className="h-8 w-auto rounded-md"
+            />
+            <span className="text-base font-bold leading-none tracking-tight text-accent">
+              GAPENSI
+            </span>
+          </div>
+          <MobileNav />
+        </header>
+        <main className="mx-auto max-w-3xl px-6 py-12 md:py-16">
+          {eyebrow ? (
+            <p className="label-eyebrow mb-2 text-flag">{eyebrow}</p>
+          ) : null}
+          <h1 className="text-[var(--text-hero)] font-bold tracking-tight">
+            {title}
+          </h1>
+          <div className="mt-12 space-y-12">{children}</div>
+        </main>
+      </div>
     </div>
   );
 }

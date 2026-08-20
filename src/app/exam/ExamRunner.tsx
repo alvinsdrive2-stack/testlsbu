@@ -75,16 +75,16 @@ export function ExamRunner({
 
   return (
     <div>
-      <div className="sticky top-0 z-10 border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
+      <div className="sticky top-0 z-10 border-b border-hairline bg-canvas/90 px-6 py-4 backdrop-blur-xl">
         <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <div className="flex items-center gap-3">
-            <p className="text-sm tabular-nums text-ink-secondary">
+            <p className="text-[15px] tabular-nums text-ink-secondary">
               Terjawab {answeredCount} dari {questions.length}
             </p>
             {saveState !== "idle" ? (
               <span
                 role="status"
-                className={`text-xs ${
+                className={`text-[13px] ${
                   saveState === "error" ? "font-medium text-flag" : "text-ink-secondary"
                 }`}
               >
@@ -98,7 +98,7 @@ export function ExamRunner({
           </div>
           <p
             aria-live={urgent ? "polite" : undefined}
-            className={`font-mono text-lg font-bold tabular-nums ${
+            className={`font-mono text-xl font-bold tabular-nums ${
               urgent ? "text-flag" : "text-ink"
             }`}
           >
@@ -110,23 +110,27 @@ export function ExamRunner({
 
       <div className="mx-auto max-w-2xl divide-y divide-hairline px-6">
         {questions.map((q, i) => (
-          <section key={q.id} className="py-8">
+          <section key={q.id} className="py-10">
             <div className="flex gap-4">
-              <span className="label-eyebrow w-8 shrink-0 pt-1 text-flag">
+              <span className="label-eyebrow w-9 shrink-0 pt-1 text-flag">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <p className="font-medium leading-relaxed">{q.text}</p>
+              <p className="text-[17px] font-medium leading-relaxed">{q.text}</p>
             </div>
-            <div className="mt-4 space-y-2 pl-12">
+            <div className="mt-5 space-y-2.5 pl-13">
               {q.options.map((opt) => {
                 const selected = answers[q.id] === opt.id;
                 return (
                   <label
                     key={opt.id}
-                    className={`flex cursor-pointer items-center gap-3 border px-3 py-2.5 text-sm transition-colors ${
+                    style={{
+                      transition:
+                        "all 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+                    }}
+                    className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-md border px-4 py-3 text-base ${
                       selected
                         ? "border-accent bg-accent/5 font-medium"
-                        : "border-hairline bg-surface hover:bg-canvas"
+                        : "border-hairline bg-surface hover:bg-canvas active:scale-[0.99]"
                     }`}
                   >
                     <input

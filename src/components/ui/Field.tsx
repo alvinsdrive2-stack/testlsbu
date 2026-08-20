@@ -4,7 +4,7 @@ function Label({ htmlFor, children }: { htmlFor: string; children: React.ReactNo
   return (
     <label
       htmlFor={htmlFor}
-      className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-ink-secondary"
+      className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-ink-secondary"
     >
       {children}
     </label>
@@ -12,7 +12,7 @@ function Label({ htmlFor, children }: { htmlFor: string; children: React.ReactNo
 }
 
 const inputClass =
-  "w-full rounded-md border border-hairline-strong bg-surface px-3 py-2 text-[15px] text-ink focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent";
+  "w-full rounded-md border border-hairline-strong bg-surface px-3.5 py-3 text-base text-ink transition-all duration-200 ease-out placeholder:text-ink-secondary/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
 
 export function TextField({
   label,
@@ -33,7 +33,7 @@ export function TextArea({
   return (
     <div>
       <Label htmlFor={props.id ?? props.name!}>{label}</Label>
-      <textarea className={`${inputClass} min-h-24`} {...props} />
+      <textarea className={`${inputClass} min-h-28`} {...props} />
     </div>
   );
 }

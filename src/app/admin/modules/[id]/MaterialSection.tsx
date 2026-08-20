@@ -2,7 +2,7 @@ import type { Material } from "@prisma/client";
 import { createMaterial, updateMaterial, deleteMaterial } from "../actions";
 import { Card } from "@/components/ui/Card";
 import { TextArea, TextField } from "@/components/ui/Field";
-import { Button } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 
 export function MaterialSection({
@@ -46,9 +46,7 @@ export function MaterialSection({
                 type="url"
                 defaultValue={m.videoUrl ?? ""}
               />
-              <Button variant="secondary" type="submit">
-                Simpan Materi
-              </Button>
+              <SubmitButton variant="secondary">Simpan Materi</SubmitButton>
             </form>
           </Card>
         ))}
@@ -60,7 +58,7 @@ export function MaterialSection({
           <TextField label="Judul materi baru" name="title" required minLength={3} />
           <TextArea label="Konten" name="content" required />
           <TextField label="URL video (opsional)" name="videoUrl" type="url" />
-          <Button type="submit">Tambah Materi</Button>
+          <SubmitButton>Tambah Materi</SubmitButton>
         </form>
       </Card>
     </section>

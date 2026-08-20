@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { Reveal } from "@/components/ui/Reveal";
 
 export function ExamResult({
   title,
@@ -14,15 +14,19 @@ export function ExamResult({
 }) {
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
-      <div className="w-full max-w-md border-y border-hairline py-16 text-center">
-        <p className="text-[var(--text-h2)] font-bold tracking-tight">{title}</p>
-        <p className="mt-3 text-sm leading-relaxed text-ink-secondary">{body}</p>
-        {href && hrefLabel ? (
-          <Link href={href} className="mt-8 inline-block">
-            <Button type="button">{hrefLabel}</Button>
-          </Link>
-        ) : null}
-      </div>
+      <Reveal>
+        <div className="w-full max-w-md border-y border-hairline py-16 text-center">
+          <p className="text-[var(--text-h2)] font-bold tracking-tight">{title}</p>
+          <p className="mt-3 text-[15px] leading-relaxed text-ink-secondary">
+            {body}
+          </p>
+          {href && hrefLabel ? (
+            <Button href={href} className="mt-8">
+              {hrefLabel}
+            </Button>
+          ) : null}
+        </div>
+      </Reveal>
     </main>
   );
 }

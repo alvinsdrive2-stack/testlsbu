@@ -78,7 +78,7 @@ export default async function ActivitiesPage() {
                   {a.module.title} ·{" "}
                   <span
                     className={
-                      a.status === "CLOSED" ? "" : "font-medium text-flag"
+                      a.status === "CLOSED" ? "" : "font-medium text-accent"
                     }
                   >
                     {STATUS_LABEL[a.status]}

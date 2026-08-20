@@ -1,9 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getParticipantToken } from "@/lib/session";
-import { TextField } from "@/components/ui/Field";
-import { Button } from "@/components/ui/Button";
-import { registerParticipant } from "./actions";
+import { Reveal } from "@/components/ui/Reveal";
+import { JoinForm } from "./JoinForm";
 
 export default async function JoinPage({
   params,
@@ -45,49 +44,30 @@ export default async function JoinPage({
 
   return (
     <main className="flex min-h-screen items-center px-6 py-16">
-      <div className="mx-auto grid w-full max-w-4xl gap-12 md:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-4xl gap-14 md:grid-cols-2">
+        <Reveal>
         <div>
           <p className="label-eyebrow text-flag">Pendaftaran Peserta</p>
           <h1 className="mt-3 text-[var(--text-h1)] font-bold leading-tight tracking-tight">
             {activity.title}
           </h1>
-          <p className="mt-4 leading-relaxed text-ink-secondary">
+          <p className="mt-4 text-base leading-relaxed text-ink-secondary">
             Modul {activity.module.title}. Isi data diri di samping untuk
             memulai pretest.
           </p>
-          <div className="mt-8 space-y-3 border-t border-hairline pt-6 text-sm text-ink-secondary">
+          <div className="mt-8 space-y-3 border-t border-hairline pt-6 text-[15px] text-ink-secondary">
             <p>1. Daftar dan kerjakan pretest</p>
             <p>2. Pelajari materi pelatihan</p>
             <p>3. Kerjakan posttest sampai lulus</p>
           </div>
         </div>
+        </Reveal>
 
+        <Reveal delay={80}>
         <div className="border border-hairline bg-surface p-8">
-          <form action={registerParticipant} className="space-y-5">
-            <input type="hidden" name="activityId" value={activity.id} />
-            <TextField label="Nama peserta" name="nama" required minLength={3} />
-            <TextField
-              label="Nama badan usaha jasa konstruksi"
-              name="badanUsaha"
-              required
-              minLength={3}
-            />
-            <TextField label="NPWP badan usaha" name="npwp" required minLength={5} />
-            <TextField label="No WA" name="wa" required minLength={8} />
-            <TextField label="Email aktif" name="email" type="email" required />
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                name="isGapensiMember"
-                className="size-4 accent-[#002b66]"
-              />
-              Anggota Gapensi
-            </label>
-            <Button type="submit" className="w-full">
-              Mulai Pretest
-            </Button>
-          </form>
+          <JoinForm activityId={activity.id} />
         </div>
+        </Reveal>
       </div>
     </main>
   );

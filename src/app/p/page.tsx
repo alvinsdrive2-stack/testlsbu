@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getParticipantToken } from "@/lib/session";
 import { ExamResult } from "@/app/exam/ExamResult";
+import { Button } from "@/components/ui/Button";
+import { Reveal } from "@/components/ui/Reveal";
 
 function youtubeEmbed(url: string): string | null {
   const match = url.match(
@@ -92,18 +93,21 @@ export default async function ParticipantDashboardPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="mx-auto max-w-2xl px-6 py-16">
-        <p className="label-eyebrow text-flag">Dashboard Peserta</p>
-        <h1 className="mt-2 text-[var(--text-h1)] font-bold tracking-tight">
-          {participant.nama}
-        </h1>
-        <p className="mt-2 text-sm text-ink-secondary">
-          {activity.title} · {activity.module.title}
-        </p>
-      </div>
+      <Reveal>
+        <div className="mx-auto max-w-2xl px-6 py-16">
+          <p className="label-eyebrow text-flag">Dashboard Peserta</p>
+          <h1 className="mt-3 text-[var(--text-h1)] font-bold tracking-tight">
+            {participant.nama}
+          </h1>
+          <p className="mt-2 text-base text-ink-secondary">
+            {activity.title} · {activity.module.title}
+          </p>
+        </div>
+      </Reveal>
 
-      <section className="bg-accent">
-        <div className="mx-auto max-w-2xl px-6 py-12">
+      <Reveal delay={80}>
+        <section className="bg-accent">
+          <div className="mx-auto max-w-2xl px-6 py-14">
           <PhaseStepper pretestDone={pretestDone} postPassed={postPassed} />
 
           <div className="mt-10 flex flex-wrap items-end justify-between gap-6">
@@ -111,6 +115,12 @@ export default async function ParticipantDashboardPage() {
               <p className="label-eyebrow text-white/60">Nilai pretest</p>
               <p className="mt-1 text-[var(--text-h1)] font-bold tabular-nums text-white">
                 {pretestScore !== null ? pretestScore : "—"}
+                {pretestScore !== null ? (
+                  <span className="text-lg font-medium text-white/60">
+                    {" "}
+                    / 100
+                  </span>
+                ) : null}
               </p>
               {pretestScore === null ? (
                 <p className="text-sm text-white/60">Belum dikerjakan</p>
@@ -130,12 +140,9 @@ export default async function ParticipantDashboardPage() {
               </p>
             ) : activity.status === "POSTTEST_OPEN" ? (
               pretestDone ? (
-                <Link
-                  href={`/t/${participant.token}`}
-                  className="inline-block rounded-md bg-highlight px-5 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-highlight-hover hover:text-white"
-                >
+                <Button variant="highlight" href={`/t/${participant.token}`}>
                   Kerjakan Posttest
-                </Link>
+                </Button>
               ) : (
                 <p className="text-sm leading-relaxed text-white/70">
                   Kamu belum menyelesaikan pretest dan kegiatan sudah lanjut ke
@@ -148,21 +155,23 @@ export default async function ParticipantDashboardPage() {
                 mengakhiri sesi pretest.
               </p>
             ) : (
-              <Link
+              <Button
+                variant="highlight"
                 href={`/j/${activity.id}/pretest`}
-                className="inline-block rounded-md bg-highlight px-5 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-highlight-hover hover:text-white"
               >
                 {participant.attempts.some(
                   (a) => a.section === "PRETEST" && !a.submittedAt
                 )
                   ? "Lanjut Pretest"
                   : "Mulai Pretest"}
-              </Link>
+              </Button>
             )}
           </div>
         </div>
-      </section>
+        </section>
+      </Reveal>
 
+      <Reveal delay={120}>
       <section className="mx-auto max-w-2xl px-6 py-16">
         <h2 className="text-h2 font-bold">Materi</h2>
         {activity.module.materials.length === 0 ? (
@@ -204,6 +213,7 @@ export default async function ParticipantDashboardPage() {
           </div>
         )}
       </section>
+      </Reveal>
     </main>
   );
 }

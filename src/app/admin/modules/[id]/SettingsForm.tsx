@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { updateModuleSettings } from "../actions";
 import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/Field";
@@ -21,11 +21,31 @@ type Settings = {
 export function SettingsForm({ module }: { module: Settings }) {
   const [sq, setSq] = useState(module.shuffleQuestions);
   const [so, setSo] = useState(module.shuffleOptions);
+  const [state, formAction, pending] = useActionState<
+    { ok?: boolean; error?: string },
+    FormData
+  >(updateModuleSettings, {});
+  const [flash, setFlash] = useState(false);
+
+  useEffect(() => {
+    if (state.ok) {
+      setFlash(true);
+      const t = setTimeout(() => setFlash(false), 2500);
+      return () => clearTimeout(t);
+    }
+  }, [state]);
 
   return (
     <Card className="p-6">
-      <p className="text-h2 font-semibold">Pengaturan Ujian</p>
-      <form action={updateModuleSettings} className="mt-4 space-y-4">
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="text-h2 font-semibold">Pengaturan Ujian</p>
+        {flash ? (
+          <p role="status" className="text-sm font-medium text-accent">
+            Tersimpan ✓
+          </p>
+        ) : null}
+      </div>
+      <form action={formAction} className="mt-4 space-y-4">
         <input type="hidden" name="moduleId" value={module.id} />
         <TextField
           label="Judul"
@@ -95,7 +115,16 @@ export function SettingsForm({ module }: { module: Settings }) {
             Acak urutan opsi jawaban
           </label>
         </div>
-        <Button type="submit">Simpan</Button>
+        <div className="flex items-center gap-4">
+          <Button type="submit" disabled={pending}>
+            {pending ? "Menyimpan…" : "Simpan"}
+          </Button>
+          {state.error ? (
+            <p role="alert" className="text-sm font-medium text-flag">
+              {state.error}
+            </p>
+          ) : null}
+        </div>
       </form>
     </Card>
   );

@@ -8,7 +8,7 @@
   --color-highlight-hover: #d99b00;
   --color-surface: #ffffff;
   --color-canvas: #faf9f7;
-  --color-ink: #212529;
+  --color-ink: #1a1d21;
   --color-ink-secondary: #5f6368;
   --color-hairline: #e4e1dc;
   --color-hairline-strong: #c9c5be;
@@ -16,20 +16,31 @@
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --text-hero: clamp(36px, 4.5vw, 60px);
-  --text-h1: clamp(24px, 2.5vw, 32px);
-  --text-h2: clamp(18px, 1.8vw, 24px);
-  --text-body: 16px;
+  --text-hero: clamp(40px, 6vw, 72px);
+  --text-h1: clamp(28px, 3vw, 40px);
+  --text-h2: clamp(20px, 2vw, 28px);
+  --text-body: 17px;
 
-  --radius-card: 8px;
+  --radius-card: 10px;
 }
 
 body {
   font-family: var(--font-sans);
   color: var(--color-ink);
   background: var(--color-canvas);
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.01em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.bg-accent :focus-visible {
+  outline-color: var(--color-highlight);
 }
 
 @utility label-eyebrow {

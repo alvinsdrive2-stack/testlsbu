@@ -5,6 +5,9 @@ import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
 import { submitAttempt } from "@/app/exam/actions";
 import { ExamRunner } from "@/app/exam/ExamRunner";
 import { ExamResult } from "@/app/exam/ExamResult";
+import { Button } from "@/components/ui/Button";
+import { StartGate } from "@/components/ui/StartGate";
+import { startPretest } from "./actions";
 
 export default async function PretestPage({
   params,
@@ -44,44 +47,6 @@ export default async function PretestPage({
     );
   }
 
-  let attempt = await prisma.attempt.findFirst({
-    where: { participantId: participant.id, section: "PRETEST", submittedAt: null },
-    include: { answers: true },
-  });
-
-  if (!attempt) {
-    attempt = await prisma.attempt.create({
-      data: {
-        participantId: participant.id,
-        section: "PRETEST",
-        seed: Math.floor(Math.random() * 2 ** 31),
-      },
-      include: { answers: true },
-    });
-  }
-
-  const deadline = deadlineFor(attempt.startedAt, activity.module.pretestDurationMin);
-
-  if (Date.now() > deadline.getTime()) {
-    await submitAttempt(attempt.id);
-  }
-
-  const refreshed = await prisma.attempt.findUniqueOrThrow({
-    where: { id: attempt.id },
-    include: { answers: true },
-  });
-
-  if (refreshed.submittedAt && refreshed.score !== null) {
-    return (
-      <ExamResult
-        title={`Nilai pretest kamu: ${refreshed.score}`}
-        body="Lanjut ke dashboard untuk membaca materi pelatihan."
-        href="/p"
-        hrefLabel="Ke Dashboard"
-      />
-    );
-  }
-
   const questions = await prisma.question.findMany({
     where: { moduleId: activity.moduleId, section: "PRETEST" },
     include: { options: true },
@@ -93,6 +58,77 @@ export default async function PretestPage({
       <ExamResult
         title="Belum ada soal pretest"
         body="Hubungi admin — modul belum memiliki soal pretest."
+      />
+    );
+  }
+
+  const activeAttempt = await prisma.attempt.findFirst({
+    where: {
+      participantId: participant.id,
+      section: "PRETEST",
+      submittedAt: null,
+    },
+    include: { answers: true },
+  });
+
+  if (!activeAttempt) {
+    const submitted = await prisma.attempt.findFirst({
+      where: {
+        participantId: participant.id,
+        section: "PRETEST",
+        submittedAt: { not: null },
+      },
+      orderBy: { submittedAt: "desc" },
+    });
+    if (submitted && submitted.score !== null) {
+      return (
+        <ExamResult
+          title={`Nilai pretest kamu: ${submitted.score}`}
+          body="Lanjut ke dashboard untuk membaca materi pelatihan."
+          href="/p"
+          hrefLabel="Ke Dashboard"
+        />
+      );
+    }
+    return (
+      <StartGate
+        eyebrow="Ujian Diawali"
+        title="Pretest"
+        activity={activity.title}
+        durationMin={activity.module.pretestDurationMin}
+        questionCount={questions.length}
+      >
+        <form action={startPretest} className="mt-8">
+          <input type="hidden" name="activityId" value={activityId} />
+          <Button variant="highlight" type="submit">
+            Mulai Pretest
+          </Button>
+        </form>
+      </StartGate>
+    );
+  }
+
+  const deadline = deadlineFor(
+    activeAttempt.startedAt,
+    activity.module.pretestDurationMin
+  );
+
+  if (Date.now() > deadline.getTime()) {
+    await submitAttempt(activeAttempt.id);
+  }
+
+  const refreshed = await prisma.attempt.findUniqueOrThrow({
+    where: { id: activeAttempt.id },
+    include: { answers: true },
+  });
+
+  if (refreshed.submittedAt && refreshed.score !== null) {
+    return (
+      <ExamResult
+        title={`Nilai pretest kamu: ${refreshed.score}`}
+        body="Lanjut ke dashboard untuk membaca materi pelatihan."
+        href="/p"
+        hrefLabel="Ke Dashboard"
       />
     );
   }
@@ -116,12 +152,12 @@ export default async function PretestPage({
 
   return (
     <main className="min-h-screen py-8">
-      <div className="mx-auto mb-6 max-w-2xl px-6">
+      <div className="mx-auto mb-8 max-w-2xl px-6">
         <p className="label-eyebrow text-flag">Ujian Diawali</p>
         <h1 className="mt-2 text-[var(--text-h1)] font-bold tracking-tight">
           Pretest
         </h1>
-        <p className="mt-1 text-sm text-ink-secondary">{activity.title}</p>
+        <p className="mt-2 text-base text-ink-secondary">{activity.title}</p>
       </div>
       <ExamRunner
         attemptId={refreshed.id}

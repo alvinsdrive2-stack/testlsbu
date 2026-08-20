@@ -1,4 +1,5 @@
 import { login } from "./actions";
+import { Button } from "@/components/ui/Button";
 
 export default async function AdminLoginPage({
   searchParams,
@@ -34,12 +35,9 @@ export default async function AdminLoginPage({
           {error ? (
             <p className="text-sm text-highlight">Password salah.</p>
           ) : null}
-          <button
-            type="submit"
-            className="w-full rounded-md bg-highlight py-2.5 font-semibold text-accent transition-colors hover:bg-highlight-hover hover:text-white"
-          >
+          <Button variant="highlight" type="submit" className="w-full">
             Masuk
-          </button>
+          </Button>
         </form>
       </div>
     </main>
