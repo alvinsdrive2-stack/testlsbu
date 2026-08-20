@@ -21,14 +21,9 @@ export function AdminShell({
             alt="Logo Gapensi"
             className="h-10 w-auto rounded-md"
           />
-          <span className="flex min-w-0 flex-col gap-1">
-            <span className="flex items-center gap-2">
-              <span className="text-base font-bold leading-none tracking-tight text-accent">
-                GAPENSI
-              </span>
-              <span className="inline-flex items-center rounded-full border border-hairline-strong bg-canvas px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-secondary">
-                v0.1
-              </span>
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-base font-bold leading-none tracking-tight text-accent">
+              GAPENSI
             </span>
             <span className="label-eyebrow text-ink-secondary">Panel Admin</span>
           </span>
@@ -37,6 +32,9 @@ export function AdminShell({
           <SidebarNav />
         </div>
         <div className="mt-auto border-t border-hairline pt-4">
+          <p className="mb-3 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-secondary">
+            v0.1
+          </p>
           <form action={logout}>
             <button
               type="submit"
