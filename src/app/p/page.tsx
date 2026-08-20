@@ -82,14 +82,14 @@ export default async function ParticipantDashboardPage() {
   let cta: React.ReactNode = null;
   if (postPassed) {
     cta = (
-      <span className="inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-[18px] font-semibold text-success">
+      <span className="inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-[16px] font-semibold text-success">
         <span aria-hidden className="size-2 rounded-full bg-success" />
         Lulus posttest
       </span>
     );
   } else if (activity.status === "CLOSED") {
     cta = (
-      <p className="text-[18px] leading-relaxed text-ink-secondary">
+      <p className="text-[16px] leading-relaxed text-ink-secondary">
         Kegiatan sudah ditutup. Hubungi admin untuk info lebih lanjut.
       </p>
     );
@@ -97,14 +97,14 @@ export default async function ParticipantDashboardPage() {
     cta = pretestDone ? (
       <Button href={`/t/${participant.token}`}>Kerjakan Posttest</Button>
     ) : (
-      <p className="text-[18px] leading-relaxed text-ink-secondary">
+      <p className="text-[16px] leading-relaxed text-ink-secondary">
         Kamu belum menyelesaikan pretest dan kegiatan sudah lanjut ke tahap
         posttest. Hubungi admin.
       </p>
     );
   } else if (pretestDone) {
     cta = (
-      <p className="text-[18px] leading-relaxed text-ink-secondary">
+      <p className="text-[16px] leading-relaxed text-ink-secondary">
         Pelajari materi di bawah. Posttest dibuka setelah admin mengakhiri sesi
         pretest.
       </p>
@@ -143,11 +143,11 @@ export default async function ParticipantDashboardPage() {
           <span className="hidden items-center gap-2.5 sm:flex">
             <span
               aria-hidden
-              className="flex size-9 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-[16px] font-bold text-white"
+              className="flex size-9 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-[14px] font-bold text-white"
             >
               {initials(participant.nama)}
             </span>
-            <span className="text-[18px] font-medium">{participant.nama}</span>
+            <span className="text-[16px] font-medium">{participant.nama}</span>
           </span>
         }
       />
@@ -161,7 +161,7 @@ export default async function ParticipantDashboardPage() {
                   key={m.label}
                   href={m.href}
                   aria-current={m.active ? "page" : undefined}
-                  className={`block rounded-md px-3 py-2.5 text-center text-[18px] font-medium transition-colors ${
+                  className={`block rounded-md px-3 py-2.5 text-center text-[16px] font-medium transition-colors ${
                     m.active
                       ? "bg-accent-soft text-accent"
                       : "text-ink-secondary hover:bg-canvas hover:text-ink"
@@ -184,7 +184,7 @@ export default async function ParticipantDashboardPage() {
                       }`}
                     />
                     <span
-                      className={`text-[18px] ${
+                      className={`text-[16px] ${
                         s.done ? "font-medium" : "text-ink-secondary"
                       }`}
                     >
@@ -197,16 +197,16 @@ export default async function ParticipantDashboardPage() {
 
             <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
               <p className="label-eyebrow text-ink-secondary">Nilai Pretest</p>
-              <p className="mt-2 text-[clamp(32px,3vw,44px)] font-bold tabular-nums text-accent">
+              <p className="mt-2 text-[clamp(30px,3vw,42px)] font-bold tabular-nums text-accent">
                 {pretestScore !== null ? pretestScore : "—"}
                 {pretestScore !== null ? (
-                  <span className="text-[22px] font-medium text-ink-secondary">
+                  <span className="text-[20px] font-medium text-ink-secondary">
                     {" "}
                     / 100
                   </span>
                 ) : null}
               </p>
-              <p className="mt-1 text-[18px] text-ink-secondary">
+              <p className="mt-1 text-[16px] text-ink-secondary">
                 {pretestScore === null
                   ? "Belum dikerjakan"
                   : pretestScores.length > 1
@@ -218,12 +218,12 @@ export default async function ParticipantDashboardPage() {
             <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
               <p className="label-eyebrow text-ink-secondary">Posttest</p>
               {postPassed ? (
-                <p className="mt-2 text-[18px] font-semibold text-success">
+                <p className="mt-2 text-[16px] font-semibold text-success">
                   Sudah lulus
                 </p>
               ) : activity.status === "POSTTEST_OPEN" ? (
                 pretestDone ? (
-                  <p className="mt-2 text-[18px] font-medium">
+                  <p className="mt-2 text-[16px] font-medium">
                     Siap dikerjakan —{" "}
                     <a
                       href={`/t/${participant.token}`}
@@ -233,12 +233,12 @@ export default async function ParticipantDashboardPage() {
                     </a>
                   </p>
                 ) : (
-                  <p className="mt-2 text-[18px] text-ink-secondary">
+                  <p className="mt-2 text-[16px] text-ink-secondary">
                     Tunggu pretest selesai
                   </p>
                 )
               ) : (
-                <p className="mt-2 text-[18px] text-ink-secondary">
+                <p className="mt-2 text-[16px] text-ink-secondary">
                   Dibuka setelah sesi pretest berakhir
                 </p>
               )}
@@ -253,10 +253,10 @@ export default async function ParticipantDashboardPage() {
             className="border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] sm:p-8"
           >
             <p className="label-eyebrow text-ink-secondary">Status kegiatan</p>
-            <h1 className="mt-2 text-[clamp(32px,3vw,44px)] font-bold tracking-tight text-ink">
+            <h1 className="mt-2 text-[clamp(30px,3vw,42px)] font-bold tracking-tight text-ink">
               {activity.title}
             </h1>
-            <p className="mt-1 text-[20px] text-ink-secondary">
+            <p className="mt-1 text-[18px] text-ink-secondary">
               {activity.module.title}
             </p>
 
@@ -274,7 +274,7 @@ export default async function ParticipantDashboardPage() {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="mt-2 text-[16px] font-medium text-ink-secondary">
+              <p className="mt-2 text-[14px] font-medium text-ink-secondary">
                 {stageLabel}
               </p>
             </div>
@@ -283,9 +283,9 @@ export default async function ParticipantDashboardPage() {
           </section>
 
           <section id="materi" className="mt-8 scroll-mt-16">
-            <h2 className="text-[clamp(24px,2vw,32px)] font-bold">Materi</h2>
+            <h2 className="text-[clamp(22px,2vw,30px)] font-bold">Materi</h2>
             {activity.module.materials.length === 0 ? (
-              <p className="mt-4 text-[18px] text-ink-secondary">
+              <p className="mt-4 text-[16px] text-ink-secondary">
                 Belum ada materi dari admin.
               </p>
             ) : (
@@ -302,13 +302,13 @@ export default async function ParticipantDashboardPage() {
                         <div className="flex items-start gap-4">
                           <span
                             aria-hidden
-                            className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent-soft text-[18px] font-semibold tabular-nums text-accent"
+                            className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent-soft text-[16px] font-semibold tabular-nums text-accent"
                           >
                             {String(i + 1).padStart(2, "0")}
                           </span>
                           <div className="min-w-0">
-                            <h3 className="text-[clamp(24px,2vw,32px)] font-semibold">{m.title}</h3>
-                            <div className="mt-3 whitespace-pre-wrap text-[19px] leading-relaxed text-ink-secondary">
+                            <h3 className="text-[clamp(22px,2vw,30px)] font-semibold">{m.title}</h3>
+                            <div className="mt-3 whitespace-pre-wrap text-[17px] leading-relaxed text-ink-secondary">
                               {m.content}
                             </div>
                             {embed ? (
