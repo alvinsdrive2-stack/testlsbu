@@ -1,48 +1,49 @@
 import Link from "next/link";
 import { logout } from "@/app/admin/actions";
-import { Button } from "@/components/ui/Button";
-
-const nav = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/modules", label: "Modul" },
-  { href: "/admin/activities", label: "Kegiatan" },
-];
+import { AdminNav } from "./AdminNav";
 
 export function AdminShell({
   title,
+  eyebrow,
   children,
 }: {
   title: string;
+  eyebrow?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-hairline bg-surface p-6 md:flex">
-        <p className="mb-8 text-lg font-semibold">Gapensi</p>
-        <nav className="space-y-1">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block rounded-lg px-3 py-2 text-sm text-ink-secondary hover:bg-canvas hover:text-ink"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <form action={logout} className="mt-auto">
-          <Button variant="ghost" type="submit" className="px-0">
-            Keluar
-          </Button>
-        </form>
-      </aside>
-      <main className="flex-1">
-        <div className="mx-auto max-w-3xl px-6 py-12">
-          <h1 className="text-[var(--text-hero)] font-semibold tracking-tight">
-            {title}
-          </h1>
-          <div className="mt-8 space-y-8">{children}</div>
+    <div className="min-h-screen">
+      <header className="border-b border-hairline bg-surface">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+          <Link href="/admin" className="flex items-baseline gap-3">
+            <span className="text-lg font-bold tracking-tight text-accent">
+              GAPENSI
+            </span>
+            <span className="hidden text-xs font-semibold uppercase tracking-[0.18em] text-ink-secondary sm:inline">
+              Panel Admin
+            </span>
+          </Link>
+          <div className="flex items-center gap-6">
+            <AdminNav />
+            <form action={logout}>
+              <button
+                type="submit"
+                className="text-sm font-medium text-ink-secondary hover:text-flag"
+              >
+                Keluar
+              </button>
+            </form>
+          </div>
         </div>
+      </header>
+      <main className="mx-auto max-w-4xl px-6 py-16">
+        {eyebrow ? (
+          <p className="label-eyebrow mb-2 text-flag">{eyebrow}</p>
+        ) : null}
+        <h1 className="text-[var(--text-hero)] font-bold tracking-tight">
+          {title}
+        </h1>
+        <div className="mt-12 space-y-12">{children}</div>
       </main>
     </div>
   );
