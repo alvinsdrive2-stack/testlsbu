@@ -13,16 +13,16 @@ export function AdminShell({
 }) {
   return (
     <div className="min-h-screen md:flex">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-hairline bg-surface p-6 md:flex">
-        <Link href="/admin" className="flex items-center gap-3">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col shadow-2xl bg-surface p-6 md:flex">
+        <Link href="/admin" className="flex flex-col items-center gap-3 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/favicon.png"
             alt="Logo Gapensi"
-            className="h-10 w-auto rounded-md"
+            className="h-20 w-auto rounded-xl"
           />
-          <span className="flex min-w-0 flex-col gap-0.5">
-            <span className="text-base font-bold leading-none tracking-tight text-accent">
+          <span className="flex flex-col items-center gap-1">
+            <span className="text-xl font-bold leading-none tracking-tight text-accent">
               GAPENSI
             </span>
             <span className="label-eyebrow text-ink-secondary">Panel Admin</span>
