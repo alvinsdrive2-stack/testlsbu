@@ -3,6 +3,7 @@ import { getParticipantToken } from "@/lib/session";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
+import { Backdrop } from "@/components/ui/Backdrop";
 
 function youtubeEmbed(url: string): string | null {
   const match = url.match(
@@ -135,13 +136,14 @@ export default async function ParticipantDashboardPage() {
 
   return (
     <div className="min-h-screen">
+      <Backdrop />
       <TopBar
         title={activity.title}
         right={
-          <span className="hidden items-center gap-2 sm:flex">
+          <span className="hidden items-center gap-2.5 sm:flex">
             <span
               aria-hidden
-              className="flex size-8 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-accent"
+              className="flex size-9 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-xs font-bold text-white"
             >
               {initials(participant.nama)}
             </span>
@@ -160,7 +162,7 @@ export default async function ParticipantDashboardPage() {
                   key={m.label}
                   href={m.href}
                   aria-current={m.active ? "page" : undefined}
-                  className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`block rounded-md px-3 py-2.5 text-center text-sm font-medium transition-colors ${
                     m.active
                       ? "bg-accent-soft text-accent"
                       : "text-ink-secondary hover:bg-canvas hover:text-ink"
@@ -337,7 +339,7 @@ export default async function ParticipantDashboardPage() {
               <div className="flex items-center gap-3">
                 <span
                   aria-hidden
-                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-soft text-sm font-bold text-accent"
+                  className="flex size-10 shrink-0 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-sm font-bold text-white"
                 >
                   {initials(participant.nama)}
                 </span>

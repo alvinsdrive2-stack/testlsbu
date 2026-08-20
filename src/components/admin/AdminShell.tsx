@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SidebarNav, MobileNav } from "./AdminNav";
 import { ProfileMenu } from "./ProfileMenu";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { Backdrop } from "@/components/ui/Backdrop";
 
 export function AdminShell({
   title,
@@ -14,14 +15,7 @@ export function AdminShell({
 }) {
   return (
     <div className="min-h-screen md:flex">
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/bg.jpg"
-          alt=""
-          className="h-full w-full scale-110 object-cover opacity-50 blur-[1px]"
-        />
-      </div>
+      <Backdrop />
 
       <div className="fixed right-4 top-4 z-30">
         <ProfileMenu />
