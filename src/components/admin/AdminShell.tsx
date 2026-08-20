@@ -19,9 +19,8 @@ export function AdminShell({
         <img
           src="/bg.jpg"
           alt=""
-          className="h-full w-full scale-110 object-cover blur-[1px]"
+          className="h-full w-full scale-110 object-cover opacity-50 blur-[1px]"
         />
-        <div className="absolute inset-0 bg-white/60" />
       </div>
 
       <div className="fixed right-4 top-4 z-30">
