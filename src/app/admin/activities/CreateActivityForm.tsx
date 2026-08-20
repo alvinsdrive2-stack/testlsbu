@@ -17,7 +17,7 @@ export function CreateActivityForm({
       <div>
         <label
           htmlFor="moduleId"
-          className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-ink-secondary"
+          className="mb-1.5 block text-sm font-medium text-ink"
         >
           Modul
         </label>

@@ -122,6 +122,12 @@ export default async function ActivityDetailPage({
 
   return (
     <AdminShell title={activity.title} eyebrow={activity.module.title}>
+      <Link
+        href="/admin/activities"
+        className="text-sm font-medium text-accent hover:underline"
+      >
+        ← Kembali ke daftar kegiatan
+      </Link>
       <section className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
         <p className="label-eyebrow text-ink-secondary">Status kegiatan</p>
         <p className="mt-1 text-h1 font-bold text-accent">

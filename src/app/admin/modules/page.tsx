@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { prisma } from "@/lib/prisma";
-import { CreateModuleForm } from "./CreateModuleForm";
+import { Button } from "@/components/ui/Button";
 
 export default async function ModulesPage() {
   const [modules, questionCounts] = await Promise.all([
@@ -19,38 +18,49 @@ export default async function ModulesPage() {
 
   return (
     <AdminShell title="Modul" eyebrow="Pustaka soal & materi">
-      <section className="border border-hairline bg-surface p-6">
-        <p className="text-h2 font-semibold">Modul baru</p>
-        <CreateModuleForm />
+      <section className="flex flex-wrap items-center justify-between gap-3">
+        <p className="label-eyebrow text-ink-secondary">{modules.length} modul</p>
+        <Button href="/admin/modules/new">Tambah Modul</Button>
       </section>
 
       {modules.length > 0 ? (
-        <section>
-          <p className="label-eyebrow mb-3 text-ink-secondary">
-            {modules.length} modul
-          </p>
-          <div className="rounded-[var(--radius-card)] border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-            {modules.map((m, i) => (
-              <Link
-                key={m.id}
+        <div className="rounded-[var(--radius-card)] border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+          {modules.map((m, i) => (
+            <div
+              key={m.id}
+              className={`flex items-center justify-between gap-4 px-6 py-5 ${
+                i > 0 ? "border-t border-hairline" : ""
+              }`}
+            >
+              <div className="min-w-0">
+                <p className="font-semibold">{m.title}</p>
+                {m.description ? (
+                  <p className="mt-0.5 truncate text-sm text-ink-secondary">
+                    {m.description}
+                  </p>
+                ) : null}
+                <p className="mt-0.5 text-sm tabular-nums text-ink-secondary">
+                  Pretest {countFor(m.id, "PRETEST")} soal · Posttest{" "}
+                  {countFor(m.id, "POSTTEST")} soal
+                </p>
+              </div>
+              <Button
                 href={`/admin/modules/${m.id}`}
-                className={`flex items-baseline justify-between gap-4 px-6 py-5 transition-colors hover:bg-canvas ${
-                  i > 0 ? "border-t border-hairline" : ""
-                }`}
+                variant="secondary"
+                className="shrink-0"
               >
-                <span className="font-semibold">{m.title}</span>
-                <span className="shrink-0 text-sm tabular-nums text-ink-secondary">
-                  Pretest {countFor(m.id, "PRETEST")} · Posttest{" "}
-                  {countFor(m.id, "POSTTEST")}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+                Lihat Detail
+              </Button>
+            </div>
+          ))}
+        </div>
       ) : (
-        <p className="text-sm text-ink-secondary">
-          Belum ada modul. Buat modul pertama di atas.
-        </p>
+        <div className="rounded-[var(--radius-card)] border border-hairline bg-surface px-6 py-12 text-center shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+          <p className="font-semibold">Belum ada modul</p>
+          <p className="mt-1 text-sm text-ink-secondary">
+            Buat modul pertama lewat tombol Tambah Modul.
+          </p>
+        </div>
       )}
     </AdminShell>
   );
