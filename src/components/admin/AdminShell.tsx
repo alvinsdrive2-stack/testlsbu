@@ -13,6 +13,10 @@ export function AdminShell({
 }) {
   return (
     <div className="min-h-screen md:flex">
+      <div className="fixed right-4 top-4 z-30">
+        <ProfileMenu />
+      </div>
+
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col shadow-2xl bg-surface pt-3 md:flex">
         <Link href="/admin" className="flex flex-col items-center gap-3 text-center pb-4 shadow-xl rounded-2xl w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -39,28 +43,19 @@ export function AdminShell({
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-20 hidden h-16 items-center justify-end border-b border-hairline bg-surface/95 px-6 backdrop-blur-xl md:flex">
-          <ProfileMenu />
-        </header>
-
-        <header className="border-b border-hairline bg-surface px-4 py-3 md:hidden">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/favicon.png"
-                alt="Logo Gapensi"
-                className="h-8 w-auto rounded-md"
-              />
-              <span className="text-base font-bold leading-none tracking-tight text-accent">
-                GAPENSI
-              </span>
-            </div>
-            <ProfileMenu />
+        <header className="border-b border-hairline bg-surface px-6 py-4 md:hidden">
+          <div className="mb-3 flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/favicon.png"
+              alt="Logo Gapensi"
+              className="h-8 w-auto rounded-md"
+            />
+            <span className="text-base font-bold leading-none tracking-tight text-accent">
+              GAPENSI
+            </span>
           </div>
-          <div className="mt-3">
-            <MobileNav />
-          </div>
+          <MobileNav />
         </header>
 
         <main className="mx-auto my-[2.5vh] min-h-[95vh] max-w-11/12  bg-white px-6 py-8 shadow-2xl">
