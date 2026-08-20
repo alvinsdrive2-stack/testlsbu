@@ -150,3 +150,54 @@ export async function moveQuestion(formData: FormData) {
 
   revalidatePath(`/admin/modules/${moduleId}`);
 }
+
+export async function addOption(formData: FormData) {
+  const questionId = String(formData.get("questionId"));
+  const moduleId = String(formData.get("moduleId"));
+  const text = String(formData.get("text"));
+
+  if (text.trim().length < 1) throw new Error("Opsi tidak boleh kosong");
+
+  await prisma.option.create({
+    data: {
+      questionId,
+      text,
+      isCorrect: false,
+    },
+  });
+
+  revalidatePath(`/admin/modules/${moduleId}`);
+}
+
+export async function setCorrectOption(formData: FormData) {
+  const optionId = String(formData.get("optionId"));
+  const moduleId = String(formData.get("moduleId"));
+
+  const option = await prisma.option.findUnique({
+    where: { id: optionId },
+    include: { question: true },
+  });
+  if (!option) return;
+
+  await prisma.$transaction([
+    prisma.option.updateMany({
+      where: { questionId: option.questionId },
+      data: { isCorrect: false },
+    }),
+    prisma.option.update({
+      where: { id: optionId },
+      data: { isCorrect: true },
+    }),
+  ]);
+
+  revalidatePath(`/admin/modules/${moduleId}`);
+}
+
+export async function deleteOption(formData: FormData) {
+  const optionId = String(formData.get("optionId"));
+  const moduleId = String(formData.get("moduleId"));
+
+  await prisma.option.delete({ where: { id: optionId } });
+
+  revalidatePath(`/admin/modules/${moduleId}`);
+}

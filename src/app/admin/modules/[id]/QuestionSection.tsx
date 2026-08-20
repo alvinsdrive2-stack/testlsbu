@@ -4,6 +4,9 @@ import {
   updateQuestionText,
   deleteQuestion,
   moveQuestion,
+  addOption,
+  setCorrectOption,
+  deleteOption,
 } from "../actions";
 import { Card } from "@/components/ui/Card";
 import { TextArea } from "@/components/ui/Field";
@@ -79,23 +82,62 @@ export function QuestionSection({
 
             <div className="mt-4 space-y-2 border-t border-hairline pt-4">
               {q.options.map((opt) => (
-                <p
+                <div
                   key={opt.id}
-                  className={`rounded-xl px-3 py-2 text-sm ${
-                    opt.isCorrect
-                      ? "bg-accent/10 font-medium text-ink"
-                      : "text-ink-secondary"
-                  }`}
+                  className="flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm"
                 >
-                  {opt.isCorrect ? "✓ " : ""}
-                  {opt.text}
-                </p>
+                  <span
+                    className={
+                      opt.isCorrect
+                        ? "font-medium text-ink"
+                        : "text-ink-secondary"
+                    }
+                  >
+                    {opt.isCorrect ? "✓ " : ""}
+                    {opt.text}
+                  </span>
+                  <div className="flex shrink-0 gap-1">
+                    {!opt.isCorrect ? (
+                      <form action={setCorrectOption}>
+                        <input type="hidden" name="optionId" value={opt.id} />
+                        <input type="hidden" name="moduleId" value={moduleId} />
+                        <Button variant="ghost" type="submit">
+                          Jadikan benar
+                        </Button>
+                      </form>
+                    ) : null}
+                    <form action={deleteOption}>
+                      <input type="hidden" name="optionId" value={opt.id} />
+                      <input type="hidden" name="moduleId" value={moduleId} />
+                      <Button variant="ghost" type="submit">
+                        Hapus
+                      </Button>
+                    </form>
+                  </div>
+                </div>
               ))}
-              {q.options.length === 0 ? (
-                <p className="text-sm text-ink-secondary">
-                  Belum ada opsi jawaban.
-                </p>
-              ) : null}
+
+              <form action={addOption} className="flex items-end gap-2 pt-2">
+                <input type="hidden" name="questionId" value={q.id} />
+                <input type="hidden" name="moduleId" value={moduleId} />
+                <div className="flex-1">
+                  <label
+                    className="mb-1 block text-sm font-medium"
+                    htmlFor={`opt-${q.id}`}
+                  >
+                    Tambah opsi
+                  </label>
+                  <input
+                    id={`opt-${q.id}`}
+                    name="text"
+                    required
+                    className="w-full rounded-xl border border-hairline bg-surface px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+                <Button variant="secondary" type="submit">
+                  Tambah
+                </Button>
+              </form>
             </div>
           </Card>
         ))}
