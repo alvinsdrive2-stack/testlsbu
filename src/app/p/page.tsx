@@ -289,7 +289,7 @@ export default async function ParticipantDashboardPage() {
                 Belum ada materi dari admin.
               </p>
             ) : (
-              <div className="mt-4 space-y-4">
+              <div className="mt-4 divide-y divide-hairline border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
                 {activity.module.materials
                   .sort((a, b) => a.order - b.order)
                   .map((m, i) => {
@@ -297,7 +297,7 @@ export default async function ParticipantDashboardPage() {
                     return (
                       <article
                         key={m.id}
-                        className="border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]"
+                        className="p-6"
                       >
                         <div className="flex items-start gap-4">
                           <span
