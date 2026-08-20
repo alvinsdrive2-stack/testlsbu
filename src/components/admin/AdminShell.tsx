@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SidebarNav, MobileNav } from "./AdminNav";
 import { ProfileMenu } from "./ProfileMenu";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 export function AdminShell({
   title,
@@ -59,13 +60,15 @@ export function AdminShell({
         </header>
 
         <main className="mx-auto my-[2.5vh] min-h-[95vh] max-w-11/12  bg-white px-6 py-8 shadow-2xl">
-          {eyebrow ? (
-            <p className="label-eyebrow mb-2 text-ink-secondary">{eyebrow}</p>
-          ) : null}
-          <h1 className="text-[clamp(30px,4vw,56px)] font-bold leading-none tracking-tight">
-            {title}
-          </h1>
-          <div className="mt-12 space-y-12">{children}</div>
+          <PageTransition>
+            {eyebrow ? (
+              <p className="label-eyebrow mb-2 text-ink-secondary">{eyebrow}</p>
+            ) : null}
+            <h1 className="text-[clamp(30px,4vw,56px)] font-bold leading-none tracking-tight">
+              {title}
+            </h1>
+            <div className="mt-12 space-y-12">{children}</div>
+          </PageTransition>
         </main>
       </div>
     </div>
