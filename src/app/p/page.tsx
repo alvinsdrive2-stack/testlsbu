@@ -152,11 +152,10 @@ export default async function ParticipantDashboardPage() {
         }
       />
 
-      <main className="mx-auto grid max-w-[1843px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)_300px]">
-        {/* Kolom kiri: menu + progress */}
-        <aside className="hidden md:block">
-          <div className="sticky top-20 space-y-4">
-            <nav className="rounded-[var(--radius-card)] border border-hairline bg-surface p-2 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+      <main className="mx-auto grid max-w-[1843px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)]">
+        {/* Kolom kiri: menu + progress + nilai/posttest/profil */}
+        <aside className="order-2 space-y-4 md:order-1 md:sticky md:top-20">
+          <nav className="hidden rounded-[var(--radius-card)] border border-hairline bg-surface p-2 shadow-[0_1px_3px_rgba(15,20,25,0.06)] md:block">
               {menu.map((m) => (
                 <a
                   key={m.label}
@@ -195,11 +194,83 @@ export default async function ParticipantDashboardPage() {
                 ))}
               </ol>
             </div>
-          </div>
+
+            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+              <p className="label-eyebrow text-ink-secondary">Nilai Pretest</p>
+              <p className="mt-2 text-[var(--text-h1)] font-bold tabular-nums text-accent">
+                {pretestScore !== null ? pretestScore : "—"}
+                {pretestScore !== null ? (
+                  <span className="text-lg font-medium text-ink-secondary">
+                    {" "}
+                    / 100
+                  </span>
+                ) : null}
+              </p>
+              <p className="mt-1 text-sm text-ink-secondary">
+                {pretestScore === null
+                  ? "Belum dikerjakan"
+                  : pretestScores.length > 1
+                    ? `Terbaik dari ${pretestScores.length} percobaan`
+                    : "Sudah dikerjakan"}
+              </p>
+            </div>
+
+            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+              <p className="label-eyebrow text-ink-secondary">Posttest</p>
+              {postPassed ? (
+                <p className="mt-2 text-sm font-semibold text-success">
+                  Sudah lulus
+                </p>
+              ) : activity.status === "POSTTEST_OPEN" ? (
+                pretestDone ? (
+                  <p className="mt-2 text-sm font-medium">
+                    Siap dikerjakan —{" "}
+                    <a
+                      href={`/t/${participant.token}`}
+                      className="text-accent hover:underline"
+                    >
+                      buka link
+                    </a>
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-ink-secondary">
+                    Tunggu pretest selesai
+                  </p>
+                )
+              ) : (
+                <p className="mt-2 text-sm text-ink-secondary">
+                  Dibuka setelah sesi pretest berakhir
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden
+                  className="flex size-10 shrink-0 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-sm font-bold text-white"
+                >
+                  {initials(participant.nama)}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">
+                    {participant.nama}
+                  </p>
+                  <p className="truncate text-[13px] text-ink-secondary">
+                    {participant.badanUsaha}
+                  </p>
+                </div>
+              </div>
+              {participant.isGapensiMember ? (
+                <p className="mt-3 inline-block rounded-md bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
+                  Anggota Gapensi
+                </p>
+              ) : null}
+            </div>
         </aside>
 
         {/* Kolom tengah: status + materi */}
-        <div className="min-w-0">
+        <div className="order-1 min-w-0 md:order-2">
           <section
             id="nilai"
             className="border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] sm:p-8"
@@ -283,83 +354,6 @@ export default async function ParticipantDashboardPage() {
           </section>
         </div>
 
-        {/* Kolom kanan: nilai + posttest + profil */}
-        <aside>
-          <div className="space-y-4 lg:sticky lg:top-20">
-            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-              <p className="label-eyebrow text-ink-secondary">Nilai Pretest</p>
-              <p className="mt-2 text-[var(--text-h1)] font-bold tabular-nums text-accent">
-                {pretestScore !== null ? pretestScore : "—"}
-                {pretestScore !== null ? (
-                  <span className="text-lg font-medium text-ink-secondary">
-                    {" "}
-                    / 100
-                  </span>
-                ) : null}
-              </p>
-              <p className="mt-1 text-sm text-ink-secondary">
-                {pretestScore === null
-                  ? "Belum dikerjakan"
-                  : pretestScores.length > 1
-                    ? `Terbaik dari ${pretestScores.length} percobaan`
-                    : "Sudah dikerjakan"}
-              </p>
-            </div>
-
-            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-              <p className="label-eyebrow text-ink-secondary">Posttest</p>
-              {postPassed ? (
-                <p className="mt-2 text-sm font-semibold text-success">
-                  Sudah lulus
-                </p>
-              ) : activity.status === "POSTTEST_OPEN" ? (
-                pretestDone ? (
-                  <p className="mt-2 text-sm font-medium">
-                    Siap dikerjakan —{" "}
-                    <a
-                      href={`/t/${participant.token}`}
-                      className="text-accent hover:underline"
-                    >
-                      buka link
-                    </a>
-                  </p>
-                ) : (
-                  <p className="mt-2 text-sm text-ink-secondary">
-                    Tunggu pretest selesai
-                  </p>
-                )
-              ) : (
-                <p className="mt-2 text-sm text-ink-secondary">
-                  Dibuka setelah sesi pretest berakhir
-                </p>
-              )}
-            </div>
-
-            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-              <div className="flex items-center gap-3">
-                <span
-                  aria-hidden
-                  className="flex size-10 shrink-0 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-sm font-bold text-white"
-                >
-                  {initials(participant.nama)}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">
-                    {participant.nama}
-                  </p>
-                  <p className="truncate text-[13px] text-ink-secondary">
-                    {participant.badanUsaha}
-                  </p>
-                </div>
-              </div>
-              {participant.isGapensiMember ? (
-                <p className="mt-3 inline-block rounded-md bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
-                  Anggota Gapensi
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </aside>
       </main>
     </div>
   );
