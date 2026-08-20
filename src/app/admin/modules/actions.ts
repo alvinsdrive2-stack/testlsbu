@@ -197,6 +197,10 @@ export async function deleteOption(formData: FormData) {
   const optionId = String(formData.get("optionId"));
   const moduleId = String(formData.get("moduleId"));
 
+  const option = await prisma.option.findUnique({ where: { id: optionId } });
+  if (!option) return;
+  if (option.isCorrect) throw new Error("Tidak bisa menghapus jawaban benar");
+
   await prisma.option.delete({ where: { id: optionId } });
 
   revalidatePath(`/admin/modules/${moduleId}`);
