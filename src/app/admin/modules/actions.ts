@@ -23,14 +23,19 @@ const materialSchema = z.object({
     .or(z.literal("")),
 });
 
-export async function createModule(formData: FormData) {
+type FormState = { error?: string };
+
+export async function createModule(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
   const parsed = moduleCreateSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description") || undefined,
   });
 
   if (!parsed.success) {
-    throw new Error(parsed.error.issues[0].message);
+    return { error: parsed.error.issues[0].message };
   }
 
   const mod = await prisma.module.create({
@@ -72,7 +77,10 @@ export async function updateModuleSettings(
   return { ok: true };
 }
 
-export async function createQuestion(formData: FormData) {
+export async function createQuestion(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
   const parsed = questionCreateSchema.safeParse({
     moduleId: formData.get("moduleId"),
     section: formData.get("section"),
@@ -80,7 +88,7 @@ export async function createQuestion(formData: FormData) {
   });
 
   if (!parsed.success) {
-    throw new Error(parsed.error.issues[0].message);
+    return { error: parsed.error.issues[0].message };
   }
 
   const last = await prisma.question.findFirst({
@@ -99,18 +107,23 @@ export async function createQuestion(formData: FormData) {
   });
 
   revalidatePath(`/admin/modules/${parsed.data.moduleId}`);
+  return {};
 }
 
-export async function updateQuestionText(formData: FormData) {
+export async function updateQuestionText(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
   const questionId = String(formData.get("questionId"));
   const moduleId = String(formData.get("moduleId"));
   const text = String(formData.get("text"));
 
-  if (text.trim().length < 3) throw new Error("Soal minimal 3 karakter");
+  if (text.trim().length < 3) return { error: "Soal minimal 3 karakter" };
 
   await prisma.question.update({ where: { id: questionId }, data: { text } });
 
   revalidatePath(`/admin/modules/${moduleId}`);
+  return {};
 }
 
 export async function deleteQuestion(formData: FormData) {
@@ -169,12 +182,15 @@ export async function moveQuestion(formData: FormData) {
   revalidatePath(`/admin/modules/${moduleId}`);
 }
 
-export async function addOption(formData: FormData) {
+export async function addOption(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
   const questionId = String(formData.get("questionId"));
   const moduleId = String(formData.get("moduleId"));
   const text = String(formData.get("text"));
 
-  if (text.trim().length < 1) throw new Error("Opsi tidak boleh kosong");
+  if (text.trim().length < 1) return { error: "Opsi tidak boleh kosong" };
 
   await prisma.option.create({
     data: {
@@ -185,6 +201,7 @@ export async function addOption(formData: FormData) {
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);
+  return {};
 }
 
 export async function setCorrectOption(formData: FormData) {
@@ -211,20 +228,28 @@ export async function setCorrectOption(formData: FormData) {
   revalidatePath(`/admin/modules/${moduleId}`);
 }
 
-export async function deleteOption(formData: FormData) {
+export async function deleteOption(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
   const optionId = String(formData.get("optionId"));
   const moduleId = String(formData.get("moduleId"));
 
   const option = await prisma.option.findUnique({ where: { id: optionId } });
-  if (!option) return;
-  if (option.isCorrect) throw new Error("Tidak bisa menghapus jawaban benar");
+  if (!option) return {};
+  if (option.isCorrect)
+    return { error: "Jawaban benar tidak bisa dihapus. Ubah jawaban benar dulu." };
 
   await prisma.option.delete({ where: { id: optionId } });
 
   revalidatePath(`/admin/modules/${moduleId}`);
+  return {};
 }
 
-export async function createMaterial(formData: FormData) {
+export async function createMaterial(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
   const parsed = materialSchema.safeParse({
     moduleId: formData.get("moduleId"),
     title: formData.get("title"),
@@ -233,7 +258,7 @@ export async function createMaterial(formData: FormData) {
   });
 
   if (!parsed.success) {
-    throw new Error(parsed.error.issues[0].message);
+    return { error: parsed.error.issues[0].message };
   }
 
   const { moduleId, videoUrl, ...data } = parsed.data;
@@ -254,9 +279,13 @@ export async function createMaterial(formData: FormData) {
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);
+  return {};
 }
 
-export async function updateMaterial(formData: FormData) {
+export async function updateMaterial(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
   const materialId = String(formData.get("materialId"));
   const moduleId = String(formData.get("moduleId"));
 
@@ -268,7 +297,7 @@ export async function updateMaterial(formData: FormData) {
   });
 
   if (!parsed.success) {
-    throw new Error(parsed.error.issues[0].message);
+    return { error: parsed.error.issues[0].message };
   }
 
   const { videoUrl, ...data } = parsed.data;
@@ -279,6 +308,7 @@ export async function updateMaterial(formData: FormData) {
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);
+  return {};
 }
 
 export async function deleteMaterial(formData: FormData) {

@@ -187,7 +187,7 @@ export default async function ParticipantDashboardPage() {
                 return (
                   <article key={m.id} className="py-10">
                     <div className="flex gap-4">
-                      <span className="label-eyebrow w-8 shrink-0 pt-1 text-flag">
+                      <span className="label-eyebrow w-8 shrink-0 pt-1 text-ink-secondary">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <div className="min-w-0">

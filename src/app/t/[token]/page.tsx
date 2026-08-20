@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
-import { submitAttempt } from "@/app/exam/actions";
+import { finalizeAttempt } from "@/app/exam/actions";
 import { ExamRunner } from "@/app/exam/ExamRunner";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
@@ -10,12 +10,15 @@ import { startPosttestRetry } from "./actions";
 function PosttestFailed({
   score,
   passingGrade,
+  attempt,
   token,
 }: {
   score: number;
   passingGrade: number;
+  attempt: number;
   token: string;
 }) {
+  const gap = Math.max(0, passingGrade - score);
   return (
     <main className="flex min-h-screen items-center justify-center bg-accent px-6">
       <div className="w-full max-w-md text-center">
@@ -24,22 +27,27 @@ function PosttestFailed({
           {score}
         </p>
         <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
-          Passing grade {passingGrade}
+          Passing grade {passingGrade} · Percobaan ke-{attempt}
         </p>
         <p className="mt-3 text-sm text-white/70">
-          Kamu belum lulus — bisa diulang kapan pun sampai lulus.
+          {gap > 0 ? `Kurang ${gap} poin lagi buat lulus. ` : ""}
+          Pelajari materi di dashboard, lalu coba lagi kapan pun.
         </p>
-        <form
-          action={async () => {
-            "use server";
-            await startPosttestRetry(token);
-          }}
-          className="mt-8"
-        >
-          <Button variant="highlight" type="submit">
-            Coba Lagi
+        <div className="mt-8 flex flex-wrap justify-center gap-2">
+          <form
+            action={async () => {
+              "use server";
+              await startPosttestRetry(token);
+            }}
+          >
+            <Button variant="highlight" type="submit">
+              Coba Lagi
+            </Button>
+          </form>
+          <Button variant="secondary" href="/p">
+            Pelajari Materi
           </Button>
-        </form>
+        </div>
       </div>
     </main>
   );
@@ -91,6 +99,15 @@ export default async function PosttestPage({
   }
 
   const activity = participant.activity;
+
+  const failedPosttest = await prisma.attempt.count({
+    where: {
+      participantId: participant.id,
+      section: "POSTTEST",
+      submittedAt: { not: null },
+      passed: false,
+    },
+  });
 
   if (activity.status === "CLOSED") {
     return (
@@ -154,6 +171,7 @@ export default async function PosttestPage({
         <PosttestFailed
           score={lastSubmitted.score}
           passingGrade={activity.module.posttestPassingGrade}
+          attempt={failedPosttest}
           token={token}
         />
       );
@@ -187,7 +205,7 @@ export default async function PosttestPage({
   );
 
   if (Date.now() > deadline.getTime()) {
-    await submitAttempt(activeAttempt.id);
+    await finalizeAttempt(activeAttempt.id);
   }
 
   const refreshed = await prisma.attempt.findUniqueOrThrow({
@@ -200,6 +218,7 @@ export default async function PosttestPage({
       <PosttestFailed
         score={refreshed.score}
         passingGrade={activity.module.posttestPassingGrade}
+        attempt={failedPosttest}
         token={token}
       />
     );

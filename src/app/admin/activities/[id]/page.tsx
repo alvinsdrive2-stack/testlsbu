@@ -290,7 +290,7 @@ export default async function ActivityDetailPage({
                         </td>
                         <td className="py-3 pr-6 tabular-nums">
                           {postBest !== null ? (
-                            <span className="font-semibold text-flag">
+                            <span className="font-semibold text-ink">
                               {postBest}
                             </span>
                           ) : (

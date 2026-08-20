@@ -10,14 +10,19 @@ const activityCreateSchema = z.object({
   title: z.string().min(3, "Judul minimal 3 karakter"),
 });
 
-export async function createActivity(formData: FormData) {
+type FormState = { error?: string };
+
+export async function createActivity(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
   const parsed = activityCreateSchema.safeParse({
     moduleId: formData.get("moduleId"),
     title: formData.get("title"),
   });
 
   if (!parsed.success) {
-    throw new Error(parsed.error.issues[0].message);
+    return { error: parsed.error.issues[0].message };
   }
 
   const activity = await prisma.activity.create({

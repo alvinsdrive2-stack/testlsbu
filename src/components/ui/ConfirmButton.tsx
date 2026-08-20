@@ -38,6 +38,11 @@ export function ConfirmButton({
       } ${className}`}
     >
       {armed ? confirmLabel : label}
+      {armed ? (
+        <span role="status" className="sr-only">
+          {confirmLabel}
+        </span>
+      ) : null}
     </button>
   );
 }

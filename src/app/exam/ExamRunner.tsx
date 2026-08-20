@@ -106,13 +106,39 @@ export function ExamRunner({
             {minutes}:{String(seconds).padStart(2, "0")}
           </p>
         </div>
+        <div className="mx-auto mt-2 flex max-w-2xl gap-1.5 overflow-x-auto pb-0.5">
+          {questions.map((q, i) => {
+            const answered = Boolean(answers[q.id]);
+            return (
+              <button
+                key={q.id}
+                type="button"
+                onClick={() =>
+                  document
+                    .getElementById(`q-${q.id}`)
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
+                aria-label={`Lompat ke soal ${i + 1}${
+                  answered ? "" : " (belum dijawab)"
+                }`}
+                className={`flex size-8 shrink-0 items-center justify-center rounded-md border text-xs font-semibold tabular-nums ${
+                  answered
+                    ? "border-accent bg-accent text-white"
+                    : "border-hairline-strong bg-surface text-ink-secondary"
+                }`}
+              >
+                {i + 1}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mx-auto max-w-2xl divide-y divide-hairline px-6">
         {questions.map((q, i) => (
-          <section key={q.id} className="py-10">
+          <section key={q.id} id={`q-${q.id}`} className="scroll-mt-28 py-10">
             <div className="flex gap-4">
-              <span className="label-eyebrow w-9 shrink-0 pt-1 text-flag">
+              <span className="label-eyebrow w-9 shrink-0 pt-1 text-ink-secondary">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <p className="text-[17px] font-medium leading-relaxed">{q.text}</p>
@@ -138,7 +164,7 @@ export function ExamRunner({
                       name={q.id}
                       checked={selected}
                       onChange={() => select(q.id, opt.id)}
-                      className="size-4 accent-[#002b66]"
+                      className="size-4 accent-accent"
                     />
                     {opt.text}
                   </label>

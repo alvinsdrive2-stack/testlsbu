@@ -22,6 +22,11 @@ export async function saveAnswer(attemptId: string, questionId: string, optionId
 }
 
 export async function submitAttempt(attemptId: string) {
+  await finalizeAttempt(attemptId);
+  revalidatePath("/p");
+}
+
+export async function finalizeAttempt(attemptId: string) {
   const attempt = await prisma.attempt.findUnique({
     where: { id: attemptId },
     include: {
@@ -73,6 +78,4 @@ export async function submitAttempt(attemptId: string) {
       data: { stage: "POSTTEST_PASSED" },
     });
   }
-
-  revalidatePath("/p");
 }

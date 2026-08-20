@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getParticipantToken } from "@/lib/session";
 import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
-import { submitAttempt } from "@/app/exam/actions";
+import { finalizeAttempt } from "@/app/exam/actions";
 import { ExamRunner } from "@/app/exam/ExamRunner";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
@@ -114,7 +114,7 @@ export default async function PretestPage({
   );
 
   if (Date.now() > deadline.getTime()) {
-    await submitAttempt(activeAttempt.id);
+    await finalizeAttempt(activeAttempt.id);
   }
 
   const refreshed = await prisma.attempt.findUniqueOrThrow({

@@ -1,9 +1,67 @@
+"use client";
+
+import { useActionState } from "react";
 import type { Material } from "@prisma/client";
-import { createMaterial, updateMaterial, deleteMaterial } from "../actions";
+import {
+  createMaterial,
+  updateMaterial,
+  deleteMaterial,
+} from "../actions";
 import { Card } from "@/components/ui/Card";
 import { TextArea, TextField } from "@/components/ui/Field";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
+
+type FieldState = { error?: string };
+
+function ErrorNote({ error }: { error?: string }) {
+  if (!error) return null;
+  return <span className="text-sm text-flag">{error}</span>;
+}
+
+function EditMaterialForm({ material }: { material: Material }) {
+  const [state, formAction] = useActionState(updateMaterial, {});
+  return (
+    <form action={formAction} className="mt-2 space-y-3">
+      <input type="hidden" name="materialId" value={material.id} />
+      <input type="hidden" name="moduleId" value={material.moduleId} />
+      <TextField
+        label="Judul"
+        name="title"
+        defaultValue={material.title}
+        required
+        minLength={3}
+      />
+      <TextArea label="Konten" name="content" defaultValue={material.content} required />
+      <TextField
+        label="URL video (opsional)"
+        name="videoUrl"
+        type="url"
+        defaultValue={material.videoUrl ?? ""}
+      />
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton variant="secondary">Simpan Materi</SubmitButton>
+        <ErrorNote error={state.error} />
+      </div>
+    </form>
+  );
+}
+
+function CreateMaterialForm({ moduleId }: { moduleId: string }) {
+  const [state, formAction] = useActionState(createMaterial, {});
+  return (
+    <form action={formAction} className="space-y-3">
+      <input type="hidden" name="moduleId" value={moduleId} />
+      <TextField label="Judul materi baru" name="title" required minLength={3} />
+      <TextArea label="Konten" name="content" required />
+      <TextField label="URL video (opsional)" name="videoUrl" type="url" />
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton>Tambah Materi</SubmitButton>
+        <ErrorNote error={state.error} />
+      </div>
+    </form>
+  );
+}
 
 export function MaterialSection({
   moduleId,
@@ -29,37 +87,13 @@ export function MaterialSection({
                 <ConfirmButton label="Hapus" />
               </form>
             </div>
-            <form action={updateMaterial} className="mt-2 space-y-3">
-              <input type="hidden" name="materialId" value={m.id} />
-              <input type="hidden" name="moduleId" value={moduleId} />
-              <TextField
-                label="Judul"
-                name="title"
-                defaultValue={m.title}
-                required
-                minLength={3}
-              />
-              <TextArea label="Konten" name="content" defaultValue={m.content} required />
-              <TextField
-                label="URL video (opsional)"
-                name="videoUrl"
-                type="url"
-                defaultValue={m.videoUrl ?? ""}
-              />
-              <SubmitButton variant="secondary">Simpan Materi</SubmitButton>
-            </form>
+            <EditMaterialForm material={m} />
           </Card>
         ))}
       </div>
 
       <Card className="mt-4 p-5">
-        <form action={createMaterial} className="space-y-3">
-          <input type="hidden" name="moduleId" value={moduleId} />
-          <TextField label="Judul materi baru" name="title" required minLength={3} />
-          <TextArea label="Konten" name="content" required />
-          <TextField label="URL video (opsional)" name="videoUrl" type="url" />
-          <SubmitButton>Tambah Materi</SubmitButton>
-        </form>
+        <CreateMaterialForm moduleId={moduleId} />
       </Card>
     </section>
   );

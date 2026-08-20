@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useActionState } from "react";
 import type { Question, Option } from "@prisma/client";
 import {
   createQuestion,
@@ -18,6 +18,13 @@ import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 
 type Section = "PRETEST" | "POSTTEST";
+
+type FieldState = { error?: string };
+
+function ErrorNote({ error }: { error?: string }) {
+  if (!error) return null;
+  return <span className="text-sm text-flag">{error}</span>;
+}
 
 function Chevron() {
   return (
@@ -38,6 +45,87 @@ function Chevron() {
   );
 }
 
+function EditQuestionForm({
+  questionId,
+  moduleId,
+  initialText,
+}: {
+  questionId: string;
+  moduleId: string;
+  initialText: string;
+}) {
+  const [state, formAction] = useActionState(updateQuestionText, {});
+  return (
+    <form action={formAction} className="space-y-3">
+      <input type="hidden" name="questionId" value={questionId} />
+      <input type="hidden" name="moduleId" value={moduleId} />
+      <TextArea
+        label="Teks soal"
+        name="text"
+        defaultValue={initialText}
+        required
+        minLength={3}
+      />
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton variant="secondary">Simpan Soal</SubmitButton>
+        <ErrorNote error={state.error} />
+      </div>
+    </form>
+  );
+}
+
+function AddOptionForm({
+  questionId,
+  moduleId,
+}: {
+  questionId: string;
+  moduleId: string;
+}) {
+  const [state, formAction] = useActionState(addOption, {});
+  return (
+    <form action={formAction} className="flex items-end gap-2 pt-2">
+      <input type="hidden" name="questionId" value={questionId} />
+      <input type="hidden" name="moduleId" value={moduleId} />
+      <div className="flex-1">
+        <label
+          className="mb-1 block text-sm font-medium"
+          htmlFor={`opt-${questionId}`}
+        >
+          Tambah opsi
+        </label>
+        <input
+          id={`opt-${questionId}`}
+          name="text"
+          required
+          className="w-full rounded-md border border-hairline-strong bg-surface px-3 py-2 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+        />
+      </div>
+      <SubmitButton variant="secondary">Tambah</SubmitButton>
+      <ErrorNote error={state.error} />
+    </form>
+  );
+}
+
+function DeleteOptionButton({
+  optionId,
+  moduleId,
+}: {
+  optionId: string;
+  moduleId: string;
+}) {
+  const [state, formAction] = useActionState(deleteOption, {});
+  return (
+    <div className="flex items-center gap-2">
+      <form action={formAction}>
+        <input type="hidden" name="optionId" value={optionId} />
+        <input type="hidden" name="moduleId" value={moduleId} />
+        <ConfirmButton label="Hapus" className="px-3 py-1 text-xs" />
+      </form>
+      <ErrorNote error={state.error} />
+    </div>
+  );
+}
+
 export function QuestionSection({
   moduleId,
   section,
@@ -49,6 +137,7 @@ export function QuestionSection({
 }) {
   const title = section === "PRETEST" ? "Soal Pretest" : "Soal Posttest";
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [createState, createFormAction] = useActionState(createQuestion, {});
 
   return (
     <section>
@@ -76,7 +165,12 @@ export function QuestionSection({
                     <input type="hidden" name="questionId" value={q.id} />
                     <input type="hidden" name="moduleId" value={moduleId} />
                     <input type="hidden" name="direction" value="up" />
-                    <Button variant="ghost" type="submit" disabled={i === 0}>
+                    <Button
+                      variant="ghost"
+                      type="submit"
+                      disabled={i === 0}
+                      aria-label={`Naikkan urutan soal ${i + 1}`}
+                    >
                       ↑
                     </Button>
                   </form>
@@ -88,6 +182,7 @@ export function QuestionSection({
                       variant="ghost"
                       type="submit"
                       disabled={i === questions.length - 1}
+                      aria-label={`Turunkan urutan soal ${i + 1}`}
                     >
                       ↓
                     </Button>
@@ -119,18 +214,11 @@ export function QuestionSection({
 
               {expanded ? (
                 <div className="mt-3 space-y-3">
-                  <form action={updateQuestionText} className="space-y-3">
-                    <input type="hidden" name="questionId" value={q.id} />
-                    <input type="hidden" name="moduleId" value={moduleId} />
-                    <TextArea
-                      label="Teks soal"
-                      name="text"
-                      defaultValue={q.text}
-                      required
-                      minLength={3}
-                    />
-                    <SubmitButton variant="secondary">Simpan Soal</SubmitButton>
-                  </form>
+                  <EditQuestionForm
+                    questionId={q.id}
+                    moduleId={moduleId}
+                    initialText={q.text}
+                  />
 
                   <div className="space-y-2 border-t border-hairline pt-4">
                     {q.options.map((opt) => (
@@ -158,37 +246,15 @@ export function QuestionSection({
                               </Button>
                             </form>
                           ) : null}
-                          <form action={deleteOption}>
-                            <input type="hidden" name="optionId" value={opt.id} />
-                            <input type="hidden" name="moduleId" value={moduleId} />
-                            <ConfirmButton
-                              label="Hapus"
-                              className="px-3 py-1 text-xs"
-                            />
-                          </form>
+                          <DeleteOptionButton
+                            optionId={opt.id}
+                            moduleId={moduleId}
+                          />
                         </div>
                       </div>
                     ))}
 
-                    <form action={addOption} className="flex items-end gap-2 pt-2">
-                      <input type="hidden" name="questionId" value={q.id} />
-                      <input type="hidden" name="moduleId" value={moduleId} />
-                      <div className="flex-1">
-                        <label
-                          className="mb-1 block text-sm font-medium"
-                          htmlFor={`opt-${q.id}`}
-                        >
-                          Tambah opsi
-                        </label>
-                        <input
-                          id={`opt-${q.id}`}
-                          name="text"
-                          required
-                          className="w-full rounded-md border border-hairline-strong bg-surface px-3 py-2 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                        />
-                      </div>
-                      <SubmitButton variant="secondary">Tambah</SubmitButton>
-                    </form>
+                    <AddOptionForm questionId={q.id} moduleId={moduleId} />
                   </div>
                 </div>
               ) : null}
@@ -198,11 +264,14 @@ export function QuestionSection({
       </div>
 
       <Card className="mt-4 p-5">
-        <form action={createQuestion} className="space-y-3">
+        <form action={createFormAction} className="space-y-3">
           <input type="hidden" name="moduleId" value={moduleId} />
           <input type="hidden" name="section" value={section} />
           <TextArea label="Tambah soal baru" name="text" required minLength={3} />
-          <SubmitButton>Tambah Soal</SubmitButton>
+          <div className="flex flex-wrap items-center gap-3">
+            <SubmitButton>Tambah Soal</SubmitButton>
+            <ErrorNote error={createState.error} />
+          </div>
         </form>
       </Card>
     </section>

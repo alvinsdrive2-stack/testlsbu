@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { TextField } from "@/components/ui/Field";
-import { Button } from "@/components/ui/Button";
 import { prisma } from "@/lib/prisma";
-import { createActivity } from "./actions";
+import { CreateActivityForm } from "./CreateActivityForm";
 
 const STATUS_LABEL: Record<string, string> = {
   PRETEST_OPEN: "Pretest dibuka",
@@ -32,30 +30,7 @@ export default async function ActivitiesPage() {
             Buat modul dulu di menu Modul.
           </p>
         ) : (
-          <form action={createActivity} className="mt-4 space-y-4">
-            <div>
-              <label
-                htmlFor="moduleId"
-                className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-ink-secondary"
-              >
-                Modul
-              </label>
-              <select
-                id="moduleId"
-                name="moduleId"
-                required
-                className="w-full rounded-md border border-hairline-strong bg-surface px-3 py-2 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              >
-                {modules.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <TextField label="Judul kegiatan" name="title" required minLength={3} />
-            <Button type="submit">Buat Kegiatan</Button>
-          </form>
+          <CreateActivityForm modules={modules} />
         )}
       </section>
 

@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { TextField, TextArea } from "@/components/ui/Field";
-import { Button } from "@/components/ui/Button";
 import { prisma } from "@/lib/prisma";
-import { createModule } from "./actions";
+import { CreateModuleForm } from "./CreateModuleForm";
 
 export default async function ModulesPage() {
   const [modules, questionCounts] = await Promise.all([
@@ -23,11 +21,7 @@ export default async function ModulesPage() {
     <AdminShell title="Modul" eyebrow="Pustaka soal & materi">
       <section className="border border-hairline bg-surface p-6">
         <p className="text-h2 font-semibold">Modul baru</p>
-        <form action={createModule} className="mt-4 space-y-4">
-          <TextField label="Judul" name="title" required minLength={3} />
-          <TextArea label="Deskripsi (opsional)" name="description" />
-          <Button type="submit">Buat Modul</Button>
-        </form>
+        <CreateModuleForm />
       </section>
 
       {modules.length > 0 ? (
