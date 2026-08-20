@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import { Reveal } from "@/components/ui/Reveal";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 export function ExamResult({
   title,
@@ -14,8 +14,8 @@ export function ExamResult({
 }) {
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
-      <Reveal>
-        <div className="w-full max-w-md rounded-[var(--radius-card)] border border-hairline bg-surface p-10 text-center shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+      <PageTransition className="w-full max-w-md">
+        <div className="w-full rounded-[var(--radius-card)] border border-hairline bg-surface p-10 text-center shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
           <p className="text-[var(--text-h2)] font-bold tracking-tight text-ink">
             {title}
           </p>
@@ -28,7 +28,7 @@ export function ExamResult({
             </Button>
           ) : null}
         </div>
-      </Reveal>
+      </PageTransition>
     </main>
   );
 }

@@ -8,6 +8,7 @@ import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
 import { StartGate } from "@/components/ui/StartGate";
 import { TopBar } from "@/components/ui/TopBar";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { startPretest } from "./actions";
 
 export default async function PretestPage({
@@ -156,20 +157,22 @@ export default async function PretestPage({
     <div className="min-h-screen">
       <TopBar title={activity.title} />
       <main className="py-8">
-        <div className="mx-auto mb-6 max-w-3xl px-4 sm:px-6">
-          <p className="label-eyebrow text-ink-secondary">Ujian Diawali</p>
-          <h1 className="mt-1 text-[var(--text-h1)] font-bold tracking-tight text-ink">
-            Pretest
-          </h1>
-          <p className="mt-1 text-base text-ink-secondary">{activity.title}</p>
-        </div>
-        <ExamRunner
-          attemptId={refreshed.id}
-          deadlineISO={deadline.toISOString()}
-          questions={examQuestions}
-          initialAnswers={initialAnswers}
-          heading={`Pretest · ${activity.title}`}
-        />
+        <PageTransition>
+          <div className="mx-auto mb-6 max-w-3xl px-4 sm:px-6">
+            <p className="label-eyebrow text-ink-secondary">Ujian Diawali</p>
+            <h1 className="mt-1 text-[var(--text-h1)] font-bold tracking-tight text-ink">
+              Pretest
+            </h1>
+            <p className="mt-1 text-base text-ink-secondary">{activity.title}</p>
+          </div>
+          <ExamRunner
+            attemptId={refreshed.id}
+            deadlineISO={deadline.toISOString()}
+            questions={examQuestions}
+            initialAnswers={initialAnswers}
+            heading={`Pretest · ${activity.title}`}
+          />
+        </PageTransition>
       </main>
     </div>
   );

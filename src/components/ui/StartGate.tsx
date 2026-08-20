@@ -1,3 +1,5 @@
+import { PageTransition } from "@/components/ui/PageTransition";
+
 export function StartGate({
   eyebrow,
   title,
@@ -15,7 +17,8 @@ export function StartGate({
 }) {
   return (
     <main className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-6 py-16">
-      <div className="w-full max-w-md rounded-[var(--radius-card)] border border-hairline bg-surface p-10 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+      <PageTransition className="w-full max-w-md">
+        <div className="w-full rounded-[var(--radius-card)] border border-hairline bg-surface p-10 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
         <p className="label-eyebrow text-ink-secondary">{eyebrow}</p>
         <h1 className="mt-3 text-[var(--text-h1)] font-bold tracking-tight text-accent">
           {title}
@@ -33,7 +36,8 @@ export function StartGate({
           Jawaban tersimpan otomatis. Waktu berjalan begitu kamu mulai.
         </p>
         {children}
-      </div>
+        </div>
+      </PageTransition>
     </main>
   );
 }

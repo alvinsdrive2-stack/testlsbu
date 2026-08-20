@@ -4,6 +4,7 @@ import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
 import { Backdrop } from "@/components/ui/Backdrop";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 function youtubeEmbed(url: string): string | null {
   const match = url.match(
@@ -152,7 +153,8 @@ export default async function ParticipantDashboardPage() {
         }
       />
 
-      <main className="mx-auto grid max-w-[1843px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)]">
+      <main>
+        <PageTransition className="mx-auto grid max-w-[1843px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)]">
         {/* Kolom kiri: menu + progress + nilai/posttest/profil */}
         <aside className="order-2 space-y-4 md:order-1 md:sticky md:top-20">
           <nav className="hidden rounded-[var(--radius-card)] border border-hairline bg-surface p-2 shadow-[0_1px_3px_rgba(15,20,25,0.06)] md:block">
@@ -330,6 +332,7 @@ export default async function ParticipantDashboardPage() {
             )}
           </section>
         </div>
+        </PageTransition>
 
       </main>
     </div>
