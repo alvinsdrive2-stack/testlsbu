@@ -13,8 +13,8 @@ export function AdminShell({
 }) {
   return (
     <div className="min-h-screen md:flex">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col shadow-2xl bg-surface p-6 md:flex">
-        <Link href="/admin" className="flex flex-col items-center gap-3 text-center">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col shadow-2xl bg-surface pt-3 md:flex">
+        <Link href="/admin" className="flex flex-col items-center gap-3 text-center pb-4 shadow-xl rounded-2xl w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/favicon.png"
@@ -28,7 +28,7 @@ export function AdminShell({
             <span className="label-eyebrow text-ink-secondary">Panel Admin</span>
           </span>
         </Link>
-        <div className="mt-10">
+        <div className="mt-6">
           <SidebarNav />
         </div>
         <div className="mt-auto border-t border-hairline pt-4">
@@ -38,21 +38,21 @@ export function AdminShell({
           <form action={logout}>
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-hairline-strong bg-surface px-3 py-2.5 text-sm font-semibold text-ink-secondary transition-colors hover:bg-canvas hover:text-ink"
+              className="group flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-secondary transition-colors hover:bg-flag/5 hover:text-flag"
             >
               <svg
                 viewBox="0 0 20 20"
                 aria-hidden
-                className="size-4 shrink-0"
+                className="size-4.5 shrink-0 transition-transform duration-200 ease-out group-hover:-translate-x-0.5"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M13.5 6.5L17 10l-3.5 3.5" />
-                <path d="M17 10H7.5" />
-                <path d="M11 3.5H4.5A1.5 1.5 0 0 0 3 5v10a1.5 1.5 0 0 0 1.5 1.5H11" />
+                <path d="M13 6l3.5 3.5L13 13" />
+                <path d="M16.5 9.5H8" />
+                <path d="M11 3.5H5A1.5 1.5 0 0 0 3.5 5v10A1.5 1.5 0 0 0 5 16.5h6" />
               </svg>
               Keluar
             </button>
