@@ -244,29 +244,6 @@ export default async function ParticipantDashboardPage() {
               )}
             </div>
 
-            <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-              <div className="flex items-center gap-3">
-                <span
-                  aria-hidden
-                  className="flex size-10 shrink-0 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-sm font-bold text-white"
-                >
-                  {initials(participant.nama)}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">
-                    {participant.nama}
-                  </p>
-                  <p className="truncate text-[13px] text-ink-secondary">
-                    {participant.badanUsaha}
-                  </p>
-                </div>
-              </div>
-              {participant.isGapensiMember ? (
-                <p className="mt-3 inline-block rounded-md bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
-                  Anggota Gapensi
-                </p>
-              ) : null}
-            </div>
         </aside>
 
         {/* Kolom tengah: status + materi */}
