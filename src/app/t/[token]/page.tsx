@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { createParticipantSession } from "@/lib/session";
 import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
 import { submitAttempt } from "@/app/exam/actions";
 import { ExamRunner } from "@/app/exam/ExamRunner";
@@ -28,8 +27,6 @@ export default async function PosttestPage({
       />
     );
   }
-
-  await createParticipantSession(participant.token);
 
   const activity = participant.activity;
 
