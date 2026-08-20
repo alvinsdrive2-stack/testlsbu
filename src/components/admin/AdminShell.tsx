@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SidebarNav, MobileNav } from "./AdminNav";
 import { ProfileMenu } from "./ProfileMenu";
@@ -23,10 +24,11 @@ export function AdminShell({
 
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col shadow-2xl bg-surface pt-3 md:flex">
         <Link href="/admin" className="flex flex-col items-center gap-3 text-center pb-4 shadow-xl rounded-2xl w-full">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/favicon.png"
             alt="Logo Gapensi"
+            width={160}
+            height={160}
             className="h-20 w-auto rounded-xl"
           />
           <span className="flex flex-col items-center gap-1">
@@ -49,10 +51,11 @@ export function AdminShell({
       <div className="min-w-0 flex-1">
         <header className="border-b border-hairline bg-surface px-6 py-4 md:hidden">
           <div className="mb-3 flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/favicon.png"
               alt="Logo Gapensi"
+              width={64}
+              height={64}
               className="h-8 w-auto rounded-md"
             />
             <span className="text-base font-bold leading-none tracking-tight text-accent">
