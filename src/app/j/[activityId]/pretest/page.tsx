@@ -96,7 +96,7 @@ export default async function PretestPage({
       <div className="min-h-screen">
         <TopBar title={activity.title} />
         <StartGate
-          eyebrow="Ujian Diawali"
+          eyebrow="Sesi Ujian"
           title="Pretest"
           activity={activity.title}
           durationMin={activity.module.pretestDurationMin}
@@ -156,10 +156,10 @@ export default async function PretestPage({
   return (
     <div className="min-h-screen">
       <TopBar title={activity.title} />
-      <main className="py-8">
+      <main className="mx-auto my-[2.5vh] min-h-[95vh] max-w-11/12 bg-white px-6 py-8 shadow-2xl">
         <PageTransition>
           <div className="mx-auto mb-6 max-w-3xl px-4 sm:px-6">
-            <p className="label-eyebrow text-ink-secondary">Ujian Diawali</p>
+            <p className="label-eyebrow text-ink-secondary">Sesi Ujian</p>
             <h1 className="mt-1 text-[var(--text-h1)] font-bold tracking-tight text-ink">
               Pretest
             </h1>

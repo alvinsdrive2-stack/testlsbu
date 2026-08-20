@@ -255,7 +255,7 @@ export default async function PosttestPage({
   return (
     <div className="min-h-screen">
       <TopBar title={activity.title} />
-      <main className="py-8">
+      <main className="mx-auto my-[2.5vh] min-h-[95vh] max-w-11/12 bg-white px-6 py-8 shadow-2xl">
         <PageTransition>
           <div className="mx-auto mb-6 max-w-3xl px-4 sm:px-6">
             <p className="label-eyebrow text-ink-secondary">Ujian Akhir</p>
