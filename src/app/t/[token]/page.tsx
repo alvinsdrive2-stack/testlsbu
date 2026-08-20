@@ -269,6 +269,7 @@ export default async function PosttestPage({
           deadlineISO={deadline.toISOString()}
           questions={examQuestions}
           initialAnswers={initialAnswers}
+          heading={`Posttest · ${activity.title}`}
         />
       </main>
     </div>

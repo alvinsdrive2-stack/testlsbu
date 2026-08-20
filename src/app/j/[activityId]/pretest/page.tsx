@@ -168,6 +168,7 @@ export default async function PretestPage({
           deadlineISO={deadline.toISOString()}
           questions={examQuestions}
           initialAnswers={initialAnswers}
+          heading={`Pretest · ${activity.title}`}
         />
       </main>
     </div>
