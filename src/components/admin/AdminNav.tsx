@@ -27,7 +27,7 @@ export function SidebarNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`block rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={`block rounded-md px-3 py-3 text-center text-base font-medium transition-colors ${
               active
                 ? "bg-accent-soft text-accent"
                 : "text-ink-secondary hover:bg-canvas hover:text-ink"
