@@ -7,6 +7,28 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { startPosttestRetry } from "./actions";
 
+function PosttestFailed({ score, token }: { score: number; token: string }) {
+  return (
+    <main className="flex min-h-screen items-center justify-center px-4">
+      <Card className="max-w-md p-8 text-center">
+        <p className="text-h2 font-semibold">Nilai posttest kamu: {score}</p>
+        <p className="mt-2 text-sm text-ink-secondary">
+          Kamu belum lulus — bisa diulang kapan pun sampai lulus.
+        </p>
+        <form
+          action={async () => {
+            "use server";
+            await startPosttestRetry(token);
+          }}
+          className="mt-6"
+        >
+          <Button type="submit">Coba Lagi</Button>
+        </form>
+      </Card>
+    </main>
+  );
+}
+
 export default async function PosttestPage({
   params,
 }: {
@@ -67,6 +89,17 @@ export default async function PosttestPage({
   });
 
   if (!attempt) {
+    const lastSubmitted = await prisma.attempt.findFirst({
+      where: {
+        participantId: participant.id,
+        section: "POSTTEST",
+        submittedAt: { not: null },
+      },
+      orderBy: { submittedAt: "desc" },
+    });
+    if (lastSubmitted && lastSubmitted.score !== null) {
+      return <PosttestFailed score={lastSubmitted.score} token={token} />;
+    }
     attempt = await prisma.attempt.create({
       data: {
         participantId: participant.id,
@@ -89,26 +122,7 @@ export default async function PosttestPage({
   });
 
   if (refreshed.submittedAt && refreshed.score !== null) {
-    const grade = activity.module.posttestPassingGrade;
-    return (
-      <main className="flex min-h-screen items-center justify-center px-4">
-        <Card className="max-w-md p-8 text-center">
-          <p className="text-h2 font-semibold">Nilai posttest kamu: {refreshed.score}</p>
-          <p className="mt-2 text-sm text-ink-secondary">
-            Passing grade {grade}. Kamu belum lulus — silakan coba lagi.
-          </p>
-          <form
-            action={async () => {
-              "use server";
-              await startPosttestRetry(token);
-            }}
-            className="mt-6"
-          >
-            <Button type="submit">Coba Lagi</Button>
-          </form>
-        </Card>
-      </main>
-    );
+    return <PosttestFailed score={refreshed.score} token={token} />;
   }
 
   const questions = await prisma.question.findMany({
