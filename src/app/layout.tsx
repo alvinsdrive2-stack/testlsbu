@@ -5,6 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Gapensi Ujian",
   description: "Platform ujian pelatihan Gapensi",
+  icons: { icon: "/favico.png" },
 };
 
 export default function RootLayout({

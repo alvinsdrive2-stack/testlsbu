@@ -11,7 +11,7 @@ export function Backdrop() {
         alt=""
         fill
         sizes="100vw"
-        className="scale-110 object-cover opacity-10 blur-[1px]"
+        className="scale-110 object-cover opacity-80 blur-[1px]"
       />
     </div>
   );
