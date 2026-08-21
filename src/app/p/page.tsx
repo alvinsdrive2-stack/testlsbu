@@ -40,14 +40,14 @@ export default async function ParticipantDashboardPage() {
     (a) => a.section === "POSTTEST" && a.passed
   );
 
-  const stage = participant.stage;
   const phase = activityPhase(activity, new Date());
-  const materiOpen = phase === "MATERIAL" || phase === "POSTTEST";
+  const materiOpen = phase === "MATERIAL";
+  const materiDone = pretestDone && (phase === "MATERIAL" || phase === "POSTTEST");
 
   const stages = [
     { label: "Daftar", done: true },
     { label: "Pretest", done: pretestDone },
-    { label: "Materi", done: pretestDone && materiOpen },
+    { label: "Materi", done: materiDone },
     { label: "Posttest", done: postPassed },
   ];
   const doneCount = stages.filter((s) => s.done).length;
@@ -319,13 +319,15 @@ export default async function ParticipantDashboardPage() {
             <h2 className="text-[clamp(21px,2vw,29px)] font-bold">Materi</h2>
             {!materiOpen ? (
               <p className="mt-4 text-[15px] text-ink-secondary">
-                {activity.materialStart
-                  ? `Materi dibuka ${activity.materialStart.toLocaleString("id-ID", {
-                      timeZone: "Asia/Jakarta",
-                      dateStyle: "full",
-                      timeStyle: "short",
-                    })}.`
-                  : "Materi menunggu jadwal dari admin."}
+                {phase === "POSTTEST" || phase === "CLOSED"
+                  ? "Sesi materi sudah berakhir."
+                  : activity.materialStart
+                    ? `Materi dibuka ${activity.materialStart.toLocaleString("id-ID", {
+                        timeZone: "Asia/Jakarta",
+                        dateStyle: "full",
+                        timeStyle: "short",
+                      })}.`
+                    : "Materi menunggu jadwal dari admin."}
               </p>
             ) : activity.module.materials.length === 0 ? (
               <p className="mt-4 text-[15px] text-ink-secondary">
