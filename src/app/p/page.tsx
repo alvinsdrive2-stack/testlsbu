@@ -6,6 +6,7 @@ import { ProfileMenu } from "./ProfileMenu";
 import { Button } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
 import { Backdrop } from "@/components/ui/Backdrop";
+import { Countdown } from "@/components/ui/Countdown";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { videoEmbedUrl } from "@/lib/video";
 import { sanitizeMaterialHtml } from "@/lib/sanitize";
@@ -156,7 +157,7 @@ export default async function ParticipantDashboardPage() {
       <main>
         <PageTransition className="mx-auto grid max-w-[1843px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)]">
         {/* Kolom kiri: menu + progress + nilai/posttest/profil */}
-        <aside className="order-2 space-y-4 md:order-1 md:sticky md:top-20">
+        <aside className="order-2 space-y-4 md:order-1 md:sticky md:top-20 md:self-start">
           <nav className="hidden rounded-[var(--radius-card)] border border-hairline bg-surface p-2 shadow-[0_1px_3px_rgba(15,20,25,0.06)] md:block">
               {menu.map((m) => (
                 <a
@@ -215,6 +216,18 @@ export default async function ParticipantDashboardPage() {
                     ? `Terbaik dari ${pretestScores.length} percobaan`
                     : "Sudah dikerjakan"}
               </p>
+              {!pretestDone &&
+              activity.pretestStart &&
+              (phase === "SCHEDULED" || phase === "REGISTRATION") ? (
+                <div className="mt-3 border-t border-hairline pt-3">
+                  <p className="text-[13px] text-ink-secondary">
+                    Dibuka {fmt(activity.pretestStart)} WIB
+                  </p>
+                  <p className="mt-0.5 text-[15px]">
+                    <Countdown target={activity.pretestStart.toISOString()} />
+                  </p>
+                </div>
+              ) : null}
             </div>
 
             <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
@@ -243,6 +256,15 @@ export default async function ParticipantDashboardPage() {
                 <p className="mt-2 text-[15px] text-ink-secondary">
                   Kegiatan sudah ditutup
                 </p>
+              ) : activity.posttestStart ? (
+                <div className="mt-2">
+                  <p className="text-[13px] text-ink-secondary">
+                    Dibuka {fmt(activity.posttestStart)} WIB
+                  </p>
+                  <p className="mt-0.5 text-[15px]">
+                    <Countdown target={activity.posttestStart.toISOString()} />
+                  </p>
+                </div>
               ) : (
                 <p className="mt-2 text-[15px] text-ink-secondary">
                   Dibuka sesuai jadwal kegiatan
