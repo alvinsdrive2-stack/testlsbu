@@ -92,7 +92,6 @@ function ExplanationForm({
         label="Penjelasan jawaban benar (opsional)"
         name="explanation"
         defaultValue={initialExplanation}
-        className="min-h-20"
       />
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton variant="secondary" className="px-4 py-2 text-sm">
@@ -156,6 +155,74 @@ function DeleteOptionButton({
   );
 }
 
+function CreateQuestionModal({
+  moduleId,
+  onCreated,
+  onClose,
+}: {
+  moduleId: string;
+  onCreated: (questionId: string) => void;
+  onClose: () => void;
+}) {
+  const [state, formAction] = useActionState(createQuestion, {});
+
+  useEffect(() => {
+    if (state.ok && state.questionId) {
+      onCreated(state.questionId);
+    }
+  }, [state, onCreated]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-[2px]"
+      onClick={onClose}
+    >
+      <Card
+        role="dialog"
+        aria-modal="true"
+        aria-label="Tambah soal baru"
+        className="w-full max-w-lg p-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-h2 font-bold">Soal baru</h3>
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup"
+            className="px-3"
+          >
+            ✕
+          </Button>
+        </div>
+        <form action={formAction} className="space-y-3">
+          <input type="hidden" name="moduleId" value={moduleId} />
+          <TextArea
+            label="Teks soal"
+            name="text"
+            required
+            minLength={3}
+            autoFocus
+          />
+          <div className="flex flex-wrap items-center gap-3">
+            <SubmitButton pendingLabel="Menambah…">Tambah Soal</SubmitButton>
+            <ErrorNote error={state.error} />
+          </div>
+        </form>
+      </Card>
+    </div>
+  );
+}
+
 export function QuestionSection({
   moduleId,
   questions,
@@ -165,14 +232,11 @@ export function QuestionSection({
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [modalOpen, setModalOpen] = useState(false);
-  const [createState, createFormAction] = useActionState(createQuestion, {});
 
-  useEffect(() => {
-    if (createState.ok && createState.questionId) {
-      setModalOpen(false);
-      setOpen((s) => ({ ...s, [createState.questionId as string]: true }));
-    }
-  }, [createState]);
+  const handleCreated = (questionId: string) => {
+    setModalOpen(false);
+    setOpen((s) => ({ ...s, [questionId]: true }));
+  };
 
   return (
     <section>
@@ -308,15 +372,16 @@ export function QuestionSection({
                             />
                           </div>
                         </div>
-                        {opt.isCorrect ? (
-                          <ExplanationForm
-                            questionId={q.id}
-                            moduleId={moduleId}
-                            initialExplanation={q.explanation ?? ""}
-                          />
-                        ) : null}
                       </div>
                     ))}
+
+                    {q.options.some((o) => o.isCorrect) ? (
+                      <ExplanationForm
+                        questionId={q.id}
+                        moduleId={moduleId}
+                        initialExplanation={q.explanation ?? ""}
+                      />
+                    ) : null}
 
                     <AddOptionForm questionId={q.id} moduleId={moduleId} />
                   </div>
@@ -345,36 +410,11 @@ export function QuestionSection({
       </button>
 
       {modalOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-[2px]"
-          onClick={() => setModalOpen(false)}
-        >
-          <Card
-            className="w-full max-w-lg p-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-h2 font-bold">Soal baru</h3>
-              <Button
-                variant="ghost"
-                type="button"
-                onClick={() => setModalOpen(false)}
-                aria-label="Tutup"
-                className="px-3"
-              >
-                ✕
-              </Button>
-            </div>
-            <form action={createFormAction} className="space-y-3">
-              <input type="hidden" name="moduleId" value={moduleId} />
-              <TextArea label="Teks soal" name="text" required minLength={3} />
-              <div className="flex flex-wrap items-center gap-3">
-                <SubmitButton pendingLabel="Menambah…">Tambah Soal</SubmitButton>
-                <ErrorNote error={createState.error} />
-              </div>
-            </form>
-          </Card>
-        </div>
+        <CreateQuestionModal
+          moduleId={moduleId}
+          onCreated={handleCreated}
+          onClose={() => setModalOpen(false)}
+        />
       ) : null}
     </section>
   );

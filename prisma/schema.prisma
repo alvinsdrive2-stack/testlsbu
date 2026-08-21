@@ -47,7 +47,7 @@ model Question {
   module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   section     Section
   text        String
-  explanation String?
+  explanation String? @db.Text
   order       Int
   options     Option[]
   answers     Answer[]
