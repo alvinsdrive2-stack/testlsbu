@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { activityPhase } from "@/lib/activity-phase";
+import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 import { getParticipantToken } from "@/lib/session";
 import { ProfileMenu } from "./ProfileMenu";
 import { Button } from "@/components/ui/Button";
@@ -43,21 +43,38 @@ export default async function ParticipantDashboardPage() {
   const stage = participant.stage;
   const phase = activityPhase(activity, new Date());
   const materiOpen = phase === "MATERIAL" || phase === "POSTTEST";
-  const progress =
-    stage === "POSTTEST_PASSED" ? 100 : stage === "PRETEST_DONE" ? 50 : 25;
-  const stageLabel =
-    stage === "POSTTEST_PASSED"
-      ? "Posttest lulus · 4 dari 4"
-      : stage === "PRETEST_DONE"
-        ? "Pretest selesai · 3 dari 4"
-        : "Terdaftar · 2 dari 4";
 
   const stages = [
     { label: "Daftar", done: true },
     { label: "Pretest", done: pretestDone },
-    { label: "Materi", done: pretestDone },
+    { label: "Materi", done: pretestDone && materiOpen },
     { label: "Posttest", done: postPassed },
   ];
+  const doneCount = stages.filter((s) => s.done).length;
+  const progress = doneCount * 25;
+  const stageLabel = `${stages[doneCount - 1].label} · ${doneCount} dari 4`;
+
+  const posttestScores = participant.attempts
+    .filter((a) => a.section === "POSTTEST" && a.score !== null)
+    .map((a) => a.score!);
+  const posttestBest = posttestScores.length ? Math.max(...posttestScores) : null;
+
+  const fmt = (d: Date | null) =>
+    d
+      ? d.toLocaleString("id-ID", {
+          timeZone: "Asia/Jakarta",
+          dateStyle: "medium",
+          timeStyle: "short",
+        })
+      : null;
+
+  const scheduleRows: { label: string; date: Date | null }[] = [
+    { label: "Pendaftaran", date: activity.registrationStart },
+    { label: "Pretest", date: activity.pretestStart },
+    { label: "Materi dibuka", date: activity.materialStart },
+    { label: "Posttest", date: activity.posttestStart },
+    { label: "Tutup", date: activity.closedAt },
+  ].filter((r) => r.date !== null);
 
   let cta: React.ReactNode = null;
   if (postPassed) {
@@ -242,9 +259,15 @@ export default async function ParticipantDashboardPage() {
             className="border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] sm:p-8"
           >
             <p className="label-eyebrow text-ink-secondary">Status kegiatan</p>
-            <h1 className="mt-2 text-[clamp(29px,3vw,41px)] font-bold tracking-tight text-ink">
-              {activity.title}
-            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <h1 className="text-[clamp(29px,3vw,41px)] font-bold tracking-tight text-ink">
+                {activity.title}
+              </h1>
+              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
+                <span aria-hidden className="size-1.5 rounded-full bg-current" />
+                {PHASE_LABEL[phase]}
+              </span>
+            </div>
             <p className="mt-1 text-[17px] text-ink-secondary">
               {activity.module.title}
             </p>
@@ -269,6 +292,27 @@ export default async function ParticipantDashboardPage() {
             </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">{cta}</div>
+
+            {scheduleRows.length > 0 ? (
+              <div className="mt-6 border-t border-hairline pt-5">
+                <p className="label-eyebrow text-ink-secondary">
+                  Jadwal kegiatan (WIB)
+                </p>
+                <dl className="mt-3 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+                  {scheduleRows.map((r) => (
+                    <div
+                      key={r.label}
+                      className="flex items-baseline justify-between gap-4 border-b border-hairline pb-2 sm:border-0 sm:pb-0"
+                    >
+                      <dt className="text-[14px] text-ink-secondary">{r.label}</dt>
+                      <dd className="text-[14px] font-medium tabular-nums text-ink">
+                        {fmt(r.date)}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ) : null}
           </section>
 
           <section id="materi" className="mt-8 scroll-mt-16">
