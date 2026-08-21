@@ -1,23 +1,22 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import type { Question, Option } from "@prisma/client";
 import {
   createQuestion,
-  updateQuestionText,
+  updateQuestion,
   deleteQuestion,
   moveQuestion,
   addOption,
   setCorrectOption,
   deleteOption,
+  updateExplanation,
 } from "../actions";
 import { Card } from "@/components/ui/Card";
 import { TextArea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
-
-type Section = "PRETEST" | "POSTTEST";
 
 function ErrorNote({ error }: { error?: string }) {
   if (!error) return null;
@@ -52,7 +51,7 @@ function EditQuestionForm({
   moduleId: string;
   initialText: string;
 }) {
-  const [state, formAction] = useActionState(updateQuestionText, {});
+  const [state, formAction] = useActionState(updateQuestion, {});
   return (
     <form action={formAction} className="space-y-3">
       <input type="hidden" name="questionId" value={questionId} />
@@ -66,6 +65,39 @@ function EditQuestionForm({
       />
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton variant="secondary">Simpan Soal</SubmitButton>
+        <ErrorNote error={state.error} />
+      </div>
+    </form>
+  );
+}
+
+function ExplanationForm({
+  questionId,
+  moduleId,
+  initialExplanation,
+}: {
+  questionId: string;
+  moduleId: string;
+  initialExplanation: string;
+}) {
+  const [state, formAction] = useActionState(updateExplanation, {});
+  return (
+    <form
+      action={formAction}
+      className="mt-2 space-y-2 rounded-md border border-accent-soft bg-accent-soft/60 p-3"
+    >
+      <input type="hidden" name="questionId" value={questionId} />
+      <input type="hidden" name="moduleId" value={moduleId} />
+      <TextArea
+        label="Penjelasan jawaban benar (opsional)"
+        name="explanation"
+        defaultValue={initialExplanation}
+        className="min-h-20"
+      />
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton variant="secondary" className="px-4 py-2 text-sm">
+          Simpan Penjelasan
+        </SubmitButton>
         <ErrorNote error={state.error} />
       </div>
     </form>
@@ -126,24 +158,38 @@ function DeleteOptionButton({
 
 export function QuestionSection({
   moduleId,
-  section,
   questions,
 }: {
   moduleId: string;
-  section: Section;
   questions: (Question & { options: Option[] })[];
 }) {
-  const title = section === "PRETEST" ? "Soal Pretest" : "Soal Posttest";
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [modalOpen, setModalOpen] = useState(false);
   const [createState, createFormAction] = useActionState(createQuestion, {});
+
+  useEffect(() => {
+    if (createState.ok && createState.questionId) {
+      setModalOpen(false);
+      setOpen((s) => ({ ...s, [createState.questionId as string]: true }));
+    }
+  }, [createState]);
 
   return (
     <section>
       <div className="mb-4 border-b border-hairline pb-2">
-        <h2 className="text-h2 font-bold">{title}</h2>
+        <h2 className="text-h2 font-bold">Soal Ujian</h2>
+        <p className="mt-1 text-sm text-ink-secondary">
+          Satu set soal, dipakai untuk pretest dan posttest.
+        </p>
       </div>
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-4 space-y-4 pb-20">
+        {questions.length === 0 ? (
+          <Card className="p-6 text-center text-[15px] text-ink-secondary">
+            Belum ada soal. Klik tombol + di kanan bawah untuk menambah.
+          </Card>
+        ) : null}
+
         {questions.map((q, i) => {
           const expanded = open[q.id] ?? false;
           return (
@@ -220,35 +266,55 @@ export function QuestionSection({
 
                   <div className="space-y-2 border-t border-hairline pt-4">
                     {q.options.map((opt) => (
-                      <div
-                        key={opt.id}
-                        className="flex items-center justify-between gap-2 border border-hairline px-3 py-2 text-sm"
-                      >
-                        <span
-                          className={
+                      <div key={opt.id}>
+                        <div
+                          className={`flex items-center justify-between gap-2 border px-3 py-2 text-sm ${
                             opt.isCorrect
-                              ? "font-medium text-ink"
-                              : "text-ink-secondary"
-                          }
+                              ? "border-accent bg-accent-soft/40"
+                              : "border-hairline"
+                          }`}
                         >
-                          {opt.isCorrect ? "✓ " : ""}
-                          {opt.text}
-                        </span>
-                        <div className="flex shrink-0 gap-1">
-                          {!opt.isCorrect ? (
-                            <form action={setCorrectOption}>
-                              <input type="hidden" name="optionId" value={opt.id} />
-                              <input type="hidden" name="moduleId" value={moduleId} />
-                              <Button variant="ghost" type="submit">
-                                Jadikan benar
-                              </Button>
-                            </form>
-                          ) : null}
-                          <DeleteOptionButton
-                            optionId={opt.id}
-                            moduleId={moduleId}
-                          />
+                          <span
+                            className={
+                              opt.isCorrect
+                                ? "font-medium text-ink"
+                                : "text-ink-secondary"
+                            }
+                          >
+                            {opt.isCorrect ? "✓ " : ""}
+                            {opt.text}
+                          </span>
+                          <div className="flex shrink-0 gap-1">
+                            {!opt.isCorrect ? (
+                              <form action={setCorrectOption}>
+                                <input
+                                  type="hidden"
+                                  name="optionId"
+                                  value={opt.id}
+                                />
+                                <input
+                                  type="hidden"
+                                  name="moduleId"
+                                  value={moduleId}
+                                />
+                                <Button variant="ghost" type="submit">
+                                  Jadikan benar
+                                </Button>
+                              </form>
+                            ) : null}
+                            <DeleteOptionButton
+                              optionId={opt.id}
+                              moduleId={moduleId}
+                            />
+                          </div>
                         </div>
+                        {opt.isCorrect ? (
+                          <ExplanationForm
+                            questionId={q.id}
+                            moduleId={moduleId}
+                            initialExplanation={q.explanation ?? ""}
+                          />
+                        ) : null}
                       </div>
                     ))}
 
@@ -261,17 +327,59 @@ export function QuestionSection({
         })}
       </div>
 
-      <Card className="mt-4 p-5">
-        <form action={createFormAction} className="space-y-3">
-          <input type="hidden" name="moduleId" value={moduleId} />
-          <input type="hidden" name="section" value={section} />
-          <TextArea label="Tambah soal baru" name="text" required minLength={3} />
-          <div className="flex flex-wrap items-center gap-3">
-            <SubmitButton>Tambah Soal</SubmitButton>
-            <ErrorNote error={createState.error} />
-          </div>
-        </form>
-      </Card>
+      <button
+        type="button"
+        onClick={() => setModalOpen(true)}
+        aria-label="Tambah soal baru"
+        className="fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full bg-accent text-white shadow-lg shadow-accent/30 transition-all duration-200 ease-out hover:bg-accent-hover active:scale-95"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden className="size-6">
+          <path
+            d="M12 5v14M5 12h14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
+
+      {modalOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-[2px]"
+          onClick={() => setModalOpen(false)}
+        >
+          <Card className="w-full max-w-lg p-5">
+            <div onClick={(e) => e.stopPropagation()}>
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-h2 font-bold">Soal baru</h3>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => setModalOpen(false)}
+                  aria-label="Tutup"
+                  className="px-3"
+                >
+                  ✕
+                </Button>
+              </div>
+              <form action={createFormAction} className="space-y-3">
+                <input type="hidden" name="moduleId" value={moduleId} />
+                <TextArea
+                  label="Teks soal"
+                  name="text"
+                  required
+                  minLength={3}
+                />
+                <div className="flex flex-wrap items-center gap-3">
+                  <SubmitButton pendingLabel="Menambah…">Tambah Soal</SubmitButton>
+                  <ErrorNote error={createState.error} />
+                </div>
+              </form>
+            </div>
+          </Card>
+        </div>
+      ) : null}
     </section>
   );
 }
