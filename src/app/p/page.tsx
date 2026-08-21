@@ -291,6 +291,7 @@ export default async function ParticipantDashboardPage() {
                   .sort((a, b) => a.order - b.order)
                   .map((m, i) => {
                     const embed = m.videoUrl ? videoEmbedUrl(m.videoUrl) : null;
+                    const isLegacyPlainText = !/[<>]/.test(m.content);
                     return (
                       <article key={m.id} className="p-6">
                         <div className="flex items-start gap-4">
@@ -302,12 +303,18 @@ export default async function ParticipantDashboardPage() {
                           </span>
                           <div className="min-w-0 w-full">
                             <h3 className="text-[clamp(21px,2vw,29px)] font-semibold">{m.title}</h3>
-                            <div
-                              className="prose-gapensi mt-3 text-[16px] leading-relaxed text-ink-secondary"
-                              dangerouslySetInnerHTML={{
-                                __html: sanitizeMaterialHtml(m.content),
-                              }}
-                            />
+                            {isLegacyPlainText ? (
+                              <div className="mt-3 whitespace-pre-wrap text-[16px] leading-relaxed text-ink-secondary">
+                                {m.content}
+                              </div>
+                            ) : (
+                              <div
+                                className="prose-gapensi mt-3 text-[16px] leading-relaxed text-ink-secondary"
+                                dangerouslySetInnerHTML={{
+                                  __html: sanitizeMaterialHtml(m.content),
+                                }}
+                              />
+                            )}
                             {m.videoUrl && embed ? (
                               <div className="mt-6 aspect-video overflow-hidden rounded-md border border-hairline">
                                 <iframe
