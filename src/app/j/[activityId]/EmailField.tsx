@@ -55,16 +55,21 @@ export function EmailField() {
         className={`w-full rounded-md border border-hairline-strong bg-surface px-3.5 py-3 text-base text-ink transition-all duration-200 ease-out placeholder:text-ink-secondary/60 focus:outline-none focus:ring-2 ${borderClass}`}
       />
       {status === "checking" ? (
-        <p className="mt-1.5 text-[13px] text-ink-secondary">Memeriksa email…</p>
+        <p className="mt-1.5 text-[13px] text-ink-secondary">
+          Memeriksa ketersediaan email…
+        </p>
       ) : null}
       {status === "taken" ? (
         <p role="alert" className="mt-1.5 text-[13px] font-medium text-flag">
-          Email sudah terdaftar. Kalau ini akun kamu, pakai nomor WA yang sama
-          saat daftar untuk langsung masuk — atau login lewat halaman login.
+          Email ini sudah terdaftar. Silakan gunakan nomor WA yang sama dengan
+          pendaftaran sebelumnya untuk masuk langsung, atau login melalui
+          halaman login.
         </p>
       ) : null}
       {status === "ok" ? (
-        <p className="mt-1.5 text-[13px] text-success">Email tersedia</p>
+        <p className="mt-1.5 text-[13px] text-success">
+          Email dapat digunakan
+        </p>
       ) : null}
     </div>
   );

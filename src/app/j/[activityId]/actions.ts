@@ -55,7 +55,7 @@ export async function registerParticipant(
     }
     return {
       error:
-        "Email sudah dipakai badan usaha lain. Gunakan email lain, atau login ke dashboard.",
+        "Email sudah digunakan oleh badan usaha lain. Silakan gunakan email lain atau login ke dashboard.",
     };
   }
 

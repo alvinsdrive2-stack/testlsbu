@@ -86,8 +86,8 @@ export default async function JoinPage({
                 {activity.title}
               </h1>
               <p className="mt-4 text-base leading-relaxed text-ink-secondary">
-                Modul {activity.module.title}. Isi data diri di samping untuk
-                memulai pretest.
+                Modul {activity.module.title}. Silakan lengkapi data diri pada
+                formulir di samping untuk memulai pretest.
               </p>
               <div className="mt-8 space-y-3 border-t border-hairline pt-6 text-[15px] text-ink-secondary">
                 <p>1. Daftar dan kerjakan pretest</p>
