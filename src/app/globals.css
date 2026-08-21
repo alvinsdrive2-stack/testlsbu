@@ -61,6 +61,77 @@ body {
   animation: page-enter 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
+.prose-gapensi h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--color-ink);
+}
+
+.prose-gapensi h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 1rem 0 0.4rem;
+  color: var(--color-ink);
+}
+
+.prose-gapensi p {
+  margin: 0.5rem 0;
+}
+
+.prose-gapensi ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+.prose-gapensi ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.prose-gapensi li {
+  margin: 0.2rem 0;
+}
+
+.prose-gapensi a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.prose-gapensi img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 0.75rem 0;
+}
+
+.prose-gapensi blockquote {
+  border-left: 3px solid var(--color-hairline-strong);
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: var(--color-ink-secondary);
+}
+
+.prose-gapensi code {
+  background: var(--color-canvas);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.prose-gapensi pre {
+  background: var(--color-canvas);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+.prose-gapensi hr {
+  border: none;
+  border-top: 1px solid var(--color-hairline);
+  margin: 1rem 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
