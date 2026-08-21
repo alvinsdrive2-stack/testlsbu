@@ -5,13 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { PageTransition } from "@/components/ui/PageTransition";
-
-function youtubeEmbed(url: string): string | null {
-  const match = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/
-  );
-  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
-}
+import { videoEmbedUrl } from "@/lib/video";
+import { sanitizeMaterialHtml } from "@/lib/sanitize";
 
 function initials(nama: string): string {
   return nama
@@ -295,12 +290,9 @@ export default async function ParticipantDashboardPage() {
                 {activity.module.materials
                   .sort((a, b) => a.order - b.order)
                   .map((m, i) => {
-                    const embed = m.videoUrl ? youtubeEmbed(m.videoUrl) : null;
+                    const embed = m.videoUrl ? videoEmbedUrl(m.videoUrl) : null;
                     return (
-                      <article
-                        key={m.id}
-                        className="p-6"
-                      >
+                      <article key={m.id} className="p-6">
                         <div className="flex items-start gap-4">
                           <span
                             aria-hidden
@@ -308,12 +300,15 @@ export default async function ParticipantDashboardPage() {
                           >
                             {String(i + 1).padStart(2, "0")}
                           </span>
-                          <div className="min-w-0">
+                          <div className="min-w-0 w-full">
                             <h3 className="text-[clamp(21px,2vw,29px)] font-semibold">{m.title}</h3>
-                            <div className="mt-3 whitespace-pre-wrap text-[16px] leading-relaxed text-ink-secondary">
-                              {m.content}
-                            </div>
-                            {embed ? (
+                            <div
+                              className="prose-gapensi mt-3 text-[16px] leading-relaxed text-ink-secondary"
+                              dangerouslySetInnerHTML={{
+                                __html: sanitizeMaterialHtml(m.content),
+                              }}
+                            />
+                            {m.videoUrl && embed ? (
                               <div className="mt-6 aspect-video overflow-hidden rounded-md border border-hairline">
                                 <iframe
                                   src={embed}
@@ -322,6 +317,14 @@ export default async function ParticipantDashboardPage() {
                                   className="h-full w-full"
                                 />
                               </div>
+                            ) : null}
+                            {m.videoUrl && !embed ? (
+                              <video
+                                controls
+                                preload="metadata"
+                                src={m.videoUrl}
+                                className="mt-6 aspect-video w-full rounded-md border border-hairline"
+                              />
                             ) : null}
                           </div>
                         </div>
