@@ -16,11 +16,13 @@ type Settings = {
   posttestDurationMin: number;
   pretestPassingGrade: number;
   posttestPassingGrade: number;
+  showAnswerReview: boolean;
 };
 
 export function SettingsForm({ module }: { module: Settings }) {
   const [sq, setSq] = useState(module.shuffleQuestions);
   const [so, setSo] = useState(module.shuffleOptions);
+  const [sar, setSar] = useState(module.showAnswerReview);
   const [state, formAction, pending] = useActionState<
     { ok?: boolean; error?: string },
     FormData
@@ -113,6 +115,16 @@ export function SettingsForm({ module }: { module: Settings }) {
               className="size-4 accent-[#002b66]"
             />
             Acak urutan opsi jawaban
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="showAnswerReview"
+              checked={sar}
+              onChange={(e) => setSar(e.target.checked)}
+              className="size-4 accent-[#002b66]"
+            />
+            Izinkan peserta melihat review jawaban
           </label>
         </div>
         <div className="flex items-center gap-4">

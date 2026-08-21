@@ -34,6 +34,7 @@ model Module {
   posttestDurationMin  Int        @default(30)
   pretestPassingGrade  Int        @default(0)
   posttestPassingGrade Int        @default(70)
+  showAnswerReview     Boolean    @default(false)
   createdAt            DateTime   @default(now())
   updatedAt            DateTime   @updatedAt
   questions            Question[]

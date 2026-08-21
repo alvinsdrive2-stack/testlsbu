@@ -15,4 +15,5 @@ export const moduleSettingsSchema = z.object({
   posttestDurationMin: z.coerce.number().int().min(1).max(480),
   pretestPassingGrade: z.coerce.number().int().min(0).max(100),
   posttestPassingGrade: z.coerce.number().int().min(0).max(100),
+  showAnswerReview: z.coerce.boolean().default(false),
 });

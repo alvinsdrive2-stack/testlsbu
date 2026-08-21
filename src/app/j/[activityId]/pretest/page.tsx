@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { StartGate } from "@/components/ui/StartGate";
 import { TopBar } from "@/components/ui/TopBar";
 import { ExamScreen } from "@/components/exam/ExamScreen";
+import { AnswerReview } from "@/components/exam/AnswerReview";
 import { startPretest } from "./actions";
 
 const CARD =
@@ -24,15 +25,19 @@ const FLOW_STEPS = [
 function PretestResult({
   score,
   activityTitle,
+  attemptId,
+  showReview,
 }: {
   score: number;
   activityTitle: string;
+  attemptId: string;
+  showReview: boolean;
 }) {
   return (
     <div className="min-h-screen">
       <TopBar title={activityTitle} />
-      <main className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-6 py-16">
-        <div className="w-full max-w-md">
+      <main className="mx-auto max-w-4xl px-6 py-16">
+        <div className="mx-auto w-full max-w-md">
           <div className={`${CARD} text-center`}>
             <p className="label-eyebrow text-ink-secondary">Nilai Pretest</p>
             <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-accent">
@@ -80,6 +85,7 @@ function PretestResult({
             </div>
           </div>
         </div>
+        {showReview ? <AnswerReview attemptId={attemptId} /> : null}
       </main>
     </div>
   );
@@ -153,7 +159,14 @@ export default async function PretestPage({
       orderBy: { submittedAt: "desc" },
     });
     if (submitted && submitted.score !== null) {
-      return <PretestResult score={submitted.score} activityTitle={activity.title} />;
+      return (
+        <PretestResult
+          score={submitted.score}
+          activityTitle={activity.title}
+          attemptId={submitted.id}
+          showReview={activity.module.showAnswerReview}
+        />
+      );
     }
     return (
       <div className="min-h-screen">
@@ -189,7 +202,14 @@ export default async function PretestPage({
   });
 
   if (refreshed.submittedAt && refreshed.score !== null) {
-    return <PretestResult score={refreshed.score} activityTitle={activity.title} />;
+    return (
+      <PretestResult
+        score={refreshed.score}
+        activityTitle={activity.title}
+        attemptId={refreshed.id}
+        showReview={activity.module.showAnswerReview}
+      />
+    );
   }
 
   const orderedQuestions = activity.module.shuffleQuestions

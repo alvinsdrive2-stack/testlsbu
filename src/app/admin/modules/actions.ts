@@ -83,6 +83,7 @@ export async function updateModuleSettings(
     posttestDurationMin: formData.get("posttestDurationMin"),
     pretestPassingGrade: formData.get("pretestPassingGrade"),
     posttestPassingGrade: formData.get("posttestPassingGrade"),
+    showAnswerReview: formData.get("showAnswerReview") === "on",
   });
 
   if (!parsed.success) {

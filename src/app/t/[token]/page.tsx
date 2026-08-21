@@ -19,12 +19,14 @@ function PosttestFailed({
   attempt,
   token,
   attemptId,
+  showReview,
 }: {
   score: number;
   passingGrade: number;
   attempt: number;
   token: string;
   attemptId: string;
+  showReview: boolean;
 }) {
   const gap = Math.max(0, passingGrade - score);
   return (
@@ -58,7 +60,7 @@ function PosttestFailed({
               </Button>
             </div>
           </div>
-          <AnswerReview attemptId={attemptId} />
+          {showReview ? <AnswerReview attemptId={attemptId} /> : null}
         </div>
       </main>
     </div>
@@ -68,9 +70,11 @@ function PosttestFailed({
 function PosttestPassed({
   score,
   attemptId,
+  showReview,
 }: {
   score: number;
   attemptId: string;
+  showReview: boolean;
 }) {
   return (
     <div className="min-h-screen">
@@ -93,7 +97,7 @@ function PosttestPassed({
               <Button href="/p">Ke Dashboard</Button>
             </div>
           </div>
-          <AnswerReview attemptId={attemptId} />
+          {showReview ? <AnswerReview attemptId={attemptId} /> : null}
         </div>
       </main>
     </div>
@@ -153,7 +157,13 @@ export default async function PosttestPage({
     where: { participantId: participant.id, section: "POSTTEST", passed: true },
   });
   if (passedAttempt) {
-    return <PosttestPassed score={passedAttempt.score ?? 0} attemptId={passedAttempt.id} />;
+    return (
+      <PosttestPassed
+        score={passedAttempt.score ?? 0}
+        attemptId={passedAttempt.id}
+        showReview={activity.module.showAnswerReview}
+      />
+    );
   }
 
   const questions = await getExamQuestions(activity.moduleId);
@@ -193,6 +203,7 @@ export default async function PosttestPage({
           attempt={failedPosttest}
           token={token}
           attemptId={lastSubmitted.id}
+          showReview={activity.module.showAnswerReview}
         />
       );
     }
@@ -242,6 +253,7 @@ export default async function PosttestPage({
         attempt={failedPosttest}
         token={token}
         attemptId={refreshed.id}
+        showReview={activity.module.showAnswerReview}
       />
     );
   }
