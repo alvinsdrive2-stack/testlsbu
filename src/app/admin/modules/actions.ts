@@ -8,19 +8,26 @@ import { moduleCreateSchema, moduleSettingsSchema } from "@/lib/schemas";
 
 const questionCreateSchema = z.object({
   moduleId: z.string().min(1),
-  section: z.enum(["PRETEST", "POSTTEST"]),
   text: z.string().min(3, "Soal minimal 3 karakter"),
+  explanation: z.string().optional(),
 });
+
+const videoUrlField = z
+  .string()
+  .trim()
+  .refine(
+    (v) =>
+      v === "" ||
+      v.startsWith("/uploads/") ||
+      /^https?:\/\/.+/.test(v),
+    "URL video tidak valid"
+  );
 
 const materialSchema = z.object({
   moduleId: z.string().min(1),
   title: z.string().min(3, "Judul materi minimal 3 karakter"),
   content: z.string().min(1, "Konten tidak boleh kosong"),
-  videoUrl: z
-    .string()
-    .url("URL video tidak valid")
-    .optional()
-    .or(z.literal("")),
+  videoUrl: videoUrlField.optional(),
 });
 
 type FormState = { error?: string };
@@ -83,8 +90,8 @@ export async function createQuestion(
 ): Promise<FormState> {
   const parsed = questionCreateSchema.safeParse({
     moduleId: formData.get("moduleId"),
-    section: formData.get("section"),
     text: formData.get("text"),
+    explanation: formData.get("explanation") || undefined,
   });
 
   if (!parsed.success) {
@@ -92,7 +99,7 @@ export async function createQuestion(
   }
 
   const last = await prisma.question.findFirst({
-    where: { moduleId: parsed.data.moduleId, section: parsed.data.section },
+    where: { moduleId: parsed.data.moduleId },
     orderBy: { order: "desc" },
     select: { order: true },
   });
@@ -100,8 +107,9 @@ export async function createQuestion(
   await prisma.question.create({
     data: {
       moduleId: parsed.data.moduleId,
-      section: parsed.data.section,
+      section: "PRETEST",
       text: parsed.data.text,
+      explanation: parsed.data.explanation || null,
       order: (last?.order ?? 0) + 1,
     },
   });
@@ -110,17 +118,21 @@ export async function createQuestion(
   return {};
 }
 
-export async function updateQuestionText(
+export async function updateQuestion(
   _prev: FormState,
   formData: FormData
 ): Promise<FormState> {
   const questionId = String(formData.get("questionId"));
   const moduleId = String(formData.get("moduleId"));
   const text = String(formData.get("text"));
+  const explanation = String(formData.get("explanation") || "");
 
   if (text.trim().length < 3) return { error: "Soal minimal 3 karakter" };
 
-  await prisma.question.update({ where: { id: questionId }, data: { text } });
+  await prisma.question.update({
+    where: { id: questionId },
+    data: { text, explanation: explanation || null },
+  });
 
   revalidatePath(`/admin/modules/${moduleId}`);
   return {};

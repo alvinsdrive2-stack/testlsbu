@@ -8,7 +8,9 @@ import {
   deleteMaterial,
 } from "../actions";
 import { Card } from "@/components/ui/Card";
-import { TextArea, TextField } from "@/components/ui/Field";
+import { TextField } from "@/components/ui/Field";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
+import { VideoField } from "./VideoField";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 
@@ -30,13 +32,8 @@ function EditMaterialForm({ material }: { material: Material }) {
         required
         minLength={3}
       />
-      <TextArea label="Konten" name="content" defaultValue={material.content} required />
-      <TextField
-        label="URL video (opsional)"
-        name="videoUrl"
-        type="url"
-        defaultValue={material.videoUrl ?? ""}
-      />
+      <RichTextEditor label="Konten" name="content" defaultValue={material.content} />
+      <VideoField defaultValue={material.videoUrl ?? ""} />
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton variant="secondary">Simpan Materi</SubmitButton>
         <ErrorNote error={state.error} />
@@ -51,8 +48,8 @@ function CreateMaterialForm({ moduleId }: { moduleId: string }) {
     <form action={formAction} className="space-y-3">
       <input type="hidden" name="moduleId" value={moduleId} />
       <TextField label="Judul materi baru" name="title" required minLength={3} />
-      <TextArea label="Konten" name="content" required />
-      <TextField label="URL video (opsional)" name="videoUrl" type="url" />
+      <RichTextEditor label="Konten" name="content" />
+      <VideoField />
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton>Tambah Materi</SubmitButton>
         <ErrorNote error={state.error} />
