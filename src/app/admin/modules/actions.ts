@@ -26,7 +26,12 @@ const videoUrlField = z
 const materialSchema = z.object({
   moduleId: z.string().min(1),
   title: z.string().min(3, "Judul materi minimal 3 karakter"),
-  content: z.string().min(1, "Konten tidak boleh kosong"),
+  content: z
+    .string()
+    .refine(
+      (v) => v.replace(/<[^>]*>/g, "").trim().length >= 1,
+      "Konten tidak boleh kosong"
+    ),
   videoUrl: videoUrlField.optional(),
 });
 

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, rm } from "fs/promises";
+import { createWriteStream } from "fs";
+import { Readable } from "stream";
+import { pipeline } from "stream/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 
@@ -61,7 +64,20 @@ export async function POST(req: NextRequest) {
   await mkdir(dir, { recursive: true });
 
   const name = `${randomUUID()}.${ext}`;
-  await writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
+  const filePath = path.join(dir, name);
+
+  try {
+    await pipeline(
+      Readable.fromWeb(file.stream() as Parameters<typeof Readable.fromWeb>[0]),
+      createWriteStream(filePath)
+    );
+  } catch {
+    await rm(filePath, { force: true }).catch(() => {});
+    return NextResponse.json(
+      { error: "Gagal menyimpan video, coba lagi" },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({ url: `/uploads/videos/${name}` });
 }

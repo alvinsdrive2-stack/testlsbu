@@ -8,7 +8,7 @@ export function VideoField({ defaultValue = "" }: { defaultValue?: string }) {
   const [mode, setMode] = useState<"url" | "upload">(
     isUploaded ? "upload" : "url"
   );
-  const [url, setUrl] = useState(isUploaded ? "" : defaultValue);
+  const [url, setUrl] = useState(defaultValue);
   const [uploadedUrl, setUploadedUrl] = useState(
     isUploaded ? defaultValue : ""
   );
@@ -36,10 +36,12 @@ export function VideoField({ defaultValue = "" }: { defaultValue?: string }) {
       setError(err instanceof Error ? err.message : "Upload gagal");
     } finally {
       setBusy(false);
+      e.target.value = "";
     }
   }
 
-  const value = mode === "url" ? url : uploadedUrl;
+  const value =
+    mode === "url" ? url : uploadedUrl || (isUploaded ? defaultValue : "");
 
   return (
     <div>
