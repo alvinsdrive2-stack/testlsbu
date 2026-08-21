@@ -16,27 +16,33 @@ Urutan eksekusi: 1 → 3 → 4 → 2 (bugfix paling urgent, kalender paling besa
 
 ## Bagian 1: Fix Bug Skor Posttest
 
+### Keputusan user: SATU bank soal
+
+Pretest dan posttest memakai bank soal yang sama (section PRETEST di DB —
+satu-satunya bank yang ada; module builder memang hanya membuat soal
+PRETEST). `Attempt.section` tetap mencatat ujian mana yang dikerjakan.
+
 ### Akar masalah
 
-`src/app/t/[token]/page.tsx` (halaman posttest) query soal dengan
-`section: "PRETEST"`. Peserta menjawab soal pretest, tapi `finalizeAttempt`
-di `src/app/exam/actions.ts` menilai jawaban terhadap soal
-`section: attempt.section` (= POSTTEST). ID jawaban tidak pernah cocok
-dengan kunci POSTTEST → skor salah.
-
-`src/app/t/[token]/PosttestReview.tsx` juga hardcode `section: "PRETEST"`.
+`finalizeAttempt` di `src/app/exam/actions.ts` menilai jawaban terhadap
+soal `section: attempt.section`. Untuk attempt POSTTEST, bank soal
+POSTTEST kosong → `questions.length === 0` → skor selalu 0, tidak pernah
+lulus. Halaman posttest sendiri menampilkan bank PRETEST (benar), jadi
+peserta menjawab soal yang tidak pernah dinilai.
 
 ### Perubahan
 
-- Query soal di `t/[token]/page.tsx` ganti ke `section: "POSTTEST"`.
-- `PosttestReview.tsx` diubah jadi komponen `AnswerReview({ attemptId })`
-  yang query soal pakai `attempt.section` — reusable untuk pretest dan
-  posttest. Import di `t/[token]/page.tsx` ikut menyesuaikan.
+- Helper `getExamQuestions(moduleId)` (satu query bank soal tunggal) di
+  `src/lib/exam-questions.ts`; dipakai oleh: halaman pretest, halaman
+  posttest, `finalizeAttempt`, dan komponen review. Semua konsumen bank
+  soal lewat satu pintu — mismatch section tidak bisa terulang.
+- `finalizeAttempt` menilai via `getExamQuestions`.
+- `PosttestReview.tsx` diubah jadi `AnswerReview({ attemptId })` yang
+  query soal via `getExamQuestions` — reusable untuk pretest dan posttest.
 - Script rescore sekali jalan (`scripts/rescore-attempts.ts`, dijalankan
   manual via tsx): untuk semua attempt `submittedAt != null`, hitung ulang
-  skor + passed pakai logika yang sama dengan `finalizeAttempt`, update
-  row. Stage participant ikut dikoreksi (PRETEST_DONE / POSTTEST_PASSED)
-  sesuai hasil baru.
+  skor + passed terhadap bank soal tunggal, update row. Stage participant
+  dikoreksi (PRETEST_DONE / POSTTEST_PASSED) sesuai hasil baru.
 
 ### Yang tidak berubah
 
@@ -197,6 +203,7 @@ Toggle "Izinkan peserta melihat review jawaban" di pengaturan modul
 - Gating strict: fase pindah → fase sebelumnya terkunci.
 - PDF = lampiran di materi yang sudah ada, bukan tipe terpisah.
 - Review = tanpa bocor kunci, toggle per modul.
+- Satu bank soal untuk pretest dan posttest.
 
 ## Testing
 
