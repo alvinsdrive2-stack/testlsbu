@@ -77,8 +77,8 @@ export function ExamRunner({
 
   return (
     <div>
-      <div className="sticky top-14 z-10 border-b border-hairline bg-surface/95 px-4 py-3 backdrop-blur-xl sm:px-6">
-        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-4 gap-y-1">
+      <div className="sticky top-14 z-10 border-b border-hairline bg-surface/95 px-4 py-4 backdrop-blur-xl sm:px-6">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <div className="flex min-w-0 items-center gap-3">
             {heading ? (
               <p className="truncate text-[15px] font-medium text-ink">{heading}</p>
@@ -115,24 +115,19 @@ export function ExamRunner({
         </div>
       </div>
 
-      <div className="mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+        <div className="overflow-hidden border border-hairline bg-surface shadow-[0_2px_8px_rgba(15,20,25,0.08)]">
+        <div className="divide-y divide-hairline">
         {questions.map((q, i) => {
           const selected = answers[q.id];
           return (
             <section
               key={q.id}
               id={`q-${q.id}`}
-              className="scroll-mt-40 rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]"
+              className="scroll-mt-40 p-6 sm:p-8"
             >
-              <div className="flex items-start gap-2.5">
-                <span
-                  aria-hidden
-                  className="shrink-0 text-[18px] font-semibold tabular-nums text-ink"
-                >
-                  {i + 1}.
-                </span>
-                <p className="text-[17px] font-medium leading-relaxed">{q.text}</p>
-              </div>
+              <p className="text-sm font-semibold text-ink-secondary">Soal {i + 1}</p>
+              <p className="mt-2 text-[17px] font-medium leading-relaxed">{q.text}</p>
               <div className="mt-5 space-y-2.5">
                 {q.options.map((opt) => {
                   const isSelected = selected === opt.id;
@@ -142,7 +137,7 @@ export function ExamRunner({
                       style={{
                         transition: "all 200ms cubic-bezier(0.16, 1, 0.3, 1)",
                       }}
-                      className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-md border px-4 py-3 text-base ${
+                      className={`flex min-h-12 cursor-pointer items-center gap-3 border px-4 py-3 text-base ${
                         isSelected
                           ? "border-accent bg-accent-soft/50 font-medium"
                           : "border-hairline bg-surface hover:bg-canvas active:scale-[0.99]"
@@ -163,10 +158,11 @@ export function ExamRunner({
             </section>
           );
         })}
+        </div>
 
-        <div className="flex justify-end pb-8 pt-2">
+        <div className="flex justify-end px-6 py-6 sm:px-8">
           {confirming ? (
-            <div className="w-full rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+            <div className="w-full">
               <p className="font-semibold">
                 {unanswered > 0
                   ? `Masih ada ${unanswered} soal kosong.`
@@ -203,6 +199,7 @@ export function ExamRunner({
               Selesai & Kirim
             </Button>
           )}
+        </div>
         </div>
       </div>
     </div>

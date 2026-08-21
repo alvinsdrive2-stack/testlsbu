@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
 import { finalizeAttempt } from "@/app/exam/actions";
-import { ExamRunner } from "@/app/exam/ExamRunner";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
 import { StartGate } from "@/components/ui/StartGate";
 import { TopBar } from "@/components/ui/TopBar";
-import { PageTransition } from "@/components/ui/PageTransition";
+import { ExamScreen } from "@/components/exam/ExamScreen";
 import { startPosttestRetry } from "./actions";
+import { PosttestReview } from "./PosttestReview";
 
 const CARD =
   "rounded-[var(--radius-card)] border border-hairline bg-surface p-10 shadow-[0_1px_3px_rgba(15,20,25,0.06)]";
@@ -17,68 +17,82 @@ function PosttestFailed({
   passingGrade,
   attempt,
   token,
+  attemptId,
 }: {
   score: number;
   passingGrade: number;
   attempt: number;
   token: string;
+  attemptId: string;
 }) {
   const gap = Math.max(0, passingGrade - score);
   return (
     <div className="min-h-screen">
       <TopBar title="Posttest" />
-      <main className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-6 py-16">
-        <div className={`${CARD} w-full max-w-md text-center`}>
-          <p className="label-eyebrow text-ink-secondary">Nilai Posttest</p>
-          <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-accent">
-            {score}
-          </p>
-          <p className="mt-1 text-xs font-semibold text-ink-secondary">
-            Passing grade {passingGrade} · Percobaan ke-{attempt}
-          </p>
-          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
-            {gap > 0 ? `Kurang ${gap} poin lagi buat lulus. ` : ""}
-            Pelajari materi di dashboard, lalu coba lagi kapan pun.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            <form
-              action={async () => {
-                "use server";
-                await startPosttestRetry(token);
-              }}
-            >
-              <Button type="submit">Coba Lagi</Button>
-            </form>
-            <Button variant="secondary" href="/p">
-              Pelajari Materi
-            </Button>
+      <main className="px-6 py-10">
+        <div className="mx-auto w-full max-w-4xl">
+          <div className={`${CARD} mx-auto w-full max-w-md text-center`}>
+            <p className="label-eyebrow text-ink-secondary">Nilai Posttest</p>
+            <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-accent">
+              {score}
+            </p>
+            <p className="mt-1 text-xs font-semibold text-ink-secondary">
+              Passing grade {passingGrade} · Percobaan ke-{attempt}
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+              {gap > 0 ? `Kurang ${gap} poin lagi buat lulus. ` : ""}
+              Pelajari materi di dashboard, lalu coba lagi kapan pun.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-2">
+              <form
+                action={async () => {
+                  "use server";
+                  await startPosttestRetry(token);
+                }}
+              >
+                <Button type="submit">Coba Lagi</Button>
+              </form>
+              <Button variant="secondary" href="/p">
+                Pelajari Materi
+              </Button>
+            </div>
           </div>
+          <PosttestReview attemptId={attemptId} />
         </div>
       </main>
     </div>
   );
 }
 
-function PosttestPassed({ score }: { score: number }) {
+function PosttestPassed({
+  score,
+  attemptId,
+}: {
+  score: number;
+  attemptId: string;
+}) {
   return (
     <div className="min-h-screen">
       <TopBar title="Posttest" />
-      <main className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-6 py-16">
-        <div className={`${CARD} w-full max-w-md text-center`}>
-          <p className="label-eyebrow text-ink-secondary">Nilai Posttest</p>
-          <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-accent">
-            {score}
-          </p>
-          <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-sm font-semibold text-success">
-            <span aria-hidden className="size-2 rounded-full bg-success" />
-            Lulus
-          </p>
-          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
-            Kamu lulus posttest. Cek dashboard untuk melihat status dan materi.
-          </p>
-          <div className="mt-8">
-            <Button href="/p">Ke Dashboard</Button>
+      <main className="px-6 py-10">
+        <div className="mx-auto w-full max-w-4xl">
+          <div className={`${CARD} mx-auto w-full max-w-md text-center`}>
+            <p className="label-eyebrow text-ink-secondary">Nilai Posttest</p>
+            <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-accent">
+              {score}
+            </p>
+            <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-sm font-semibold text-success">
+              <span aria-hidden className="size-2 rounded-full bg-success" />
+              Lulus
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+              Kamu lulus posttest. Cek dashboard untuk melihat status dan materi.
+            </p>
+            <div className="mt-8">
+              <Button href="/p">Ke Dashboard</Button>
+            </div>
           </div>
+          <PosttestReview attemptId={attemptId} />
         </div>
       </main>
     </div>
@@ -138,11 +152,11 @@ export default async function PosttestPage({
     where: { participantId: participant.id, section: "POSTTEST", passed: true },
   });
   if (passedAttempt) {
-    return <PosttestPassed score={passedAttempt.score ?? 0} />;
+    return <PosttestPassed score={passedAttempt.score ?? 0} attemptId={passedAttempt.id} />;
   }
 
   const questions = await prisma.question.findMany({
-    where: { moduleId: activity.moduleId, section: "POSTTEST" },
+    where: { moduleId: activity.moduleId, section: "PRETEST" },
     include: { options: true },
     orderBy: { order: "asc" },
   });
@@ -150,8 +164,8 @@ export default async function PosttestPage({
   if (questions.length === 0) {
     return (
       <ExamResult
-        title="Belum ada soal posttest"
-        body="Hubungi admin — modul belum memiliki soal posttest."
+        title="Belum ada soal ujian"
+        body="Hubungi admin — modul belum memiliki soal ujian."
       />
     );
   }
@@ -181,6 +195,7 @@ export default async function PosttestPage({
           passingGrade={activity.module.posttestPassingGrade}
           attempt={failedPosttest}
           token={token}
+          attemptId={lastSubmitted.id}
         />
       );
     }
@@ -229,6 +244,7 @@ export default async function PosttestPage({
         passingGrade={activity.module.posttestPassingGrade}
         attempt={failedPosttest}
         token={token}
+        attemptId={refreshed.id}
       />
     );
   }
@@ -253,28 +269,13 @@ export default async function PosttestPage({
   }
 
   return (
-    <div className="min-h-screen">
-      <TopBar title={activity.title} />
-      <main className="py-8">
-        <PageTransition>
-          <div className="mx-auto mb-6 max-w-3xl px-4 sm:px-6">
-            <p className="label-eyebrow text-ink-secondary">Ujian Akhir</p>
-            <h1 className="mt-1 text-[var(--text-h1)] font-bold tracking-tight text-ink">
-              Posttest
-            </h1>
-            <p className="mt-1 text-base text-ink-secondary">
-              {activity.title} · Passing grade {activity.module.posttestPassingGrade}
-            </p>
-          </div>
-          <ExamRunner
-            attemptId={refreshed.id}
-            deadlineISO={deadline.toISOString()}
-            questions={examQuestions}
-            initialAnswers={initialAnswers}
-            heading={`Posttest · ${activity.title}`}
-          />
-        </PageTransition>
-      </main>
-    </div>
+    <ExamScreen
+      topBarTitle={activity.title}
+      heading={`Posttest · ${activity.title}`}
+      attemptId={refreshed.id}
+      deadlineISO={deadline.toISOString()}
+      questions={examQuestions}
+      initialAnswers={initialAnswers}
+    />
   );
 }

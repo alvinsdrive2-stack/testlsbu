@@ -27,9 +27,6 @@ export default async function ModuleBuilderPage({
 
   if (!mod) notFound();
 
-  const pretest = mod.questions.filter((q) => q.section === "PRETEST");
-  const posttest = mod.questions.filter((q) => q.section === "POSTTEST");
-
   return (
     <AdminShell title={mod.title} eyebrow="Modul">
       <Link
@@ -39,8 +36,7 @@ export default async function ModuleBuilderPage({
         ← Kembali ke daftar modul
       </Link>
       <SettingsForm module={mod} />
-      <QuestionSection moduleId={mod.id} section="PRETEST" questions={pretest} />
-      <QuestionSection moduleId={mod.id} section="POSTTEST" questions={posttest} />
+      <QuestionSection moduleId={mod.id} questions={mod.questions} />
       <MaterialSection moduleId={mod.id} materials={mod.materials} />
     </AdminShell>
   );
