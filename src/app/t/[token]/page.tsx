@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
+import { activityPhase } from "@/lib/activity-phase";
 import { getExamQuestions } from "@/lib/exam-questions";
 import { finalizeAttempt } from "@/app/exam/actions";
 import { ExamResult } from "@/app/exam/ExamResult";
@@ -136,7 +137,8 @@ export default async function PosttestPage({
     },
   });
 
-  if (activity.status === "CLOSED") {
+  const phase = activityPhase(activity, new Date());
+  if (phase === "CLOSED") {
     return (
       <ExamResult
         title="Kegiatan sudah ditutup"
@@ -144,11 +146,11 @@ export default async function PosttestPage({
       />
     );
   }
-  if (activity.status === "PRETEST_OPEN") {
+  if (phase !== "POSTTEST") {
     return (
       <ExamResult
         title="Posttest belum dibuka"
-        body="Tunggu sampai admin membuka posttest, lalu buka link ini lagi."
+        body="Tunggu sampai jadwal posttest dimulai, lalu buka link ini lagi."
       />
     );
   }

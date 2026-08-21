@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getParticipantToken } from "@/lib/session";
 import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
+import { activityPhase } from "@/lib/activity-phase";
 import { getExamQuestions } from "@/lib/exam-questions";
 import { finalizeAttempt } from "@/app/exam/actions";
 import { ExamResult } from "@/app/exam/ExamResult";
@@ -110,7 +111,8 @@ export default async function PretestPage({
   }
 
   const activity = participant.activity;
-  if (activity.status === "CLOSED") {
+  const phase = activityPhase(activity, new Date());
+  if (phase === "CLOSED") {
     return (
       <ExamResult
         title="Kegiatan sudah ditutup"
@@ -118,10 +120,12 @@ export default async function PretestPage({
       />
     );
   }
-  if (activity.status !== "PRETEST_OPEN") {
+  if (phase !== "PRETEST") {
     return (
       <ExamResult
-        title="Pretest sudah selesai"
+        title={
+          phase === "SCHEDULED" ? "Pretest belum dibuka" : "Pretest sudah selesai"
+        }
         body="Buka dashboard peserta untuk melihat nilai dan materi."
         href="/p"
         hrefLabel="Ke Dashboard"

@@ -2,13 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { activityPhase } from "@/lib/activity-phase";
 
 export async function startPosttestRetry(token: string) {
   const participant = await prisma.participant.findUnique({
     where: { token },
     include: { activity: true, attempts: true },
   });
-  if (!participant || participant.activity.status !== "POSTTEST_OPEN") return;
+  if (
+    !participant ||
+    activityPhase(participant.activity, new Date()) !== "POSTTEST"
+  ) {
+    return;
+  }
 
   const hasPassed = participant.attempts.some(
     (a) => a.section === "POSTTEST" && a.passed

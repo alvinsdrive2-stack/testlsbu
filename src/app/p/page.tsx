@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { activityPhase } from "@/lib/activity-phase";
 import { getParticipantToken } from "@/lib/session";
 import { ProfileMenu } from "./ProfileMenu";
 import { ExamResult } from "@/app/exam/ExamResult";
@@ -50,6 +51,8 @@ export default async function ParticipantDashboardPage() {
   );
 
   const stage = participant.stage;
+  const phase = activityPhase(activity, new Date());
+  const materiOpen = phase === "MATERIAL" || phase === "POSTTEST";
   const progress =
     stage === "POSTTEST_PASSED" ? 100 : stage === "PRETEST_DONE" ? 50 : 25;
   const stageLabel =
@@ -74,13 +77,13 @@ export default async function ParticipantDashboardPage() {
         Lulus posttest
       </span>
     );
-  } else if (activity.status === "CLOSED") {
+  } else if (phase === "CLOSED") {
     cta = (
       <p className="text-[15px] leading-relaxed text-ink-secondary">
         Kegiatan sudah ditutup. Hubungi admin untuk info lebih lanjut.
       </p>
     );
-  } else if (activity.status === "POSTTEST_OPEN") {
+  } else if (phase === "POSTTEST") {
     cta = pretestDone ? (
       <Button href={`/t/${participant.token}`}>Kerjakan Posttest</Button>
     ) : (
@@ -89,21 +92,35 @@ export default async function ParticipantDashboardPage() {
         posttest. Hubungi admin.
       </p>
     );
+  } else if (phase === "PRETEST") {
+    if (pretestDone) {
+      cta = (
+        <p className="text-[15px] leading-relaxed text-ink-secondary">
+          Pretest kamu selesai. Materi dibuka setelah sesi pretest berakhir.
+        </p>
+      );
+    } else {
+      const hasActive = participant.attempts.some(
+        (a) => a.section === "PRETEST" && !a.submittedAt
+      );
+      cta = (
+        <Button href={`/j/${activity.id}/pretest`}>
+          {hasActive ? "Lanjut Pretest" : "Mulai Pretest"}
+        </Button>
+      );
+    }
   } else if (pretestDone) {
     cta = (
       <p className="text-[15px] leading-relaxed text-ink-secondary">
-        Pelajari materi di bawah. Posttest dibuka setelah admin mengakhiri sesi
-        pretest.
+        Pelajari materi di bawah. Posttest dibuka sesuai jadwal kegiatan.
       </p>
     );
   } else {
-    const hasActive = participant.attempts.some(
-      (a) => a.section === "PRETEST" && !a.submittedAt
-    );
     cta = (
-      <Button href={`/j/${activity.id}/pretest`}>
-        {hasActive ? "Lanjut Pretest" : "Mulai Pretest"}
-      </Button>
+      <p className="text-[15px] leading-relaxed text-ink-secondary">
+        Pretest belum dibuka. Tunggu jadwal dari admin, atau hubungi admin untuk
+        info lebih lanjut.
+      </p>
     );
   }
 
@@ -114,7 +131,7 @@ export default async function ParticipantDashboardPage() {
     {
       label: "Posttest",
       href:
-        activity.status === "POSTTEST_OPEN" && pretestDone
+        phase === "POSTTEST" && pretestDone
           ? `/t/${participant.token}`
           : "#",
       active: false,
@@ -199,7 +216,7 @@ export default async function ParticipantDashboardPage() {
                 <p className="mt-2 text-[15px] font-semibold text-success">
                   Sudah lulus
                 </p>
-              ) : activity.status === "POSTTEST_OPEN" ? (
+              ) : phase === "POSTTEST" ? (
                 pretestDone ? (
                   <p className="mt-2 text-[15px] font-medium">
                     Siap dikerjakan —{" "}
@@ -215,9 +232,13 @@ export default async function ParticipantDashboardPage() {
                     Tunggu pretest selesai
                   </p>
                 )
+              ) : phase === "CLOSED" ? (
+                <p className="mt-2 text-[15px] text-ink-secondary">
+                  Kegiatan sudah ditutup
+                </p>
               ) : (
                 <p className="mt-2 text-[15px] text-ink-secondary">
-                  Dibuka setelah sesi pretest berakhir
+                  Dibuka sesuai jadwal kegiatan
                 </p>
               )}
             </div>
@@ -262,7 +283,17 @@ export default async function ParticipantDashboardPage() {
 
           <section id="materi" className="mt-8 scroll-mt-16">
             <h2 className="text-[clamp(21px,2vw,29px)] font-bold">Materi</h2>
-            {activity.module.materials.length === 0 ? (
+            {!materiOpen ? (
+              <p className="mt-4 text-[15px] text-ink-secondary">
+                {activity.materialStart
+                  ? `Materi dibuka ${activity.materialStart.toLocaleString("id-ID", {
+                      timeZone: "Asia/Jakarta",
+                      dateStyle: "full",
+                      timeStyle: "short",
+                    })}.`
+                  : "Materi menunggu jadwal dari admin."}
+              </p>
+            ) : activity.module.materials.length === 0 ? (
               <p className="mt-4 text-[15px] text-ink-secondary">
                 Belum ada materi dari admin.
               </p>

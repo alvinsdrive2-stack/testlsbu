@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { prisma } from "@/lib/prisma";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";

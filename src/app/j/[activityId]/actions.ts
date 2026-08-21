@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { activityPhase } from "@/lib/activity-phase";
 import { createParticipantSession } from "@/lib/session";
 
 const registerSchema = z.object({
@@ -38,7 +39,7 @@ export async function registerParticipant(
   }
 
   const activity = await prisma.activity.findUnique({ where: { id: activityId } });
-  if (!activity || activity.status === "CLOSED") {
+  if (!activity || activityPhase(activity, new Date()) !== "REGISTRATION") {
     return { error: "Kegiatan tidak tersedia. Hubungi admin." };
   }
 

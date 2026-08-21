@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { activityPhase } from "@/lib/activity-phase";
 import { getParticipantToken } from "@/lib/session";
 import { Reveal } from "@/components/ui/Reveal";
 import { TopBar } from "@/components/ui/TopBar";
@@ -30,17 +31,40 @@ export default async function JoinPage({
     }
   }
 
-  if (activity.status === "CLOSED") {
+  const phase = activityPhase(activity, new Date());
+
+  if (phase !== "REGISTRATION") {
+    const eyebrow =
+      phase === "SCHEDULED"
+        ? "Pendaftaran belum dibuka"
+        : phase === "CLOSED"
+          ? "Kegiatan ditutup"
+          : "Pendaftaran ditutup";
+    const heading =
+      phase === "SCHEDULED"
+        ? "Pendaftaran belum dimulai"
+        : phase === "CLOSED"
+          ? "Pendaftaran sudah berakhir"
+          : "Pendaftaran sudah ditutup";
     return (
       <div className="min-h-screen">
         <TopBar title={activity.title} />
         <main className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-6">
           <PageTransition className="w-full max-w-md">
             <div className="w-full rounded-[var(--radius-card)] border border-hairline bg-surface p-10 text-center shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-              <p className="label-eyebrow text-ink-secondary">Kegiatan ditutup</p>
-              <p className="mt-3 text-h2 font-bold text-ink">
-                Pendaftaran sudah berakhir
-              </p>
+              <p className="label-eyebrow text-ink-secondary">{eyebrow}</p>
+              <p className="mt-3 text-h2 font-bold text-ink">{heading}</p>
+              {phase === "SCHEDULED" && activity.registrationStart ? (
+                <p className="mt-2 text-sm text-ink-secondary">
+                  Pendaftaran dibuka{" "}
+                  {activity.registrationStart.toLocaleString("id-ID", {
+                    timeZone: "Asia/Jakarta",
+                    dateStyle: "full",
+                    timeStyle: "short",
+                  })}
+                  .
+                </p>
+              ) : null}
               <p className="mt-2 text-sm text-ink-secondary">
                 Hubungi admin untuk info lebih lanjut.
               </p>
