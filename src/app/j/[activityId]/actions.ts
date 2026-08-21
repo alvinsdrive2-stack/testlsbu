@@ -56,5 +56,5 @@ export async function registerParticipant(
   });
 
   await createParticipantSession(participant.token);
-  redirect(`/j/${activityId}/pretest`);
+  redirect("/p");
 }

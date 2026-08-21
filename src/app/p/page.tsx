@@ -1,8 +1,8 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { activityPhase } from "@/lib/activity-phase";
 import { getParticipantToken } from "@/lib/session";
 import { ProfileMenu } from "./ProfileMenu";
-import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
 import { Backdrop } from "@/components/ui/Backdrop";
@@ -13,12 +13,7 @@ import { sanitizeMaterialHtml } from "@/lib/sanitize";
 export default async function ParticipantDashboardPage() {
   const token = await getParticipantToken();
   if (!token) {
-    return (
-      <ExamResult
-        title="Sesi tidak ditemukan"
-        body="Sesi kamu berakhir atau kedaluwarsa. Buka ulang link kegiatan dari admin, lalu daftar lagi dengan data yang sama."
-      />
-    );
+    redirect("/login");
   }
 
   const participant = await prisma.participant.findUnique({
@@ -32,12 +27,7 @@ export default async function ParticipantDashboardPage() {
   });
 
   if (!participant) {
-    return (
-      <ExamResult
-        title="Sesi tidak valid"
-        body="Hubungi admin untuk mendapatkan link kegiatan."
-      />
-    );
+    redirect("/login");
   }
 
   const activity = participant.activity;

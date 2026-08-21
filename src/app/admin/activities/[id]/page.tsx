@@ -8,7 +8,6 @@ import { prisma } from "@/lib/prisma";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 import { deleteActivity } from "../actions";
 import { CopyLink } from "./CopyLink";
-import { CopyAllLinks } from "./CopyAllLinks";
 import { ScheduleForm } from "./ScheduleForm";
 
 type Stage = "REGISTERED" | "PRETEST_DONE" | "POSTTEST_PASSED";
@@ -57,7 +56,7 @@ export default async function ActivityDetailPage({
       : {}),
   };
 
-  const [total, participants, stageRows, posttestParticipants] =
+  const [total, participants, stageRows] =
     await Promise.all([
       prisma.participant.count({ where }),
       prisma.participant.findMany({
@@ -74,13 +73,6 @@ export default async function ActivityDetailPage({
         where: { activityId: id },
         _count: { _all: true },
       }),
-      activityPhase(activity, new Date()) === "POSTTEST"
-        ? prisma.participant.findMany({
-            where: { activityId: id },
-            orderBy: { createdAt: "asc" },
-            select: { nama: true, token: true },
-          })
-        : Promise.resolve([]),
     ]);
 
   const totalParticipants = stageRows.reduce((s, r) => s + r._count._all, 0);
@@ -142,29 +134,20 @@ export default async function ActivityDetailPage({
       </section>
 
       <section className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-h2 font-semibold">Link</h2>
-          {phase === "POSTTEST" ? (
-            <CopyAllLinks rows={posttestParticipants} />
-          ) : null}
-        </div>
+        <h2 className="text-h2 font-semibold">Link</h2>
         <div className="rounded-[var(--radius-card)] border border-hairline bg-surface px-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
           <div className="divide-y divide-hairline">
             <div className="py-4">
-              <CopyLink path={joinPath} label="Link pendaftaran peserta (pretest)" />
+              <CopyLink path={joinPath} label="Link pendaftaran peserta" />
             </div>
-            {phase === "POSTTEST"
-              ? participants.map((p) => (
-                  <div key={p.id} className="py-4">
-                    <CopyLink path={`/t/${p.token}`} label={`Posttest · ${p.nama}`} />
-                  </div>
-                ))
-              : null}
+            <div className="py-4">
+              <CopyLink
+                path="/p"
+                label="Link dashboard peserta (login pakai email + no WA)"
+              />
+            </div>
           </div>
         </div>
-        {phase === "POSTTEST" && posttestParticipants.length === 0 ? (
-          <p className="text-sm text-ink-secondary">Belum ada peserta terdaftar.</p>
-        ) : null}
       </section>
 
       <section className="space-y-4">
