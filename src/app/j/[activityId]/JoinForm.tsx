@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { registerParticipant } from "./actions";
 import { TextField } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { EmailField } from "./EmailField";
 
 type State = { error?: string };
 
@@ -43,7 +44,7 @@ export function JoinForm({ activityId }: { activityId: string }) {
       <Fieldset legend="Legal & kontak">
         <TextField label="NPWP badan usaha" name="npwp" required minLength={5} />
         <TextField label="No WA" name="wa" required minLength={8} />
-        <TextField label="Email aktif" name="email" type="email" required />
+        <EmailField />
         <p className="text-[13px] leading-relaxed text-ink-secondary">
           Data hanya digunakan untuk keperluan pelatihan dan penerbitan
           sertifikat.

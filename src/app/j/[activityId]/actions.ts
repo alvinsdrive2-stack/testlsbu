@@ -43,6 +43,18 @@ export async function registerParticipant(
     return { error: "Kegiatan tidak tersedia. Hubungi admin." };
   }
 
+  const email = parsed.data.email.trim().toLowerCase();
+  const existing = await prisma.participant.findFirst({
+    where: { email },
+    select: { id: true },
+  });
+  if (existing) {
+    return {
+      error:
+        "Email sudah dipakai badan usaha lain. Gunakan email lain, atau login ke dashboard jika ini email kamu.",
+    };
+  }
+
   const participant = await prisma.participant.create({
     data: {
       activityId,
@@ -50,7 +62,7 @@ export async function registerParticipant(
       badanUsaha: parsed.data.badanUsaha,
       npwp: parsed.data.npwp,
       wa: parsed.data.wa,
-      email: parsed.data.email,
+      email,
       isGapensiMember: parsed.data.isGapensiMember,
     },
   });
