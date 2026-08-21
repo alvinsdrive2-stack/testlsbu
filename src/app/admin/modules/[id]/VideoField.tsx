@@ -40,8 +40,7 @@ export function VideoField({ defaultValue = "" }: { defaultValue?: string }) {
     }
   }
 
-  const value =
-    mode === "url" ? url : uploadedUrl || (isUploaded ? defaultValue : "");
+  const value = mode === "url" ? url : uploadedUrl || defaultValue;
 
   return (
     <div>
