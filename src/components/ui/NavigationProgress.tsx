@@ -65,13 +65,13 @@ function NavigationProgressInner() {
       aria-hidden
       className="animate-nav-fade pointer-events-none fixed inset-0 z-[100] flex items-center justify-center bg-canvas/70 backdrop-blur-sm"
     >
-      <div className="relative size-16">
-        <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-hairline-strong border-t-accent" />
+      <div className="relative size-24">
+        <div className="absolute inset-0 animate-spin rounded-full border-4 border-hairline-strong border-t-accent" />
         <Image
           src="/favicon.png"
           alt=""
-          width={28}
-          height={28}
+          width={58}
+          height={58}
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full object-cover"
         />
       </div>
