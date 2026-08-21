@@ -29,6 +29,11 @@ describe("sanitizeMaterialHtml", () => {
     expect(clean).toContain('alt="a"');
   });
 
+  it("link selalu dapat rel noopener noreferrer", () => {
+    const clean = sanitizeMaterialHtml('<a href="https://example.com" target="_blank">x</a>');
+    expect(clean).toContain('rel="noopener noreferrer"');
+  });
+
   it("string kosong aman", () => {
     expect(sanitizeMaterialHtml("")).toBe("");
   });

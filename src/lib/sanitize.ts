@@ -10,5 +10,8 @@ export function sanitizeMaterialHtml(html: string): string {
       a: ["href", "target", "rel"],
       img: ["src", "alt"],
     },
+    transformTags: {
+      a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
+    },
   });
 }
