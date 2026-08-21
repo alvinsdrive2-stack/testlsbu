@@ -50,14 +50,32 @@ export function JoinForm({ activityId }: { activityId: string }) {
           sertifikat.
         </p>
       </Fieldset>
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          name="isGapensiMember"
-          className="size-4 accent-accent"
-        />
-        Anggota Gapensi
-      </label>
+      <fieldset>
+        <legend className="label-eyebrow mb-3 text-ink-secondary">
+          Anggota Gapensi
+        </legend>
+        <div className="flex gap-6">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="radio"
+              name="isGapensiMember"
+              value="ya"
+              required
+              className="size-4 accent-accent"
+            />
+            Ya
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="radio"
+              name="isGapensiMember"
+              value="tidak"
+              className="size-4 accent-accent"
+            />
+            Tidak
+          </label>
+        </div>
+      </fieldset>
       {state.error ? (
         <p
           role="alert"

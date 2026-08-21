@@ -31,7 +31,7 @@ export async function registerParticipant(
     npwp: formData.get("npwp"),
     wa: formData.get("wa"),
     email: formData.get("email"),
-    isGapensiMember: formData.get("isGapensiMember") === "on",
+    isGapensiMember: formData.get("isGapensiMember") === "ya",
   });
 
   if (!parsed.success) {
