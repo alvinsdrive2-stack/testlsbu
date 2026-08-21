@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 const TIMEOUT_MS = 10_000;
 
-export function NavigationProgress() {
+function NavigationProgressInner() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [active, setActive] = useState(false);
 
   useEffect(() => {
@@ -36,11 +37,9 @@ export function NavigationProgress() {
       }
       if (url.origin !== location.origin) return;
 
-      const samePage =
-        url.pathname === location.pathname &&
-        !url.search &&
-        !location.search;
-      if (samePage) return;
+      const sameUrl =
+        url.pathname === location.pathname && url.search === location.search;
+      if (sameUrl) return;
 
       setActive(true);
     }
@@ -51,7 +50,7 @@ export function NavigationProgress() {
 
   useEffect(() => {
     setActive(false);
-  }, [pathname]);
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     if (!active) return;
@@ -64,7 +63,7 @@ export function NavigationProgress() {
   return (
     <div
       aria-hidden
-      className="animate-nav-fade fixed inset-0 z-[100] flex items-center justify-center bg-canvas/70 backdrop-blur-sm"
+      className="animate-nav-fade pointer-events-none fixed inset-0 z-[100] flex items-center justify-center bg-canvas/70 backdrop-blur-sm"
     >
       <div className="relative size-16">
         <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-hairline-strong border-t-accent" />
@@ -77,5 +76,13 @@ export function NavigationProgress() {
         />
       </div>
     </div>
+  );
+}
+
+export function NavigationProgress() {
+  return (
+    <Suspense fallback={null}>
+      <NavigationProgressInner />
+    </Suspense>
   );
 }
