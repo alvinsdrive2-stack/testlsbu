@@ -35,7 +35,7 @@ const materialSchema = z.object({
   videoUrl: videoUrlField.optional(),
 });
 
-type FormState = { error?: string };
+type FormState = { error?: string; ok?: boolean; questionId?: string };
 
 export async function createModule(
   _prev: FormState,
@@ -109,7 +109,7 @@ export async function createQuestion(
     select: { order: true },
   });
 
-  await prisma.question.create({
+  const question = await prisma.question.create({
     data: {
       moduleId: parsed.data.moduleId,
       section: "PRETEST",
@@ -120,7 +120,7 @@ export async function createQuestion(
   });
 
   revalidatePath(`/admin/modules/${parsed.data.moduleId}`);
-  return {};
+  return { ok: true, questionId: question.id };
 }
 
 export async function updateQuestion(
@@ -130,13 +130,29 @@ export async function updateQuestion(
   const questionId = String(formData.get("questionId"));
   const moduleId = String(formData.get("moduleId"));
   const text = String(formData.get("text"));
-  const explanation = String(formData.get("explanation") || "");
 
   if (text.trim().length < 3) return { error: "Soal minimal 3 karakter" };
 
   await prisma.question.update({
     where: { id: questionId },
-    data: { text, explanation: explanation || null },
+    data: { text },
+  });
+
+  revalidatePath(`/admin/modules/${moduleId}`);
+  return {};
+}
+
+export async function updateExplanation(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const questionId = String(formData.get("questionId"));
+  const moduleId = String(formData.get("moduleId"));
+  const explanation = String(formData.get("explanation") || "").trim();
+
+  await prisma.question.update({
+    where: { id: questionId },
+    data: { explanation: explanation || null },
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);

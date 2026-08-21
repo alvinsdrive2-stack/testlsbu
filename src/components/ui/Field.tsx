@@ -28,12 +28,16 @@ export function TextField({
 
 export function TextArea({
   label,
+  className = "",
   ...props
-}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label: string;
+  className?: string;
+}) {
   return (
     <div>
       <Label htmlFor={props.id ?? props.name!}>{label}</Label>
-      <textarea className={`${inputClass} min-h-28`} {...props} />
+      <textarea className={`${inputClass} min-h-28 ${className}`} {...props} />
     </div>
   );
 }
