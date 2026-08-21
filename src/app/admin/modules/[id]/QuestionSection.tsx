@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Question, Option } from "@prisma/client";
 import {
   createQuestion,
@@ -232,6 +233,11 @@ export function QuestionSection({
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [modalOpen, setModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleCreated = (questionId: string) => {
     setModalOpen(false);
@@ -392,30 +398,37 @@ export function QuestionSection({
         })}
       </div>
 
-      <button
-        type="button"
-        onClick={() => setModalOpen(true)}
-        aria-label="Tambah soal baru"
-        className="fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full bg-accent text-white shadow-lg shadow-accent/30 transition-all duration-200 ease-out hover:bg-accent-hover active:scale-95"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden className="size-6">
-          <path
-            d="M12 5v14M5 12h14"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      </button>
+      {mounted
+        ? createPortal(
+            <>
+              <button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                aria-label="Tambah soal baru"
+                className="fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full bg-accent text-white shadow-lg shadow-accent/30 transition-all duration-200 ease-out hover:bg-accent-hover active:scale-95"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden className="size-6">
+                  <path
+                    d="M12 5v14M5 12h14"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
 
-      {modalOpen ? (
-        <CreateQuestionModal
-          moduleId={moduleId}
-          onCreated={handleCreated}
-          onClose={() => setModalOpen(false)}
-        />
-      ) : null}
+              {modalOpen ? (
+                <CreateQuestionModal
+                  moduleId={moduleId}
+                  onCreated={handleCreated}
+                  onClose={() => setModalOpen(false)}
+                />
+              ) : null}
+            </>,
+            document.body
+          )
+        : null}
     </section>
   );
 }

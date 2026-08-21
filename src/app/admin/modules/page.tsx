@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/Button";
+import { AddModuleFab } from "./AddModuleFab";
 
 export default async function ModulesPage({
   searchParams,
@@ -42,12 +43,11 @@ export default async function ModulesPage({
               className="w-56 rounded-md border border-hairline-strong bg-surface px-3 py-2.5 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </form>
-          <Button href="/admin/modules/new">Tambah Modul</Button>
         </div>
       </section>
 
       {modules.length > 0 ? (
-        <div className="rounded-[var(--radius-card)] border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+        <div className="mb-20 rounded-[var(--radius-card)] border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
           {modules.map((m, i) => {
             const pretest = countFor(m.id, "PRETEST");
             const posttest = countFor(m.id, "POSTTEST");
@@ -103,10 +103,12 @@ export default async function ModulesPage({
         <div className="rounded-[var(--radius-card)] border border-hairline bg-surface px-6 py-12 text-center shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
           <p className="font-semibold">Belum ada modul</p>
           <p className="mt-1 text-sm text-ink-secondary">
-            Buat modul pertama lewat tombol Tambah Modul.
+            Buat modul pertama lewat tombol + di kanan bawah.
           </p>
         </div>
       )}
+
+      <AddModuleFab />
     </AdminShell>
   );
 }

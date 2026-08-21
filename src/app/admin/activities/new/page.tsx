@@ -25,7 +25,7 @@ export default async function NewActivityPage() {
             <p className="mt-1 text-sm text-ink-secondary">
               Kegiatan butuh modul sebagai basis soal & materi.
             </p>
-            <Button href="/admin/modules/new" className="mt-4">
+            <Button href="/admin/modules" className="mt-4">
               Buat Modul
             </Button>
           </div>
