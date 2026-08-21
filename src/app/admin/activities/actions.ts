@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { jakartaInputToDate } from "@/lib/activity-phase";
 
 const activityCreateSchema = z.object({
   moduleId: z.string().min(1, "Pilih modul"),
@@ -33,24 +34,56 @@ export async function createActivity(
   redirect(`/admin/activities/${activity.id}`);
 }
 
-const NEXT_STATUS: Record<string, "POSTTEST_OPEN" | "CLOSED"> = {
-  PRETEST_OPEN: "POSTTEST_OPEN",
-  POSTTEST_OPEN: "CLOSED",
-};
+const SCHEDULE_FIELDS = [
+  "registrationStart",
+  "pretestStart",
+  "materialStart",
+  "posttestStart",
+  "closedAt",
+] as const;
 
-export async function advanceActivityStatus(formData: FormData) {
+type ScheduleState = { ok?: boolean; error?: string };
+
+export async function updateActivitySchedule(
+  _prev: ScheduleState,
+  formData: FormData
+): Promise<ScheduleState> {
   const activityId = String(formData.get("activityId"));
 
-  const activity = await prisma.activity.findUnique({ where: { id: activityId } });
-  if (!activity) return;
+  const parsed: Record<(typeof SCHEDULE_FIELDS)[number], Date | null> = {} as Record<
+    (typeof SCHEDULE_FIELDS)[number],
+    Date | null
+  >;
+  for (const field of SCHEDULE_FIELDS) {
+    const raw = String(formData.get(field) || "").trim();
+    if (raw === "") {
+      parsed[field] = null;
+      continue;
+    }
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) {
+      return { error: "Format tanggal tidak valid" };
+    }
+    const d = jakartaInputToDate(raw);
+    if (Number.isNaN(d.getTime())) {
+      return { error: "Tanggal tidak valid" };
+    }
+    parsed[field] = d;
+  }
 
-  const next = NEXT_STATUS[activity.status];
-  if (!next) return;
+  const order = SCHEDULE_FIELDS.map((f) => parsed[f]).filter(
+    (d): d is Date => d !== null
+  );
+  for (let i = 1; i < order.length; i++) {
+    if (order[i].getTime() < order[i - 1].getTime()) {
+      return { error: "Urutan jadwal tidak boleh mundur" };
+    }
+  }
 
-  await prisma.activity.update({ where: { id: activityId }, data: { status: next } });
+  await prisma.activity.update({ where: { id: activityId }, data: parsed });
 
   revalidatePath(`/admin/activities/${activityId}`);
   revalidatePath("/admin/activities");
+  return { ok: true };
 }
 
 export async function deleteActivity(formData: FormData) {

@@ -2,32 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { prisma } from "@/lib/prisma";
-import { advanceActivityStatus, deleteActivity } from "../actions";
+import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
+import { deleteActivity } from "../actions";
 import { CopyLink } from "./CopyLink";
 import { CopyAllLinks } from "./CopyAllLinks";
+import { ScheduleForm } from "./ScheduleForm";
 
 type Stage = "REGISTERED" | "PRETEST_DONE" | "POSTTEST_PASSED";
-
-const STATUS_LABEL: Record<string, string> = {
-  PRETEST_OPEN: "Pretest dibuka",
-  POSTTEST_OPEN: "Posttest dibuka",
-  CLOSED: "Ditutup",
-};
-
-const NEXT_ACTION_LABEL: Record<string, string> = {
-  PRETEST_OPEN: "Buka Posttest",
-  POSTTEST_OPEN: "Tutup Kegiatan",
-};
-
-const NEXT_ACTION_NOTE: Record<string, string> = {
-  PRETEST_OPEN:
-    "Setelah dibuka, peserta tidak bisa lagi mengerjakan pretest. Link posttest per peserta mulai aktif.",
-  POSTTEST_OPEN:
-    "Setelah ditutup, peserta tidak bisa lagi mengerjakan posttest. Nilai yang sudah masuk tetap tersimpan.",
-};
 
 const STAGE_LABEL: Record<string, string> = {
   REGISTERED: "Terdaftar",
@@ -90,7 +73,7 @@ export default async function ActivityDetailPage({
         where: { activityId: id },
         _count: { _all: true },
       }),
-      activity.status === "POSTTEST_OPEN"
+      activityPhase(activity, new Date()) === "POSTTEST"
         ? prisma.participant.findMany({
             where: { activityId: id },
             orderBy: { createdAt: "asc" },
@@ -118,7 +101,7 @@ export default async function ActivityDetailPage({
   };
 
   const joinPath = `/j/${activity.id}`;
-  const nextAction = NEXT_ACTION_LABEL[activity.status];
+  const phase = activityPhase(activity, new Date());
 
   return (
     <AdminShell title={activity.title} eyebrow={activity.module.title}>
@@ -129,9 +112,9 @@ export default async function ActivityDetailPage({
         ← Kembali ke daftar kegiatan
       </Link>
       <section className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-        <p className="label-eyebrow text-ink-secondary">Status kegiatan</p>
+        <p className="label-eyebrow text-ink-secondary">Fase kegiatan</p>
         <p className="mt-1 text-h1 font-bold text-accent">
-          {STATUS_LABEL[activity.status]}
+          {PHASE_LABEL[phase]}
         </p>
         {totalParticipants > 0 ? (
           <p className="mt-3 text-sm tabular-nums text-ink-secondary">
@@ -140,34 +123,26 @@ export default async function ActivityDetailPage({
             {stageCounts.POSTTEST_PASSED} lulus
           </p>
         ) : null}
-        {nextAction ? (
-          <>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-secondary">
-              {NEXT_ACTION_NOTE[activity.status]}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              <form action={advanceActivityStatus}>
-                <input type="hidden" name="activityId" value={activity.id} />
-                <Button type="submit">{nextAction}</Button>
-              </form>
-              <form action={deleteActivity}>
-                <input type="hidden" name="activityId" value={activity.id} />
-                <ConfirmButton label="Hapus Kegiatan" />
-              </form>
-            </div>
-          </>
-        ) : (
-          <form action={deleteActivity} className="mt-6">
-            <input type="hidden" name="activityId" value={activity.id} />
-            <ConfirmButton label="Hapus Kegiatan" />
-          </form>
-        )}
+        <ScheduleForm
+          activityId={activity.id}
+          schedule={{
+            registrationStart: activity.registrationStart,
+            pretestStart: activity.pretestStart,
+            materialStart: activity.materialStart,
+            posttestStart: activity.posttestStart,
+            closedAt: activity.closedAt,
+          }}
+        />
+        <form action={deleteActivity} className="mt-6 border-t border-hairline pt-4">
+          <input type="hidden" name="activityId" value={activity.id} />
+          <ConfirmButton label="Hapus Kegiatan" />
+        </form>
       </section>
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-h2 font-semibold">Link</h2>
-          {activity.status === "POSTTEST_OPEN" ? (
+          {phase === "POSTTEST" ? (
             <CopyAllLinks rows={posttestParticipants} />
           ) : null}
         </div>
@@ -176,7 +151,7 @@ export default async function ActivityDetailPage({
             <div className="py-4">
               <CopyLink path={joinPath} label="Link pendaftaran peserta (pretest)" />
             </div>
-            {activity.status === "POSTTEST_OPEN"
+            {phase === "POSTTEST"
               ? participants.map((p) => (
                   <div key={p.id} className="py-4">
                     <CopyLink path={`/t/${p.token}`} label={`Posttest · ${p.nama}`} />
@@ -185,8 +160,7 @@ export default async function ActivityDetailPage({
               : null}
           </div>
         </div>
-        {activity.status === "POSTTEST_OPEN" &&
-        posttestParticipants.length === 0 ? (
+        {phase === "POSTTEST" && posttestParticipants.length === 0 ? (
           <p className="text-sm text-ink-secondary">Belum ada peserta terdaftar.</p>
         ) : null}
       </section>

@@ -1,28 +1,26 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 
-const STATUS_CHIP: Record<string, string> = {
-  PRETEST_OPEN: "bg-accent-soft text-accent",
-  POSTTEST_OPEN: "bg-success-soft text-success",
+const PHASE_CHIP: Record<string, string> = {
+  SCHEDULED: "bg-canvas text-ink-secondary",
+  REGISTRATION: "bg-accent-soft text-accent",
+  PRETEST: "bg-accent-soft text-accent",
+  MATERIAL: "bg-accent-soft text-accent",
+  POSTTEST: "bg-success-soft text-success",
   CLOSED: "bg-canvas text-ink-secondary",
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  PRETEST_OPEN: "Pretest dibuka",
-  POSTTEST_OPEN: "Posttest dibuka",
-  CLOSED: "Ditutup",
-};
-
 export default async function AdminDashboardPage() {
-  const [moduleCount, activityCount, participantCount, activities, stageRows] =
+  const [moduleCount, activityCount, participantCount, allActivities, stageRows] =
     await Promise.all([
       prisma.module.count(),
       prisma.activity.count(),
       prisma.participant.count(),
       prisma.activity.findMany({
-        where: { status: { not: "CLOSED" } },
         orderBy: { createdAt: "desc" },
+        take: 20,
         include: {
           module: { select: { title: true } },
           _count: { select: { participants: true } },
@@ -33,6 +31,11 @@ export default async function AdminDashboardPage() {
         _count: { _all: true },
       }),
     ]);
+
+  const now = new Date();
+  const activities = allActivities.filter(
+    (a) => activityPhase(a, now) !== "CLOSED"
+  );
 
   const stats = [
     {
@@ -189,10 +192,10 @@ export default async function AdminDashboardPage() {
                   </p>
                 </div>
                 <span
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_CHIP[a.status]}`}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${PHASE_CHIP[activityPhase(a, now)]}`}
                 >
                   <span aria-hidden className="size-1.5 rounded-full bg-current" />
-                  {STATUS_LABEL[a.status]}
+                  {PHASE_LABEL[activityPhase(a, now)]}
                 </span>
               </Link>
             ))}

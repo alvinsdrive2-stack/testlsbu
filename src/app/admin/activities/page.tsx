@@ -2,17 +2,16 @@ import Link from "next/link";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/Button";
+import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
+import { AddActivityFab } from "./AddActivityFab";
 
-const STATUS_CHIP: Record<string, string> = {
-  PRETEST_OPEN: "bg-accent-soft text-accent",
-  POSTTEST_OPEN: "bg-success-soft text-success",
+const PHASE_CHIP: Record<string, string> = {
+  SCHEDULED: "bg-canvas text-ink-secondary",
+  REGISTRATION: "bg-accent-soft text-accent",
+  PRETEST: "bg-accent-soft text-accent",
+  MATERIAL: "bg-accent-soft text-accent",
+  POSTTEST: "bg-success-soft text-success",
   CLOSED: "bg-canvas text-ink-secondary",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  PRETEST_OPEN: "Pretest dibuka",
-  POSTTEST_OPEN: "Posttest dibuka",
-  CLOSED: "Ditutup",
 };
 
 type StageCounts = {
@@ -35,7 +34,7 @@ export default async function ActivitiesPage({
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
 
-  const [moduleCount, activities, stageRows] = await Promise.all([
+  const [moduleCount, activities, stageRows, modules] = await Promise.all([
     prisma.module.count(),
     prisma.activity.findMany({
       where: q
@@ -55,6 +54,10 @@ export default async function ActivitiesPage({
     prisma.participant.groupBy({
       by: ["activityId", "stage"],
       _count: { _all: true },
+    }),
+    prisma.module.findMany({
+      orderBy: { createdAt: "desc" },
+      select: { id: true, title: true },
     }),
   ]);
 
@@ -81,7 +84,6 @@ export default async function ActivitiesPage({
               className="w-56 rounded-md border border-hairline-strong bg-surface px-3 py-2.5 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </form>
-          <Button href="/admin/activities/new">Tambah Kegiatan</Button>
         </div>
       </section>
 
@@ -91,6 +93,7 @@ export default async function ActivitiesPage({
             const counts = stageByActivity.get(a.id) ?? emptyCounts();
             const total = counts.REGISTERED + counts.PRETEST_DONE + counts.POSTTEST_PASSED;
             const passedPct = total ? Math.round((counts.POSTTEST_PASSED / total) * 100) : 0;
+            const phase = activityPhase(a, new Date());
             return (
               <div
                 key={a.id}
@@ -120,10 +123,10 @@ export default async function ActivitiesPage({
                   ) : null}
                 </div>
                 <span
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_CHIP[a.status]}`}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${PHASE_CHIP[phase]}`}
                 >
                   <span aria-hidden className="size-1.5 rounded-full bg-current" />
-                  {STATUS_LABEL[a.status]}
+                  {PHASE_LABEL[phase]}
                 </span>
                 <Button
                   href={`/admin/activities/${a.id}`}
@@ -152,10 +155,12 @@ export default async function ActivitiesPage({
           <p className="mt-1 text-sm text-ink-secondary">
             {moduleCount === 0
               ? "Buat modul dulu di menu Modul, lalu tambah kegiatan."
-              : "Buat kegiatan pertama lewat tombol Tambah Kegiatan."}
+              : "Buat kegiatan pertama lewat tombol + di kanan bawah."}
           </p>
         </div>
       )}
+
+      {modules.length > 0 ? <AddActivityFab modules={modules} /> : null}
     </AdminShell>
   );
 }

@@ -14,6 +14,15 @@ export type ActivitySchedule = {
   closedAt?: Date | null;
 };
 
+export const PHASE_LABEL: Record<ActivityPhase, string> = {
+  SCHEDULED: "Belum dimulai",
+  REGISTRATION: "Pendaftaran dibuka",
+  PRETEST: "Sesi pretest",
+  MATERIAL: "Sesi materi",
+  POSTTEST: "Sesi posttest",
+  CLOSED: "Ditutup",
+};
+
 const PHASE_ORDER: {
   phase: Exclude<ActivityPhase, "SCHEDULED" | "CLOSED">;
   key: keyof ActivitySchedule;
