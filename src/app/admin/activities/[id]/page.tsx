@@ -126,6 +126,7 @@ export default async function ActivityDetailPage({
         ) : null}
         <ScheduleForm
           activityId={activity.id}
+          activePhase={phase}
           schedule={{
             registrationStart: activity.registrationStart,
             pretestStart: activity.pretestStart,

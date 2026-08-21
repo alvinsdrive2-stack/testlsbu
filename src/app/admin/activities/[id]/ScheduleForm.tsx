@@ -3,7 +3,10 @@
 import { useActionState, useEffect, useState } from "react";
 import { updateActivitySchedule } from "../actions";
 import { Button } from "@/components/ui/Button";
-import { toJakartaInputValue } from "@/lib/activity-phase";
+import {
+  toJakartaInputValue,
+  type ActivityPhase,
+} from "@/lib/activity-phase";
 
 type Schedule = {
   registrationStart: Date | null;
@@ -13,12 +16,52 @@ type Schedule = {
   closedAt: Date | null;
 };
 
-const FIELDS: { name: keyof Schedule; label: string }[] = [
-  { name: "registrationStart", label: "Pendaftaran mulai" },
-  { name: "pretestStart", label: "Pretest mulai" },
-  { name: "materialStart", label: "Materi dibuka" },
-  { name: "posttestStart", label: "Posttest mulai" },
-  { name: "closedAt", label: "Kegiatan ditutup" },
+type Row = {
+  name: keyof Schedule;
+  label: string;
+  desc: string;
+  phase: ActivityPhase;
+};
+
+const ROWS: Row[] = [
+  {
+    name: "registrationStart",
+    label: "Pendaftaran",
+    desc: "Peserta mengisi form pendaftaran",
+    phase: "REGISTRATION",
+  },
+  {
+    name: "pretestStart",
+    label: "Pretest",
+    desc: "Peserta mengerjakan pretest",
+    phase: "PRETEST",
+  },
+  {
+    name: "materialStart",
+    label: "Sesi Materi",
+    desc: "Materi & PDF bisa diakses peserta",
+    phase: "MATERIAL",
+  },
+  {
+    name: "posttestStart",
+    label: "Posttest",
+    desc: "Ujian akhir dibuka",
+    phase: "POSTTEST",
+  },
+  {
+    name: "closedAt",
+    label: "Tutup Kegiatan",
+    desc: "Semua akses peserta ditutup",
+    phase: "CLOSED",
+  },
+];
+
+const PHASE_ORDER: ActivityPhase[] = [
+  "REGISTRATION",
+  "PRETEST",
+  "MATERIAL",
+  "POSTTEST",
+  "CLOSED",
 ];
 
 const inputClass =
@@ -27,9 +70,11 @@ const inputClass =
 export function ScheduleForm({
   activityId,
   schedule,
+  activePhase,
 }: {
   activityId: string;
   schedule: Schedule;
+  activePhase: ActivityPhase;
 }) {
   const [state, formAction, pending] = useActionState<
     { ok?: boolean; error?: string },
@@ -45,31 +90,73 @@ export function ScheduleForm({
     }
   }, [state]);
 
+  const currentIdx = PHASE_ORDER.indexOf(activePhase);
+
   return (
     <form action={formAction} className="mt-6">
       <input type="hidden" name="activityId" value={activityId} />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {FIELDS.map((f) => (
-          <div key={f.name}>
-            <label
-              htmlFor={f.name}
-              className="label-eyebrow mb-1.5 block text-ink-secondary"
-            >
-              {f.label}
-            </label>
-            <input
-              id={f.name}
-              name={f.name}
-              type="datetime-local"
-              defaultValue={
-                schedule[f.name] ? toJakartaInputValue(schedule[f.name]!) : ""
-              }
-              className={inputClass}
-            />
-          </div>
-        ))}
-      </div>
-      <p className="mt-3 text-sm text-ink-secondary">
+      <ol className="relative space-y-6">
+        <span
+          aria-hidden
+          className="absolute bottom-3 left-[7px] top-3 w-px bg-hairline"
+        />
+        {ROWS.map((row) => {
+          const rowIdx = PHASE_ORDER.indexOf(row.phase);
+          const isActive = rowIdx === currentIdx;
+          const isPast = currentIdx >= 0 && rowIdx < currentIdx;
+          const value = schedule[row.name];
+          return (
+            <li key={row.name} className="relative flex gap-4">
+              <span
+                aria-hidden
+                className={`relative z-10 mt-1.5 size-[15px] shrink-0 rounded-full border-2 transition-colors ${
+                  isActive
+                    ? "border-accent bg-accent ring-4 ring-accent/15"
+                    : isPast
+                      ? "border-success bg-success"
+                      : "border-hairline-strong bg-surface"
+                }`}
+              />
+              <div
+                className={`min-w-0 flex-1 rounded-lg border px-4 py-3 transition-colors ${
+                  isActive
+                    ? "border-accent/40 bg-accent-soft/40"
+                    : "border-transparent hover:border-hairline hover:bg-canvas/60"
+                }`}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="flex items-baseline gap-2">
+                    <span className="text-sm font-semibold text-ink">
+                      {row.label}
+                    </span>
+                    {isActive ? (
+                      <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+                        Berjalan
+                      </span>
+                    ) : !value ? (
+                      <span className="text-[12px] font-medium text-ink-secondary">
+                        dilewati
+                      </span>
+                    ) : null}
+                  </span>
+                  <input
+                    id={row.name}
+                    name={row.name}
+                    type="datetime-local"
+                    aria-label={row.label}
+                    defaultValue={value ? toJakartaInputValue(value) : ""}
+                    className={`${inputClass} sm:w-64`}
+                  />
+                </div>
+                <p className="mt-1 text-[13px] leading-relaxed text-ink-secondary">
+                  {row.desc}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      <p className="mt-4 text-sm text-ink-secondary">
         Waktu Jakarta (WIB). Kosongkan untuk melewati fase.
       </p>
       <div className="mt-4 flex items-center gap-4">
