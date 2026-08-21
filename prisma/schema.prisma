@@ -12,12 +12,6 @@ enum Section {
   POSTTEST
 }
 
-enum ActivityStatus {
-  PRETEST_OPEN
-  POSTTEST_OPEN
-  CLOSED
-}
-
 enum ParticipantStage {
   REGISTERED
   PRETEST_DONE
@@ -81,13 +75,17 @@ model Material {
 }
 
 model Activity {
-  id          String           @id @default(cuid())
-  moduleId    String
-  module      Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  title       String
-  status      ActivityStatus   @default(PRETEST_OPEN)
-  createdAt   DateTime         @default(now())
-  participants Participant[]
+  id                String        @id @default(cuid())
+  moduleId          String
+  module            Module        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title             String
+  registrationStart DateTime?
+  pretestStart      DateTime?
+  materialStart     DateTime?
+  posttestStart     DateTime?
+  closedAt          DateTime?
+  createdAt         DateTime      @default(now())
+  participants      Participant[]
 
   @@index([moduleId])
 }
