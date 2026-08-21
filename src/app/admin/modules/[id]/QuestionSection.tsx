@@ -349,34 +349,30 @@ export function QuestionSection({
           className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-[2px]"
           onClick={() => setModalOpen(false)}
         >
-          <Card className="w-full max-w-lg p-5">
-            <div onClick={(e) => e.stopPropagation()}>
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-h2 font-bold">Soal baru</h3>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  aria-label="Tutup"
-                  className="px-3"
-                >
-                  ✕
-                </Button>
-              </div>
-              <form action={createFormAction} className="space-y-3">
-                <input type="hidden" name="moduleId" value={moduleId} />
-                <TextArea
-                  label="Teks soal"
-                  name="text"
-                  required
-                  minLength={3}
-                />
-                <div className="flex flex-wrap items-center gap-3">
-                  <SubmitButton pendingLabel="Menambah…">Tambah Soal</SubmitButton>
-                  <ErrorNote error={createState.error} />
-                </div>
-              </form>
+          <Card
+            className="w-full max-w-lg p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-h2 font-bold">Soal baru</h3>
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => setModalOpen(false)}
+                aria-label="Tutup"
+                className="px-3"
+              >
+                ✕
+              </Button>
             </div>
+            <form action={createFormAction} className="space-y-3">
+              <input type="hidden" name="moduleId" value={moduleId} />
+              <TextArea label="Teks soal" name="text" required minLength={3} />
+              <div className="flex flex-wrap items-center gap-3">
+                <SubmitButton pendingLabel="Menambah…">Tambah Soal</SubmitButton>
+                <ErrorNote error={createState.error} />
+              </div>
+            </form>
           </Card>
         </div>
       ) : null}

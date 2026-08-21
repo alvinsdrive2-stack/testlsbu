@@ -37,7 +37,7 @@ export function TextArea({
   return (
     <div>
       <Label htmlFor={props.id ?? props.name!}>{label}</Label>
-      <textarea className={`${inputClass} min-h-28 ${className}`} {...props} />
+      <textarea className={`${inputClass} ${className || "min-h-28"}`} {...props} />
     </div>
   );
 }
