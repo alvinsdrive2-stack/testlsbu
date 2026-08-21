@@ -42,14 +42,15 @@ model Module {
 }
 
 model Question {
-  id        String   @id @default(cuid())
-  moduleId  String
-  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  section   Section
-  text      String
-  order     Int
-  options   Option[]
-  answers   Answer[]
+  id          String   @id @default(cuid())
+  moduleId    String
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  section     Section
+  text        String
+  explanation String?
+  order       Int
+  options     Option[]
+  answers     Answer[]
 
   @@index([moduleId, section])
 }
