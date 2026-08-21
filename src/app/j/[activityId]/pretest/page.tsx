@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getParticipantToken } from "@/lib/session";
 import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
+import { getExamQuestions } from "@/lib/exam-questions";
 import { finalizeAttempt } from "@/app/exam/actions";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
@@ -122,11 +123,7 @@ export default async function PretestPage({
     );
   }
 
-  const questions = await prisma.question.findMany({
-    where: { moduleId: activity.moduleId, section: "PRETEST" },
-    include: { options: true },
-    orderBy: { order: "asc" },
-  });
+  const questions = await getExamQuestions(activity.moduleId);
 
   if (questions.length === 0) {
     return (

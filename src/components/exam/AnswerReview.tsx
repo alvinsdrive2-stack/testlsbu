@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { getExamQuestions } from "@/lib/exam-questions";
 
-export async function PosttestReview({ attemptId }: { attemptId: string }) {
+export async function AnswerReview({ attemptId }: { attemptId: string }) {
   const attempt = await prisma.attempt.findUnique({
     where: { id: attemptId },
     include: {
@@ -10,17 +11,17 @@ export async function PosttestReview({ attemptId }: { attemptId: string }) {
   });
   if (!attempt) return null;
 
-  const questions = await prisma.question.findMany({
-    where: { moduleId: attempt.participant.activity.moduleId, section: "PRETEST" },
-    include: { options: true },
-    orderBy: { order: "asc" },
-  });
+  const questions = await getExamQuestions(
+    attempt.participant.activity.moduleId
+  );
 
   const answerByQ = new Map(attempt.answers.map((a) => [a.questionId, a.optionId]));
 
   return (
     <section className="mt-8">
-      <h2 className="text-h2 font-bold text-ink">Review Jawaban</h2>
+      <h2 className="text-h2 font-bold text-ink">
+        Review Jawaban — {attempt.section === "PRETEST" ? "Pretest" : "Posttest"}
+      </h2>
       <p className="mt-1 text-sm text-ink-secondary">
         Lihat jawaban kamu. Jawaban yang benar cuma dijelaskan, jawaban yang salah tidak dibocorkan.
       </p>

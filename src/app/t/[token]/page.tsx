@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { shuffleWithSeed, deadlineFor } from "@/lib/exam";
+import { getExamQuestions } from "@/lib/exam-questions";
 import { finalizeAttempt } from "@/app/exam/actions";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
@@ -7,7 +8,7 @@ import { StartGate } from "@/components/ui/StartGate";
 import { TopBar } from "@/components/ui/TopBar";
 import { ExamScreen } from "@/components/exam/ExamScreen";
 import { startPosttestRetry } from "./actions";
-import { PosttestReview } from "./PosttestReview";
+import { AnswerReview } from "@/components/exam/AnswerReview";
 
 const CARD =
   "rounded-[var(--radius-card)] border border-hairline bg-surface p-10 shadow-[0_1px_3px_rgba(15,20,25,0.06)]";
@@ -57,7 +58,7 @@ function PosttestFailed({
               </Button>
             </div>
           </div>
-          <PosttestReview attemptId={attemptId} />
+          <AnswerReview attemptId={attemptId} />
         </div>
       </main>
     </div>
@@ -92,7 +93,7 @@ function PosttestPassed({
               <Button href="/p">Ke Dashboard</Button>
             </div>
           </div>
-          <PosttestReview attemptId={attemptId} />
+          <AnswerReview attemptId={attemptId} />
         </div>
       </main>
     </div>
@@ -155,11 +156,7 @@ export default async function PosttestPage({
     return <PosttestPassed score={passedAttempt.score ?? 0} attemptId={passedAttempt.id} />;
   }
 
-  const questions = await prisma.question.findMany({
-    where: { moduleId: activity.moduleId, section: "PRETEST" },
-    include: { options: true },
-    orderBy: { order: "asc" },
-  });
+  const questions = await getExamQuestions(activity.moduleId);
 
   if (questions.length === 0) {
     return (

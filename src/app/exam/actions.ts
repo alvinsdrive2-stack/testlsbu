@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { computeScore } from "@/lib/exam";
+import { getExamQuestions } from "@/lib/exam-questions";
 
 export async function saveAnswer(attemptId: string, questionId: string, optionId: string) {
   const attempt = await prisma.attempt.findUnique({ where: { id: attemptId } });
@@ -36,10 +37,9 @@ export async function finalizeAttempt(attemptId: string) {
   });
   if (!attempt || attempt.submittedAt) return;
 
-  const questions = await prisma.question.findMany({
-    where: { moduleId: attempt.participant.activity.moduleId, section: attempt.section },
-    include: { options: true },
-  });
+  const questions = await getExamQuestions(
+    attempt.participant.activity.moduleId
+  );
 
   const correctByQuestion = new Map(
     questions.map((q) => [q.id, q.options.find((o) => o.isCorrect)?.id ?? null])
