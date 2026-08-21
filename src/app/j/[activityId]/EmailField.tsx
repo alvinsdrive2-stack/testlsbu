@@ -59,8 +59,8 @@ export function EmailField() {
       ) : null}
       {status === "taken" ? (
         <p role="alert" className="mt-1.5 text-[13px] font-medium text-flag">
-          Email sudah dipakai badan usaha lain. Gunakan email lain, atau login ke
-          dashboard jika ini email kamu.
+          Email sudah terdaftar. Kalau ini akun kamu, pakai nomor WA yang sama
+          saat daftar untuk langsung masuk — atau login lewat halaman login.
         </p>
       ) : null}
       {status === "ok" ? (

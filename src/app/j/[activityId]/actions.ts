@@ -46,12 +46,16 @@ export async function registerParticipant(
   const email = parsed.data.email.trim().toLowerCase();
   const existing = await prisma.participant.findFirst({
     where: { email },
-    select: { id: true },
+    orderBy: { createdAt: "desc" },
   });
   if (existing) {
+    if (existing.wa === parsed.data.wa) {
+      await createParticipantSession(existing.token);
+      redirect("/p");
+    }
     return {
       error:
-        "Email sudah dipakai badan usaha lain. Gunakan email lain, atau login ke dashboard jika ini email kamu.",
+        "Email sudah dipakai badan usaha lain. Gunakan email lain, atau login ke dashboard.",
     };
   }
 
