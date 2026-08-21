@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/Field";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { VideoField } from "./VideoField";
+import { PdfField } from "./PdfField";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 
@@ -34,6 +35,7 @@ function EditMaterialForm({ material }: { material: Material }) {
       />
       <RichTextEditor label="Konten" name="content" defaultValue={material.content} />
       <VideoField defaultValue={material.videoUrl ?? ""} />
+      <PdfField defaultValue={material.pdfUrl ?? ""} />
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton variant="secondary">Simpan Materi</SubmitButton>
         <ErrorNote error={state.error} />
@@ -50,6 +52,7 @@ function CreateMaterialForm({ moduleId }: { moduleId: string }) {
       <TextField label="Judul materi baru" name="title" required minLength={3} />
       <RichTextEditor label="Konten" name="content" />
       <VideoField />
+      <PdfField />
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton>Tambah Materi</SubmitButton>
         <ErrorNote error={state.error} />

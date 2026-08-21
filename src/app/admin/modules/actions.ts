@@ -23,6 +23,14 @@ const videoUrlField = z
     "URL video tidak valid"
   );
 
+const pdfUrlField = z
+  .string()
+  .trim()
+  .refine(
+    (v) => v === "" || v.startsWith("/uploads/pdfs/"),
+    "Lampiran PDF tidak valid"
+  );
+
 const materialSchema = z.object({
   moduleId: z.string().min(1),
   title: z.string().min(3, "Judul materi minimal 3 karakter"),
@@ -33,6 +41,7 @@ const materialSchema = z.object({
       "Konten tidak boleh kosong"
     ),
   videoUrl: videoUrlField.optional(),
+  pdfUrl: pdfUrlField.optional(),
 });
 
 type FormState = { error?: string; ok?: boolean; questionId?: string };
@@ -288,13 +297,14 @@ export async function createMaterial(
     title: formData.get("title"),
     content: formData.get("content"),
     videoUrl: formData.get("videoUrl") || "",
+    pdfUrl: formData.get("pdfUrl") || "",
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0].message };
   }
 
-  const { moduleId, videoUrl, ...data } = parsed.data;
+  const { moduleId, videoUrl, pdfUrl, ...data } = parsed.data;
 
   const last = await prisma.material.findFirst({
     where: { moduleId },
@@ -307,6 +317,7 @@ export async function createMaterial(
       ...data,
       moduleId,
       videoUrl: videoUrl || null,
+      pdfUrl: pdfUrl || null,
       order: (last?.order ?? 0) + 1,
     },
   });
@@ -327,17 +338,18 @@ export async function updateMaterial(
     title: formData.get("title"),
     content: formData.get("content"),
     videoUrl: formData.get("videoUrl") || "",
+    pdfUrl: formData.get("pdfUrl") || "",
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0].message };
   }
 
-  const { videoUrl, ...data } = parsed.data;
+  const { videoUrl, pdfUrl, ...data } = parsed.data;
 
   await prisma.material.update({
     where: { id: materialId },
-    data: { ...data, videoUrl: videoUrl || null },
+    data: { ...data, videoUrl: videoUrl || null, pdfUrl: pdfUrl || null },
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);

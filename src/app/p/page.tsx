@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getParticipantToken } from "@/lib/session";
+import { ProfileMenu } from "./ProfileMenu";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
@@ -7,16 +8,6 @@ import { Backdrop } from "@/components/ui/Backdrop";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { videoEmbedUrl } from "@/lib/video";
 import { sanitizeMaterialHtml } from "@/lib/sanitize";
-
-function initials(nama: string): string {
-  return nama
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 export default async function ParticipantDashboardPage() {
   const token = await getParticipantToken();
@@ -135,17 +126,7 @@ export default async function ParticipantDashboardPage() {
       <Backdrop />
       <TopBar
         title={activity.title}
-        right={
-          <span className="hidden items-center gap-2.5 sm:flex">
-            <span
-              aria-hidden
-              className="flex size-9 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-[13px] font-bold text-white"
-            >
-              {initials(participant.nama)}
-            </span>
-            <span className="text-[15px] font-medium">{participant.nama}</span>
-          </span>
-        }
+        right={<ProfileMenu nama={participant.nama} />}
       />
 
       <main>
@@ -332,6 +313,24 @@ export default async function ParticipantDashboardPage() {
                                 src={m.videoUrl}
                                 className="mt-6 aspect-video w-full rounded-md border border-hairline"
                               />
+                            ) : null}
+                            {m.pdfUrl ? (
+                              <div className="mt-6">
+                                <div className="overflow-hidden rounded-md border border-hairline">
+                                  <iframe
+                                    src={m.pdfUrl}
+                                    title={`PDF ${m.title}`}
+                                    className="h-[800px] w-full"
+                                  />
+                                </div>
+                                <a
+                                  href={m.pdfUrl}
+                                  download
+                                  className="mt-3 inline-flex min-h-10 items-center rounded-md border border-hairline-strong bg-surface px-4 text-sm font-semibold hover:bg-canvas"
+                                >
+                                  Unduh PDF
+                                </a>
+                              </div>
                             ) : null}
                           </div>
                         </div>
