@@ -16,12 +16,14 @@ type SaveState = "idle" | "saving" | "saved" | "error";
 export function ExamRunner({
   attemptId,
   deadlineISO,
+  sessionEndISO,
   questions,
   initialAnswers,
   heading,
 }: {
   attemptId: string;
   deadlineISO: string;
+  sessionEndISO?: string;
   questions: ExamQuestion[];
   initialAnswers: Record<string, string>;
   heading?: string;
@@ -34,7 +36,10 @@ export function ExamRunner({
   const submittedRef = useRef(false);
 
   const deadline = new Date(deadlineISO).getTime();
-  const [timeLeft, setTimeLeft] = useState(Math.max(0, deadline - Date.now()));
+  const sessionEnd = sessionEndISO ? new Date(sessionEndISO).getTime() : null;
+  const sessionCutoff = sessionEnd !== null && sessionEnd < deadline;
+  const effective = sessionEnd !== null ? Math.min(deadline, sessionEnd) : deadline;
+  const [timeLeft, setTimeLeft] = useState(Math.max(0, effective - Date.now()));
 
   async function doSubmit() {
     if (submittedRef.current) return;
@@ -47,7 +52,7 @@ export function ExamRunner({
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const left = deadline - Date.now();
+      const left = effective - Date.now();
       setTimeLeft(Math.max(0, left));
       if (left <= 0) {
         clearInterval(timer);
@@ -56,7 +61,7 @@ export function ExamRunner({
     }, 1000);
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deadline]);
+  }, [effective]);
 
   async function select(questionId: string, optionId: string) {
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
@@ -116,6 +121,18 @@ export function ExamRunner({
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+        <div
+          role="note"
+          className="mb-5 rounded-md border border-warning/40 bg-warning-soft px-4 py-3 text-sm leading-relaxed text-ink"
+        >
+          <span className="font-semibold">Perhatian:</span> kamu hanya bisa
+          mengerjakan selama masih sesi ujian berlangsung. Saat sesi berganti,
+          jawabanmu <span className="font-semibold">terkirim otomatis</span> dan
+          ujian terkunci.
+          {sessionCutoff
+            ? " Sisa waktu di atas mengikuti batas akhir sesi — lebih pendek dari durasi penuh ujian."
+            : ""}
+        </div>
         <div className="overflow-hidden border border-hairline bg-surface shadow-[0_2px_8px_rgba(15,20,25,0.08)]">
         <div className="divide-y divide-hairline">
         {questions.map((q, i) => {

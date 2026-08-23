@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 import { getParticipantToken } from "@/lib/session";
+import { AutoRefresh } from "./AutoRefresh";
 import { ProfileMenu } from "./ProfileMenu";
 import { Button } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
@@ -146,8 +147,20 @@ export default async function ParticipantDashboardPage() {
     },
   ];
 
+  const boundaries = [
+    activity.registrationStart,
+    activity.pretestStart,
+    activity.materialStart,
+    activity.posttestStart,
+    activity.closedAt,
+  ]
+    .filter((d): d is Date => d !== null)
+    .map((d) => d.toISOString())
+    .join(",");
+
   return (
     <div className="min-h-screen">
+      <AutoRefresh boundaries={boundaries} />
       <Backdrop />
       <TopBar
         title={activity.title}
@@ -338,25 +351,70 @@ export default async function ParticipantDashboardPage() {
           </section>
 
           <section id="materi" className="mt-8 scroll-mt-16">
-            <h2 className="text-[clamp(21px,2vw,29px)] font-bold">Materi</h2>
-            {!materiOpen ? (
-              <p className="mt-4 text-[15px] text-ink-secondary">
-                {phase === "POSTTEST" || phase === "CLOSED"
-                  ? "Sesi materi sudah berakhir."
-                  : activity.materialStart
-                    ? `Materi dibuka ${activity.materialStart.toLocaleString("id-ID", {
-                        timeZone: "Asia/Jakarta",
-                        dateStyle: "full",
-                        timeStyle: "short",
-                      })}.`
-                    : "Materi menunggu jadwal dari admin."}
-              </p>
-            ) : activity.module.materials.length === 0 ? (
-              <p className="mt-4 text-[15px] text-ink-secondary">
-                Belum ada materi dari admin.
-              </p>
-            ) : (
-              <div className="mt-4 divide-y divide-hairline border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+            <div className="border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] sm:p-8">
+              <p className="label-eyebrow text-ink-secondary">Materi</p>
+              {!materiOpen ? (
+                <div className="mt-4 flex items-start gap-4">
+                  <span
+                    aria-hidden
+                    className="flex size-10 shrink-0 items-center justify-center rounded-md bg-canvas text-ink-secondary"
+                  >
+                    <svg viewBox="0 0 24 24" className="size-5">
+                      <path
+                        d="M7 10V7a5 5 0 0 1 10 0v3m-11 0h12a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <div className="min-w-0">
+                    <h2 className="text-[clamp(21px,2vw,29px)] font-bold tracking-tight">
+                      {phase === "POSTTEST" || phase === "CLOSED"
+                        ? "Sesi materi sudah berakhir"
+                        : "Materi belum dibuka"}
+                    </h2>
+                    {phase === "POSTTEST" || phase === "CLOSED" ? (
+                      <p className="mt-1 text-[15px] leading-relaxed text-ink-secondary">
+                        Sesi materi kegiatan ini sudah ditutup sesuai jadwal.
+                      </p>
+                    ) : activity.materialStart ? (
+                      <>
+                        <p className="mt-1 text-[15px] leading-relaxed text-ink-secondary">
+                          Materi dibuka{" "}
+                          {activity.materialStart.toLocaleString("id-ID", {
+                            timeZone: "Asia/Jakarta",
+                            dateStyle: "full",
+                            timeStyle: "short",
+                          })}{" "}
+                          WIB.
+                        </p>
+                        <div className="mt-3 border-t border-hairline pt-3">
+                          <p className="text-[13px] text-ink-secondary">
+                            Dibuka dalam
+                          </p>
+                          <p className="mt-0.5 text-[15px] font-medium">
+                            <Countdown
+                              target={activity.materialStart.toISOString()}
+                            />
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="mt-1 text-[15px] leading-relaxed text-ink-secondary">
+                        Materi menunggu jadwal dari admin.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : activity.module.materials.length === 0 ? (
+                <p className="mt-4 text-[15px] text-ink-secondary">
+                  Belum ada materi dari admin.
+                </p>
+              ) : (
+                <div className="mt-4 divide-y divide-hairline">
                 {activity.module.materials
                   .sort((a, b) => a.order - b.order)
                   .map((m, i) => {
@@ -426,8 +484,9 @@ export default async function ParticipantDashboardPage() {
                       </article>
                     );
                   })}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </section>
         </div>
         </PageTransition>

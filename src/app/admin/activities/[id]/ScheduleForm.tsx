@@ -143,6 +143,7 @@ export function ScheduleForm({
                     id={row.name}
                     name={row.name}
                     type="datetime-local"
+                    required
                     aria-label={row.label}
                     defaultValue={value ? toJakartaInputValue(value) : ""}
                     className={`${inputClass} sm:w-64`}
@@ -157,7 +158,8 @@ export function ScheduleForm({
         })}
       </ol>
       <p className="mt-4 text-sm text-ink-secondary">
-        Waktu Jakarta (WIB). Kosongkan untuk melewati fase.
+        Waktu Jakarta (WIB). Semua jadwal wajib diisi — fase kegiatan berjalan
+        otomatis mengikuti jadwal ini.
       </p>
       <div className="mt-4 flex items-center gap-4">
         <Button type="submit" disabled={pending}>

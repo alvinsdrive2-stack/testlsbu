@@ -20,14 +20,12 @@ function PosttestFailed({
   attempt,
   token,
   attemptId,
-  showReview,
 }: {
   score: number;
   passingGrade: number;
   attempt: number;
   token: string;
   attemptId: string;
-  showReview: boolean;
 }) {
   const gap = Math.max(0, passingGrade - score);
   return (
@@ -45,7 +43,7 @@ function PosttestFailed({
             </p>
             <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
               {gap > 0 ? `Kurang ${gap} poin lagi buat lulus. ` : ""}
-              Pelajari materi di dashboard, lalu coba lagi kapan pun.
+              Coba lagi kapan pun kamu siap.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-2">
               <form
@@ -57,11 +55,22 @@ function PosttestFailed({
                 <Button type="submit">Coba Lagi</Button>
               </form>
               <Button variant="secondary" href="/p">
-                Pelajari Materi
+                Ke Dashboard
               </Button>
             </div>
           </div>
-          {showReview ? <AnswerReview attemptId={attemptId} /> : null}
+          <details className="group mt-6 border-t border-hairline pt-6">
+            <summary className="cursor-pointer list-none text-sm font-semibold text-accent hover:underline [&::-webkit-details-marker]:hidden">
+              <span
+                aria-hidden
+                className="mr-1.5 inline-block transition-transform group-open:rotate-90"
+              >
+                ▸
+              </span>
+              Lihat review jawaban — mana yang benar, mana yang salah
+            </summary>
+            <AnswerReview attemptId={attemptId} />
+          </details>
         </div>
       </main>
     </div>
@@ -205,7 +214,6 @@ export default async function PosttestPage({
           attempt={failedPosttest}
           token={token}
           attemptId={lastSubmitted.id}
-          showReview={activity.module.showAnswerReview}
         />
       );
     }
@@ -226,6 +234,11 @@ export default async function PosttestPage({
             }}
             className="mt-8"
           >
+            <p className="mb-4 rounded-md border border-warning/40 bg-warning-soft px-4 py-3 text-left text-sm leading-relaxed text-ink">
+              Ujian hanya bisa dikerjakan <strong>selama sesi posttest
+              berlangsung</strong>. Kalau sesi berganti atau waktu habis,
+              jawaban terkirim otomatis dan ujian terkunci.
+            </p>
             <Button type="submit">Mulai Posttest</Button>
           </form>
         </StartGate>
@@ -238,7 +251,11 @@ export default async function PosttestPage({
     activity.module.posttestDurationMin
   );
 
-  if (Date.now() > deadline.getTime()) {
+  const sessionEnd = activity.closedAt;
+  const cutoff = sessionEnd
+    ? Math.min(deadline.getTime(), sessionEnd.getTime())
+    : deadline.getTime();
+  if (Date.now() > cutoff) {
     await finalizeAttempt(activeAttempt.id);
   }
 
@@ -255,7 +272,6 @@ export default async function PosttestPage({
         attempt={failedPosttest}
         token={token}
         attemptId={refreshed.id}
-        showReview={activity.module.showAnswerReview}
       />
     );
   }
@@ -285,6 +301,7 @@ export default async function PosttestPage({
       heading={`Posttest · ${activity.title}`}
       attemptId={refreshed.id}
       deadlineISO={deadline.toISOString()}
+      sessionEndISO={sessionEnd ? sessionEnd.toISOString() : undefined}
       questions={examQuestions}
       initialAnswers={initialAnswers}
     />

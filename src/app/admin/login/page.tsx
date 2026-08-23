@@ -1,4 +1,5 @@
 import { login } from "./actions";
+import { Backdrop } from "@/components/ui/Backdrop";
 import { Button } from "@/components/ui/Button";
 
 export default async function AdminLoginPage({
@@ -9,7 +10,9 @@ export default async function AdminLoginPage({
   const { error } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
+    <>
+      <Backdrop />
+      <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-[var(--radius-card)] border border-hairline bg-surface p-10 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -54,5 +57,6 @@ export default async function AdminLoginPage({
         </form>
       </div>
     </main>
+    </>
   );
 }

@@ -7,6 +7,7 @@ export function ExamScreen({
   heading,
   attemptId,
   deadlineISO,
+  sessionEndISO,
   questions,
   initialAnswers,
 }: {
@@ -14,6 +15,7 @@ export function ExamScreen({
   heading: string;
   attemptId: string;
   deadlineISO: string;
+  sessionEndISO?: string;
   questions: ExamQuestion[];
   initialAnswers: Record<string, string>;
 }) {
@@ -25,6 +27,7 @@ export function ExamScreen({
           <ExamRunner
             attemptId={attemptId}
             deadlineISO={deadlineISO}
+            sessionEndISO={sessionEndISO}
             questions={questions}
             initialAnswers={initialAnswers}
             heading={heading}

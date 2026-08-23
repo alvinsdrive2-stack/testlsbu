@@ -6,6 +6,52 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jakartaInputToDate } from "@/lib/activity-phase";
 
+const SCHEDULE_FIELDS = [
+  "registrationStart",
+  "pretestStart",
+  "materialStart",
+  "posttestStart",
+  "closedAt",
+] as const;
+
+const SCHEDULE_LABEL: Record<(typeof SCHEDULE_FIELDS)[number], string> = {
+  registrationStart: "Pendaftaran",
+  pretestStart: "Pretest",
+  materialStart: "Sesi materi",
+  posttestStart: "Posttest",
+  closedAt: "Tutup kegiatan",
+};
+
+function parseSchedule(
+  formData: FormData
+): Record<(typeof SCHEDULE_FIELDS)[number], Date> | { error: string } {
+  const out = {} as Record<(typeof SCHEDULE_FIELDS)[number], Date>;
+  for (const field of SCHEDULE_FIELDS) {
+    const raw = String(formData.get(field) || "").trim();
+    if (raw === "") {
+      return { error: `Jadwal ${SCHEDULE_LABEL[field]} wajib diisi` };
+    }
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) {
+      return { error: `Format tanggal ${SCHEDULE_LABEL[field]} tidak valid` };
+    }
+    const d = jakartaInputToDate(raw);
+    if (Number.isNaN(d.getTime())) {
+      return { error: `Tanggal ${SCHEDULE_LABEL[field]} tidak valid` };
+    }
+    out[field] = d;
+  }
+  for (let i = 1; i < SCHEDULE_FIELDS.length; i++) {
+    const prev = out[SCHEDULE_FIELDS[i - 1]];
+    const cur = out[SCHEDULE_FIELDS[i]];
+    if (cur.getTime() < prev.getTime()) {
+      return {
+        error: `Jadwal ${SCHEDULE_LABEL[SCHEDULE_FIELDS[i]]} tidak boleh lebih awal dari ${SCHEDULE_LABEL[SCHEDULE_FIELDS[i - 1]]}`,
+      };
+    }
+  }
+  return out;
+}
+
 const activityCreateSchema = z.object({
   moduleId: z.string().min(1, "Pilih modul"),
   title: z.string().min(3, "Judul minimal 3 karakter"),
@@ -26,21 +72,24 @@ export async function createActivity(
     return { error: parsed.error.issues[0].message };
   }
 
+  // Mode quick (FAB modal) tidak mengirim jadwal — diisi nanti di detail.
+  const hasSchedule = formData.get("registrationStart") !== null;
+  const schedule = hasSchedule ? parseSchedule(formData) : null;
+  if (schedule && "error" in schedule) {
+    return { error: schedule.error };
+  }
+
   const activity = await prisma.activity.create({
-    data: { moduleId: parsed.data.moduleId, title: parsed.data.title },
+    data: {
+      moduleId: parsed.data.moduleId,
+      title: parsed.data.title,
+      ...(schedule && !("error" in schedule) ? schedule : {}),
+    },
   });
 
   revalidatePath("/admin/activities");
   redirect(`/admin/activities/${activity.id}`);
 }
-
-const SCHEDULE_FIELDS = [
-  "registrationStart",
-  "pretestStart",
-  "materialStart",
-  "posttestStart",
-  "closedAt",
-] as const;
 
 type ScheduleState = { ok?: boolean; error?: string };
 
@@ -50,33 +99,9 @@ export async function updateActivitySchedule(
 ): Promise<ScheduleState> {
   const activityId = String(formData.get("activityId"));
 
-  const parsed: Record<(typeof SCHEDULE_FIELDS)[number], Date | null> = {} as Record<
-    (typeof SCHEDULE_FIELDS)[number],
-    Date | null
-  >;
-  for (const field of SCHEDULE_FIELDS) {
-    const raw = String(formData.get(field) || "").trim();
-    if (raw === "") {
-      parsed[field] = null;
-      continue;
-    }
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) {
-      return { error: "Format tanggal tidak valid" };
-    }
-    const d = jakartaInputToDate(raw);
-    if (Number.isNaN(d.getTime())) {
-      return { error: "Tanggal tidak valid" };
-    }
-    parsed[field] = d;
-  }
-
-  const order = SCHEDULE_FIELDS.map((f) => parsed[f]).filter(
-    (d): d is Date => d !== null
-  );
-  for (let i = 1; i < order.length; i++) {
-    if (order[i].getTime() < order[i - 1].getTime()) {
-      return { error: "Urutan jadwal tidak boleh mundur" };
-    }
+  const parsed = parseSchedule(formData);
+  if ("error" in parsed) {
+    return { error: parsed.error };
   }
 
   await prisma.activity.update({ where: { id: activityId }, data: parsed });

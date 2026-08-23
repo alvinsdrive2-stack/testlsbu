@@ -72,7 +72,7 @@ export function AddActivityFab({
                 ✕
               </Button>
             </div>
-            <CreateActivityForm modules={modules} />
+            <CreateActivityForm modules={modules} variant="quick" />
           </Card>
         </div>
       ) : null}

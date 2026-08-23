@@ -27,12 +27,10 @@ function PretestResult({
   score,
   activityTitle,
   attemptId,
-  showReview,
 }: {
   score: number;
   activityTitle: string;
   attemptId: string;
-  showReview: boolean;
 }) {
   return (
     <div className="min-h-screen">
@@ -86,7 +84,18 @@ function PretestResult({
             </div>
           </div>
         </div>
-        {showReview ? <AnswerReview attemptId={attemptId} /> : null}
+        <details className="group mx-auto mt-6 w-full max-w-4xl border-t border-hairline pt-6">
+          <summary className="cursor-pointer list-none text-sm font-semibold text-accent hover:underline [&::-webkit-details-marker]:hidden">
+            <span
+              aria-hidden
+              className="mr-1.5 inline-block transition-transform group-open:rotate-90"
+            >
+              ▸
+            </span>
+            Lihat review jawaban — mana yang benar, mana yang salah
+          </summary>
+          <AnswerReview attemptId={attemptId} />
+        </details>
       </main>
     </div>
   );
@@ -168,7 +177,6 @@ export default async function PretestPage({
           score={submitted.score}
           activityTitle={activity.title}
           attemptId={submitted.id}
-          showReview={activity.module.showAnswerReview}
         />
       );
     }
@@ -184,6 +192,11 @@ export default async function PretestPage({
         >
           <form action={startPretest} className="mt-8">
             <input type="hidden" name="activityId" value={activityId} />
+            <p className="mb-4 rounded-md border border-warning/40 bg-warning-soft px-4 py-3 text-left text-sm leading-relaxed text-ink">
+              Ujian hanya bisa dikerjakan <strong>selama sesi pretest
+              berlangsung</strong>. Kalau sesi berganti atau waktu habis,
+              jawaban terkirim otomatis dan ujian terkunci.
+            </p>
             <Button type="submit">Mulai Pretest</Button>
           </form>
         </StartGate>
@@ -196,7 +209,11 @@ export default async function PretestPage({
     activity.module.pretestDurationMin
   );
 
-  if (Date.now() > deadline.getTime()) {
+  const sessionEnd = activity.materialStart;
+  const cutoff = sessionEnd
+    ? Math.min(deadline.getTime(), sessionEnd.getTime())
+    : deadline.getTime();
+  if (Date.now() > cutoff) {
     await finalizeAttempt(activeAttempt.id);
   }
 
@@ -211,7 +228,6 @@ export default async function PretestPage({
         score={refreshed.score}
         activityTitle={activity.title}
         attemptId={refreshed.id}
-        showReview={activity.module.showAnswerReview}
       />
     );
   }
@@ -239,6 +255,7 @@ export default async function PretestPage({
       heading={`Pretest · ${activity.title}`}
       attemptId={refreshed.id}
       deadlineISO={deadline.toISOString()}
+      sessionEndISO={sessionEnd ? sessionEnd.toISOString() : undefined}
       questions={examQuestions}
       initialAnswers={initialAnswers}
     />

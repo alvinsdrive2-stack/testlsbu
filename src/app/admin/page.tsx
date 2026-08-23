@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
+import {
+  ProgressFunnel,
+  ProgressFunnelLegend,
+  emptyCounts,
+  type StageCounts,
+} from "@/components/admin/ProgressFunnel";
+import { GrowthSection } from "@/components/admin/GrowthChart";
+import { buildGrowth, growthSince } from "@/lib/growth";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 
 const PHASE_CHIP: Record<string, string> = {
@@ -13,84 +21,80 @@ const PHASE_CHIP: Record<string, string> = {
 };
 
 export default async function AdminDashboardPage() {
-  const [moduleCount, activityCount, participantCount, allActivities, stageRows] =
-    await Promise.all([
-      prisma.module.count(),
-      prisma.activity.count(),
-      prisma.participant.count(),
-      prisma.activity.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 20,
-        include: {
-          module: { select: { title: true } },
-          _count: { select: { participants: true } },
-        },
-      }),
-      prisma.participant.groupBy({
-        by: ["stage"],
-        _count: { _all: true },
-      }),
-    ]);
+  const since = growthSince("week");
+  const [
+    moduleCount,
+    activityCount,
+    participantCount,
+    allActivities,
+    stageRows,
+    growthActivities,
+    growthParticipants,
+  ] = await Promise.all([
+    prisma.module.count(),
+    prisma.activity.count(),
+    prisma.participant.count(),
+    prisma.activity.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      include: {
+        module: { select: { title: true } },
+        _count: { select: { participants: true } },
+      },
+    }),
+    prisma.participant.groupBy({
+      by: ["activityId", "stage"],
+      _count: { _all: true },
+    }),
+    prisma.activity.findMany({
+      where: { createdAt: { gte: since } },
+      select: { createdAt: true },
+    }),
+    prisma.participant.findMany({
+      where: { createdAt: { gte: since } },
+      select: { createdAt: true },
+    }),
+  ]);
 
   const now = new Date();
-  const activities = allActivities.filter(
+  const upcoming = allActivities.filter(
     (a) => activityPhase(a, now) !== "CLOSED"
   );
+
+  const stageByActivity = new Map<string, StageCounts>();
+  for (const r of stageRows) {
+    const cur = stageByActivity.get(r.activityId) ?? emptyCounts();
+    cur[r.stage] += r._count._all;
+    stageByActivity.set(r.activityId, cur);
+  }
 
   const stats = [
     {
       label: "Modul",
       value: moduleCount,
-      caption: "pustaka soal & materi",
+      caption: "Pustaka soal & Materi",
       href: "/admin/modules",
     },
     {
       label: "Kegiatan",
       value: activityCount,
-      caption: `${activities.length} berjalan`,
+      caption: `${upcoming.length} Mendatang`,
       href: "/admin/activities",
     },
     {
       label: "Peserta",
       value: participantCount,
-      caption: "total terdaftar",
+      caption: "Total Terdaftar",
       href: "/admin/activities",
     },
   ];
-
-  const stageCounts = { REGISTERED: 0, PRETEST_DONE: 0, POSTTEST_PASSED: 0 };
-  for (const r of stageRows) stageCounts[r.stage] += r._count._all;
-  const totalParticipants = Object.values(stageCounts).reduce((a, b) => a + b, 0);
-
-  const funnel = [
-    {
-      label: "Terdaftar",
-      count: stageCounts.REGISTERED,
-      bar: "bg-accent-soft",
-      dot: stageCounts.REGISTERED > 0,
-    },
-    {
-      label: "Pretest selesai",
-      count: stageCounts.PRETEST_DONE,
-      bar: "bg-accent/50",
-      dot: stageCounts.PRETEST_DONE > 0,
-    },
-    {
-      label: "Lulus posttest",
-      count: stageCounts.POSTTEST_PASSED,
-      bar: "bg-success",
-      dot: stageCounts.POSTTEST_PASSED > 0,
-    },
-  ];
-  const pct = (c: number) =>
-    totalParticipants ? Math.round((c / totalParticipants) * 100) : 0;
 
   return (
     <AdminShell title="Dashboard" eyebrow="Ringkasan">
       <p className="max-w-2xl text-[var(--text-body)] leading-relaxed text-ink-secondary">
         {activityCount === 0
           ? "Belum ada kegiatan. Buat modul, lalu buka kegiatan dan bagikan link pendaftaran ke peserta."
-          : `${activities.length} kegiatan berjalan dan ${participantCount} peserta terdaftar secara total.`}
+          : `${upcoming.length} kegiatan mendatang dan ${participantCount} peserta terdaftar secara total.`}
       </p>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -111,55 +115,19 @@ export default async function AdminDashboardPage() {
         ))}
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-h2 font-semibold">Progres peserta</h2>
-        <div className="rounded-[var(--radius-card)] border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-          {totalParticipants > 0 ? (
-            <div className="px-6 pt-5">
-              <div
-                className="flex h-2 w-full overflow-hidden rounded-full bg-canvas"
-                role="img"
-                aria-label="Funnel progres peserta"
-              >
-                {funnel.map((f) => (
-                  <div
-                    key={f.label}
-                    className={f.bar}
-                    style={{ width: `${pct(f.count)}%` }}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : null}
-          <div className="mt-4 divide-y divide-hairline">
-            {funnel.map((f) => (
-              <div
-                key={f.label}
-                className="flex items-center justify-between gap-4 px-6 py-4"
-              >
-                <span className="flex items-center gap-3">
-                  <span
-                    aria-hidden
-                    className={`size-2 rounded-full ${
-                      f.dot
-                        ? f.bar.split(" ")[0]
-                        : "border border-hairline-strong bg-surface"
-                    }`}
-                  />
-                  <span className="text-sm font-medium">{f.label}</span>
-                </span>
-                <span className="text-sm tabular-nums text-ink-secondary">
-                  {f.count} peserta
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <GrowthSection
+        initialData={{
+          ...buildGrowth("week", growthActivities, growthParticipants),
+          compare: false,
+        }}
+      />
 
       <section className="space-y-4">
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 className="text-h2 font-semibold">Kegiatan berjalan</h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-4">
+          <div className="space-y-1.5">
+            <h2 className="text-h2 font-semibold">Kegiatan mendatang</h2>
+            <ProgressFunnelLegend />
+          </div>
           <Link
             href="/admin/activities"
             className="text-sm font-medium text-accent hover:underline"
@@ -167,9 +135,9 @@ export default async function AdminDashboardPage() {
             Lihat semua
           </Link>
         </div>
-        {activities.length === 0 ? (
+        {upcoming.length === 0 ? (
           <div className="rounded-[var(--radius-card)] border border-hairline bg-surface px-6 py-10 text-center shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-            <p className="font-semibold">Belum ada kegiatan berjalan</p>
+            <p className="font-semibold">Belum ada kegiatan mendatang</p>
             <p className="mt-1 text-sm text-ink-secondary">
               Buka kegiatan dari daftar, lalu bagikan link pendaftaran ke
               peserta.
@@ -177,7 +145,7 @@ export default async function AdminDashboardPage() {
           </div>
         ) : (
           <div className="rounded-[var(--radius-card)] border border-hairline bg-surface shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
-            {activities.map((a, i) => (
+            {upcoming.map((a, i) => (
               <Link
                 key={a.id}
                 href={`/admin/activities/${a.id}`}
@@ -190,6 +158,9 @@ export default async function AdminDashboardPage() {
                   <p className="mt-0.5 text-sm text-ink-secondary">
                     {a.module.title} · {a._count.participants} peserta
                   </p>
+                  <ProgressFunnel
+                    counts={stageByActivity.get(a.id) ?? emptyCounts()}
+                  />
                 </div>
                 <span
                   className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${PHASE_CHIP[activityPhase(a, now)]}`}
