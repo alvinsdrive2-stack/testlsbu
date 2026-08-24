@@ -34,6 +34,8 @@ model Module {
   questions            Question[]
   materials            Material[]
   activities           Activity[]
+
+  @@map("module")
 }
 
 model Question {
@@ -48,6 +50,7 @@ model Question {
   answers     Answer[]
 
   @@index([moduleId, section])
+  @@map("question")
 }
 
 model Option {
@@ -59,6 +62,7 @@ model Option {
   answers    Answer[]
 
   @@index([questionId])
+  @@map("option")
 }
 
 model Material {
@@ -72,6 +76,7 @@ model Material {
   order    Int
 
   @@index([moduleId])
+  @@map("material")
 }
 
 model Activity {
@@ -88,6 +93,7 @@ model Activity {
   participants      Participant[]
 
   @@index([moduleId])
+  @@map("activity")
 }
 
 model Participant {
@@ -106,6 +112,7 @@ model Participant {
   createdAt       DateTime         @default(now())
 
   @@index([activityId])
+  @@map("participant")
 }
 
 model Attempt {
@@ -121,6 +128,7 @@ model Attempt {
   answers       Answer[]
 
   @@index([participantId, section])
+  @@map("attempt")
 }
 
 model Answer {
@@ -133,4 +141,5 @@ model Answer {
   option     Option?   @relation(fields: [optionId], references: [id])
 
   @@unique([attemptId, questionId])
+  @@map("answer")
 }
