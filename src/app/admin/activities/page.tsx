@@ -9,7 +9,13 @@ import {
   type StageCounts,
 } from "@/components/admin/ProgressFunnel";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
+import type { Prisma } from "@prisma/client";
 import { AddActivityFab } from "./AddActivityFab";
+
+const activityInclude = {
+  module: { select: { title: true } },
+  _count: { select: { participants: true } },
+} satisfies Prisma.ActivityInclude;
 
 const PHASE_CHIP: Record<string, string> = {
   SCHEDULED: "bg-canvas text-ink-secondary",
@@ -20,7 +26,9 @@ const PHASE_CHIP: Record<string, string> = {
   CLOSED: "bg-canvas text-ink-secondary",
 };
 
-type ActivityWithMeta = Awaited<ReturnType<typeof prisma.activity.findMany>>[number] & {
+type ActivityWithMeta = Prisma.ActivityGetPayload<{
+  include: typeof activityInclude;
+}> & {
   phase: string;
   counts: StageCounts;
 };
@@ -84,10 +92,7 @@ export default async function ActivitiesPage({
           }
         : {},
       orderBy: { createdAt: "desc" },
-      include: {
-        module: { select: { title: true } },
-        _count: { select: { participants: true } },
-      },
+      include: activityInclude,
     }),
     prisma.participant.groupBy({
       by: ["activityId", "stage"],

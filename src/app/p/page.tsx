@@ -56,11 +56,6 @@ export default async function ParticipantDashboardPage() {
   const progress = doneCount * 25;
   const stageLabel = `${stages[doneCount - 1].label} · ${doneCount} dari 4`;
 
-  const posttestScores = participant.attempts
-    .filter((a) => a.section === "POSTTEST" && a.score !== null)
-    .map((a) => a.score!);
-  const posttestBest = posttestScores.length ? Math.max(...posttestScores) : null;
-
   const fmt = (d: Date | null) =>
     d
       ? d.toLocaleString("id-ID", {
