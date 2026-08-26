@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import "@fontsource/poppins/300.css";
 import "@fontsource/poppins/400.css";
+import { CERTIFICATE_FIELDS } from "@/lib/certificate-fields";
 
 interface DraggableText {
   id: string;
@@ -17,70 +18,30 @@ interface DraggableText {
   fontFamily?: string;
 }
 
+const DEFAULT_CONTENT: Record<string, string> = {
+  number: "CERT-001",
+  name: "Nama Peserta",
+  company: "Nama Perusahaan",
+  npwp: "NPWP Perusahaan",
+  module: "Nama Modul",
+};
+
 export default function CertificatePreviewPage() {
-  const [imageSize, setImageSize] = useState({ width: 1200, height: 800 });
-  const [texts, setTexts] = useState<DraggableText[]>([
-    {
-      id: "number",
-      x: 600,
-      y: 176,
-      fontSize: 180,
-      color: "#108af4",
-      align: "middle",
-      content: "CERT-001",
-      label: "Nomor Sertifikat",
-      fontWeight: "300",
-      fontFamily: "Poppins",
-    },
-    {
-      id: "name",
-      x: 600,
-      y: 309,
-      fontSize: 600,
-      color: "#012A4D",
-      align: "middle",
-      content: "Nama Peserta",
-      label: "Nama",
-      fontWeight: "normal",
-      fontFamily: "Poppins",
-    },
-    {
-      id: "company",
-      x: 600,
-      y: 237,
-      fontSize: 400,
-      color: "#012A4D",
-      align: "middle",
-      content: "Nama Perusahaan",
-      label: "Perusahaan",
-      fontWeight: "normal",
-      fontFamily: "Poppins",
-    },
-    {
-      id: "npwp",
-      x: 600,
-      y: 274,
-      fontSize: 199,
-      color: "#012A4D",
-      align: "middle",
-      content: "NPWP Perusahaan",
-      label: "NPWP",
-      fontWeight: "normal",
-      fontFamily: "Poppins",
-    },
-    {
-      id: "module",
-      x: 600,
-      y: 442,
-      fontSize: 190,
-      color: "#0d0d0d",
-      align: "middle",
-      content: "Nama Modul",
-      label: "Modul",
-      fontWeight: "normal",
-      fontFamily: "Poppins",
-    },
-  ]);
+  const [imageSize, setImageSize] = useState({ width: 2000, height: 1414 });
+  const [texts, setTexts] = useState<DraggableText[]>(
+    CERTIFICATE_FIELDS.map((f) => ({
+      id: f.key,
+      x: f.x,
+      y: f.y,
+      fontSize: f.fontSize,
+      color: f.color,
+      align: f.align,
+      content: DEFAULT_CONTENT[f.key] ?? f.label,
+      label: f.label,
+      fontWeight: f.fontWeight,
+      fontFamily: f.fontFamily,
+    }))
+  );
 
   const [dragging, setDragging] = useState<string | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -290,6 +251,24 @@ export default function CertificatePreviewPage() {
             ))}
           </div>
         </div>
+
+        <section className="space-y-3">
+          <h2 className="text-h2 font-semibold">
+            Hasil Render Asli (1:1 dengan sertifikat download)
+          </h2>
+          <img
+            key={texts.map((t) => t.content).join("|")}
+            src={`/api/certificate-preview?${new URLSearchParams(
+              texts.map((t) => [t.id, t.content])
+            ).toString()}`}
+            alt="Hasil render sertifikat"
+            className="max-w-full h-auto rounded-[var(--radius-card)] border border-hairline"
+          />
+          <p className="text-sm text-ink-secondary">
+            Gambar ini dirender engine yang sama persis dengan file download.
+            Posisi dan ukuran diambil dari config di src/lib/certificate-render.ts.
+          </p>
+        </section>
       </div>
     </div>
   );

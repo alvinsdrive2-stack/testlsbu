@@ -1,18 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createCanvas, loadImage, registerFont } from "canvas";
-import path from "path";
-
-registerFont(path.join(process.cwd(), "public", "fonts", "Poppins-Regular.ttf"), { family: "Poppins", weight: "normal" });
-registerFont(path.join(process.cwd(), "public", "fonts", "Poppins-Light.ttf"), { family: "Poppins", weight: "300" });
-
-const certificateConfig = [
-  { label: "Nomor Sertifikat", y: 176, fontSize: 180, color: "#108af4", align: "middle", fontWeight: "300" },
-  { label: "Nama", y: 309, fontSize: 600, color: "#012A4D", align: "middle", fontWeight: "normal" },
-  { label: "Perusahaan", y: 237, fontSize: 400, color: "#012A4D", align: "middle", fontWeight: "normal" },
-  { label: "NPWP", y: 274, fontSize: 199, color: "#012A4D", align: "middle", fontWeight: "normal" },
-  { label: "Modul", y: 442, fontSize: 190, color: "#0d0d0d", align: "middle", fontWeight: "normal" },
-] as const;
+import { renderCertificate, type CertificateFieldKey } from "@/lib/certificate-render";
 
 export async function GET(
   req: NextRequest,
@@ -31,36 +19,15 @@ export async function GET(
     return NextResponse.json({ error: "Sertifikat tidak ditemukan" }, { status: 404 });
   }
 
-  const templatePath = path.join(process.cwd(), "public", "template", "template1.png");
+  const values = {
+    number: participant.certificateNumber,
+    name: participant.nama,
+    company: participant.badanUsaha,
+    npwp: participant.npwp,
+    module: participant.activity.module.title,
+  } as Record<CertificateFieldKey, string>;
 
-  const templateImage = await loadImage(templatePath);
-  const canvas = createCanvas(templateImage.width, templateImage.height);
-  const ctx = canvas.getContext("2d");
-
-  ctx.drawImage(templateImage, 0, 0);
-
-  const centerX = canvas.width / 2;
-
-  for (const config of certificateConfig) {
-    let text = "";
-    switch (config.label) {
-      case "Nomor Sertifikat": text = participant.certificateNumber!; break;
-      case "Nama": text = participant.nama; break;
-      case "Perusahaan": text = participant.badanUsaha; break;
-      case "NPWP": text = participant.npwp; break;
-      case "Modul": text = participant.activity.module.title; break;
-    }
-
-    ctx.font = `${config.fontWeight === "300" ? "300 " : ""}${config.fontSize / 10}px "Poppins"`;
-    ctx.fillStyle = config.color;
-    ctx.globalAlpha = 1;
-    ctx.textAlign = config.align === "middle" ? "center" : config.align;
-    ctx.textBaseline = "middle";
-
-    ctx.fillText(text, centerX, config.y);
-  }
-
-  const buffer = canvas.toBuffer("image/png");
+  const buffer = await renderCertificate(values);
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
