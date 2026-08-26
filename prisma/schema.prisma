@@ -108,8 +108,10 @@ model Participant {
   email           String
   isGapensiMember Boolean
   stage           ParticipantStage @default(REGISTERED)
-  attempts        Attempt[]
-  createdAt       DateTime         @default(now())
+  attempts            Attempt[]
+  certificateNumber   String?          @unique
+  certificateIssuedAt DateTime?
+  createdAt           DateTime         @default(now())
 
   @@index([activityId])
   @@map("participant")

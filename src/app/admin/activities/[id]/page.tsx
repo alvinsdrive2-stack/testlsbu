@@ -7,6 +7,7 @@ import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { prisma } from "@/lib/prisma";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 import { deleteActivity } from "../actions";
+import { generateCertificate } from "./certificate-actions";
 import { CopyLink } from "./CopyLink";
 import { ScheduleForm } from "./ScheduleForm";
 
@@ -65,6 +66,15 @@ export default async function ActivityDetailPage({
         skip: (page - 1) * PAGE_SIZE,
         take: PAGE_SIZE,
         include: {
+          attempts: { select: { section: true, score: true, passed: true } },
+        },
+        select: {
+          id: true,
+          nama: true,
+          badanUsaha: true,
+          stage: true,
+          certificateNumber: true,
+          certificateIssuedAt: true,
           attempts: { select: { section: true, score: true, passed: true } },
         },
       }),
@@ -221,6 +231,7 @@ export default async function ActivityDetailPage({
                 <thead>
                   <tr className="border-b border-hairline-strong text-left">
                     {[
+                      "Aksi",
                       "Nama",
                       "Badan Usaha",
                       "Status",
@@ -253,6 +264,23 @@ export default async function ActivityDetailPage({
 
                     return (
                       <tr key={p.id} className="border-b border-hairline">
+                        <td className="py-3 pr-6">
+                          {p.stage === "POSTTEST_PASSED" && !p.certificateNumber ? (
+                            <form action={generateCertificate}>
+                              <input type="hidden" name="participantId" value={p.id} />
+                              <Button
+                                type="submit"
+                                variant="primary"
+                                size="sm"
+                                className="text-xs"
+                              >
+                                Beri Sertifikat
+                              </Button>
+                            </form>
+                          ) : p.certificateNumber ? (
+                            <span className="text-xs text-accent">✓ Diberikan</span>
+                          ) : null}
+                        </td>
                         <td className="py-3 pr-6 font-medium">{p.nama}</td>
                         <td className="py-3 pr-6 text-ink-secondary">
                           {p.badanUsaha}

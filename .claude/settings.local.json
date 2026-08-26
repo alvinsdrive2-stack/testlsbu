@@ -65,7 +65,11 @@
       "Bash(python *)",
       "Bash(npm list *)",
       "Bash(Get-Content \"C:\\\\Gapensi\\\\src\\\\app\\\\admin\\\\activities\\\\[id]\\\\page.tsx\")",
-      "Bash(Select-Object -Skip 195 -First 15)"
+      "Bash(Select-Object -Skip 195 -First 15)",
+      "Bash(curl -L -o public/fonts/Poppins-Regular.ttf \"https://github.com/googlefonts/poppins/raw/main/fonts/ttf/Poppins-Regular.ttf\")",
+      "Bash(curl -L -o public/fonts/Poppins-Bold.ttf \"https://github.com/googlefonts/poppins/raw/main/fonts/ttf/Poppins-Bold.ttf\")",
+      "Bash(curl -L -o public/fonts/Poppins-Thin.ttf \"https://github.com/googlefonts/poppins/raw/main/fonts/ttf/Poppins-Thin.ttf\")",
+      "Bash(curl -L -o public/fonts/Poppins-Light.ttf \"https://github.com/googlefonts/poppins/raw/main/fonts/ttf/Poppins-Light.ttf\")"
     ]
   }
 }

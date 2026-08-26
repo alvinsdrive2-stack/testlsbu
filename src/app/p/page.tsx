@@ -20,8 +20,43 @@ export default async function ParticipantDashboardPage() {
 
   const participant = await prisma.participant.findUnique({
     where: { token },
-    include: {
-      activity: { include: { module: { include: { materials: true } } } },
+    select: {
+      nama: true,
+      badanUsaha: true,
+      npwp: true,
+      wa: true,
+      email: true,
+      token: true,
+      stage: true,
+      certificateNumber: true,
+      certificateIssuedAt: true,
+      activity: {
+        select: {
+          id: true,
+          title: true,
+          registrationStart: true,
+          pretestStart: true,
+          materialStart: true,
+          posttestStart: true,
+          closedAt: true,
+          module: {
+            select: {
+              id: true,
+              title: true,
+              materials: {
+                select: {
+                  id: true,
+                  order: true,
+                  title: true,
+                  content: true,
+                  videoUrl: true,
+                  pdfUrl: true,
+                },
+              },
+            },
+          },
+        },
+      },
       attempts: {
         select: { section: true, score: true, passed: true, submittedAt: true },
       },
@@ -347,8 +382,45 @@ export default async function ParticipantDashboardPage() {
 
           <section id="materi" className="mt-8 scroll-mt-16">
             <div className="border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] sm:p-8">
-              <p className="label-eyebrow text-ink-secondary">Materi</p>
-              {!materiOpen ? (
+              <p className="label-eyebrow text-ink-secondary">
+                {participant.certificateNumber ? "Sertifikat" : "Materi"}
+              </p>
+              {participant.certificateNumber ? (
+                <div className="mt-4">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <p className="text-[17px] font-semibold text-ink">
+                        Sertifikat Kelulusan
+                      </p>
+                      <p className="mt-1 text-[15px] text-ink-secondary">
+                        Nomor: {participant.certificateNumber}
+                      </p>
+                      {participant.certificateIssuedAt ? (
+                        <p className="mt-1 text-[13px] text-ink-secondary">
+                          Diterbitkan{" "}
+                          {participant.certificateIssuedAt.toLocaleDateString("id-ID", {
+                            dateStyle: "long",
+                          })}
+                        </p>
+                      ) : null}
+                    </div>
+                    <a
+                      href={`/api/certificate/${participant.token}`}
+                      download
+                      className="inline-flex min-h-10 items-center rounded-md bg-accent px-4 text-sm font-semibold text-surface hover:brightness-110"
+                    >
+                      Download PDF
+                    </a>
+                  </div>
+                  <div className="overflow-hidden rounded-md border border-hairline">
+                    <iframe
+                      src={`/api/certificate/${participant.token}`}
+                      className="h-[800px] w-full"
+                      title="Sertifikat"
+                    />
+                  </div>
+                </div>
+              ) : !materiOpen ? (
                 <div className="mt-4 flex items-start gap-4">
                   <span
                     aria-hidden
