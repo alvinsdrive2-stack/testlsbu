@@ -52,6 +52,7 @@ function applyFields(
 
 export default function CertificatePreviewPage() {
   const [imageSize, setImageSize] = useState({ width: 2000, height: 1414 });
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [texts, setTexts] = useState<DraggableText[]>(
     CERTIFICATE_FIELDS.map((f) => ({
       id: f.key,
@@ -94,6 +95,18 @@ export default function CertificatePreviewPage() {
       setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
     }
   };
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+    const update = () => setDisplayWidth(img.getBoundingClientRect().width);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(img);
+    return () => ro.disconnect();
+  }, []);
+
+  const scale = displayWidth > 0 && imageSize.width > 0 ? displayWidth / imageSize.width : 1;
 
   const handleMouseDown = (id: string) => {
     setDragging(id);
@@ -232,7 +245,6 @@ export default function CertificatePreviewPage() {
           <div className="lg:col-span-2">
             <div
               className="relative inline-block cursor-crosshair"
-              style={{ containerType: "inline-size" }}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
@@ -253,7 +265,7 @@ export default function CertificatePreviewPage() {
                   <div
                     key={text.id}
                     onMouseDown={() => handleMouseDown(text.id)}
-                    className="absolute cursor-move select-none"
+                    className="absolute z-10 cursor-move select-none"
                     style={{
                       left: `${(actualX / imageSize.width) * 100}%`,
                       top: `${(text.y / imageSize.height) * 100}%`,
@@ -263,7 +275,7 @@ export default function CertificatePreviewPage() {
                           : text.align === "end"
                           ? "translate(-100%, -50%)"
                           : "translate(0, -50%)",
-                      fontSize: `${(text.fontSize / 10 / imageSize.width) * 100}cqw`,
+                      fontSize: `${(text.fontSize / 10) * scale}px`,
                       color: text.color,
                       fontWeight: text.fontWeight || "normal",
                       fontFamily: text.fontFamily || "Arial",
