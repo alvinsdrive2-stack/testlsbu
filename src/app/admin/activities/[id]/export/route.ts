@@ -43,7 +43,7 @@ export async function GET(
   worksheet.getRow(5).fill = {
     type: "pattern",
     pattern: "solid",
-    fgColor: { argb: "FF00B050" },
+    fgColor: { argb: "FF006400" },
   };
 
   participants.forEach((p, i) => {
