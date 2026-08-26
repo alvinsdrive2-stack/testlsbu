@@ -160,48 +160,47 @@ export default async function ActivityDetailPage({
             Export Excel
           </Link>
         </div>
-          <form method="get" className="flex flex-wrap items-end gap-3">
-            <div className="min-w-48 flex-1">
-              <label
-                htmlFor="q"
-                className="label-eyebrow mb-1.5 block text-ink-secondary"
-              >
-                Cari
-              </label>
-              <input
-                id="q"
-                name="q"
-                defaultValue={q}
-                placeholder="Nama atau badan usaha"
-                className="w-full rounded-md border border-hairline-strong bg-surface px-3 py-2 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="stage"
-                className="label-eyebrow mb-1.5 block text-ink-secondary"
-              >
-                Status
-              </label>
-              <select
-                id="stage"
-                name="stage"
-                defaultValue={stage}
-                className="rounded-md border border-hairline-strong bg-surface px-3 py-2 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              >
-                <option value="">Semua</option>
-                {STAGE_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Button type="submit" variant="secondary">
-              Filter
-            </Button>
-          </form>
-        </div>
+        <form method="get" className="flex flex-wrap items-end gap-3">
+          <div className="min-w-48 flex-1">
+            <label
+              htmlFor="q"
+              className="label-eyebrow mb-1.5 block text-ink-secondary"
+            >
+              Cari
+            </label>
+            <input
+              id="q"
+              name="q"
+              defaultValue={q}
+              placeholder="Nama atau badan usaha"
+              className="w-full rounded-md border border-hairline-strong bg-surface px-3 py-2 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="stage"
+              className="label-eyebrow mb-1.5 block text-ink-secondary"
+            >
+              Status
+            </label>
+            <select
+              id="stage"
+              name="stage"
+              defaultValue={stage}
+              className="rounded-md border border-hairline-strong bg-surface px-3 py-2 text-[15px] focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            >
+              <option value="">Semua</option>
+              {STAGE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button type="submit" variant="secondary">
+            Filter
+          </Button>
+        </form>
 
         {totalParticipants === 0 ? (
           <p className="text-sm text-ink-secondary">Belum ada peserta terdaftar.</p>

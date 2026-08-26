@@ -63,7 +63,9 @@
       "Bash(echo \"DUMP EXIT: $?\")",
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\), indent=2\\)\\); print\\('PM:', 'pnpm' if 'pnpm-lock.yaml' in __import__\\('os'\\).listdir\\('.'\\) else 'npm'\\)\")",
       "Bash(python *)",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(Get-Content \"C:\\\\Gapensi\\\\src\\\\app\\\\admin\\\\activities\\\\[id]\\\\page.tsx\")",
+      "Bash(Select-Object -Skip 195 -First 15)"
     ]
   }
 }
