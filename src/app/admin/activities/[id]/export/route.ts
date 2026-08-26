@@ -35,7 +35,7 @@ export async function GET(
   worksheet.getCell("A2").alignment = { horizontal: "center" };
 
   worksheet.mergeCells("A3:F3");
-  worksheet.getCell("A3").value = "Tanggal Kegiatan";
+  worksheet.getCell("A3").value = `Tanggal Kegiatan: ${activity.closedAt ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(activity.closedAt) : "-"}`;
   worksheet.getCell("A3").alignment = { horizontal: "center" };
 
   worksheet.getRow(5).values = ["NO", "NAMA PESERTA", "NAMA PERUSAHAAN", "NPWP PERUSAHAAN", "TELEPON", "ALAMAT EMAIL PESERTA"];
