@@ -14,7 +14,23 @@ export async function generateCertificate(
 
   const participant = await prisma.participant.findUnique({
     where: { id: participantId },
-    include: { activity: { include: { module: true } } },
+    select: {
+      id: true,
+      nama: true,
+      badanUsaha: true,
+      npwp: true,
+      wa: true,
+      email: true,
+      stage: true,
+      certificateNumber: true,
+      certificateIssuedAt: true,
+      activity: {
+        select: {
+          id: true,
+          module: { select: { id: true, title: true } },
+        },
+      },
+    },
   });
 
   if (!participant) {

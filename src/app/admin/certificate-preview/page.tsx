@@ -94,7 +94,7 @@ export default function CertificatePreviewPage() {
     }
   }, []);
 
-  const handleMouseDown = (id: string, e: React.MouseEvent) => {
+  const handleMouseDown = (id: string) => {
     setDragging(id);
   };
 
@@ -188,7 +188,7 @@ export default function CertificatePreviewPage() {
                 return (
                   <div
                     key={text.id}
-                    onMouseDown={(e) => handleMouseDown(text.id, e)}
+                    onMouseDown={() => handleMouseDown(text.id)}
                     className="absolute cursor-move select-none"
                     style={{
                       left: `${(actualX / imageSize.width) * 100}%`,
