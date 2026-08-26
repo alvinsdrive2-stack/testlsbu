@@ -11,6 +11,8 @@ import { Countdown } from "@/components/ui/Countdown";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { videoEmbedUrl } from "@/lib/video";
 import { sanitizeMaterialHtml } from "@/lib/sanitize";
+import { MaterialVideo } from "./MaterialVideo";
+import { MaterialPdf } from "./MaterialPdf";
 
 export default async function ParticipantDashboardPage() {
   const token = await getParticipantToken();
@@ -404,13 +406,6 @@ export default async function ParticipantDashboardPage() {
                         </p>
                       ) : null}
                     </div>
-                    <a
-                      href={`/api/certificate/${participant.token}`}
-                      download
-                      className="inline-flex min-h-10 items-center rounded-md bg-accent px-4 text-sm font-semibold text-surface hover:brightness-110"
-                    >
-                      Download PDF
-                    </a>
                   </div>
                   <div className="overflow-hidden rounded-md border border-hairline">
                     <iframe
@@ -521,29 +516,13 @@ export default async function ParticipantDashboardPage() {
                               </div>
                             ) : null}
                             {m.videoUrl && !embed ? (
-                              <video
-                                controls
-                                preload="metadata"
-                                src={m.videoUrl}
-                                className="mt-6 aspect-video w-full rounded-md border border-hairline"
-                              />
+                              <div className="mt-6">
+                                <MaterialVideo src={m.videoUrl} title={m.title} />
+                              </div>
                             ) : null}
                             {m.pdfUrl ? (
                               <div className="mt-6">
-                                <div className="overflow-hidden rounded-md border border-hairline">
-                                  <iframe
-                                    src={m.pdfUrl}
-                                    title={`PDF ${m.title}`}
-                                    className="h-[800px] w-full"
-                                  />
-                                </div>
-                                <a
-                                  href={m.pdfUrl}
-                                  download
-                                  className="mt-3 inline-flex min-h-10 items-center rounded-md border border-hairline-strong bg-surface px-4 text-sm font-semibold hover:bg-canvas"
-                                >
-                                  Unduh PDF
-                                </a>
+                                <MaterialPdf src={m.pdfUrl} title={`PDF ${m.title}`} />
                               </div>
                             ) : null}
                           </div>
