@@ -70,7 +70,7 @@ model Material {
   moduleId String
   module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   title    String
-  content  String
+  content  String @db.MediumText
   videoUrl String?
   pdfUrl   String?
   order    Int
