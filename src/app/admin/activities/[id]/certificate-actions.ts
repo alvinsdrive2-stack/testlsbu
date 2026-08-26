@@ -52,7 +52,7 @@ export async function generateCertificate(
     });
 
     revalidatePath(`/admin/activities/${participant.activity.id}`);
-    return { ok: true };
+    return {};
   } catch {
     return { error: "Gagal membuat sertifikat. Coba lagi." };
   }

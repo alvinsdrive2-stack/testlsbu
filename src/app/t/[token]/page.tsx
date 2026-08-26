@@ -5,10 +5,12 @@ import { getExamQuestions } from "@/lib/exam-questions";
 import { finalizeAttempt } from "@/app/exam/actions";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
+import { ActionForm } from "@/components/ui/ActionForm";
 import { StartGate } from "@/components/ui/StartGate";
 import { TopBar } from "@/components/ui/TopBar";
 import { ExamScreen } from "@/components/exam/ExamScreen";
 import { StartPosttestForm } from "./StartPosttestForm";
+import { startPosttestRetry } from "./actions";
 import { AnswerReview } from "@/components/exam/AnswerReview";
 
 const CARD =
@@ -46,14 +48,9 @@ function PosttestFailed({
               Coba lagi kapan pun kamu siap.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-2">
-              <form
-                action={async () => {
-                  "use server";
-                  await startPosttestRetry(token);
-                }}
-              >
+              <ActionForm action={startPosttestRetry} inputs={{ token }}>
                 <Button type="submit">Coba Lagi</Button>
-              </form>
+              </ActionForm>
               <Button variant="secondary" href="/p">
                 Ke Dashboard
               </Button>
