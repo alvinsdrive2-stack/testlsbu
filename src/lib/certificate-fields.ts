@@ -16,9 +16,9 @@ export type CertificateFieldConfig = {
 
 export const CERTIFICATE_FIELDS: CertificateFieldConfig[] = [
   { key: "number",   label: "Nomor Sertifikat", x: 988, y: 421,  fontSize: 380,  color: "#108af4", align: "middle", fontWeight: "300",    fontFamily: "Poppins" },
-  { key: "name",     label: "Nama",             x: 969, y: 730,  fontSize: 1100, color: "#012A4D", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
-  { key: "company",  label: "Perusahaan",       x: 950, y: 560,  fontSize: 800,  color: "#012A4D", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
-  { key: "npwp",     label: "NPWP",             x: 962, y: 641,  fontSize: 500,  color: "#012A4D", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
+  { key: "name",     label: "Nama",             x: 969, y: 730,  fontSize: 1000, color: "#012A4D", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
+  { key: "company",  label: "Perusahaan",       x: 950, y: 560,  fontSize: 750,  color: "#012A4D", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
+  { key: "npwp",     label: "NPWP",             x: 962, y: 641,  fontSize: 450,  color: "#012A4D", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
   { key: "module",   label: "Modul",            x: 986, y: 1044, fontSize: 415,  color: "#0d0d0d", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
 ];
 
