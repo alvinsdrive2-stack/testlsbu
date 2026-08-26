@@ -45,8 +45,10 @@ export async function generateCertificate(
   } as any);
 
   let nextSequence = 1;
-  if (lastCert?.certificateNumber) {
-    const match = lastCert.certificateNumber.match(/(\d+)\/PUB\/GAPENSI\//);
+  // @ts-ignore - certificateNumber not in generated types yet
+  if ((lastCert as any)?.certificateNumber) {
+    // @ts-ignore - certificateNumber not in generated types yet
+    const match = (lastCert as any).certificateNumber.match(/(\d+)\/PUB\/GAPENSI\//);
     if (match) {
       nextSequence = parseInt(match[1]) + 1;
     }
