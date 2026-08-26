@@ -20,7 +20,7 @@ const videoUrlField = z
       v === "" ||
       v.startsWith("/uploads/") ||
       /^https?:\/\/.+/.test(v),
-    "URL video tidak valid"
+    "URL video tidak valid. Tempel link YouTube/Vimeo, atau pakai tombol upload file."
   );
 
 const pdfUrlField = z
@@ -28,7 +28,7 @@ const pdfUrlField = z
   .trim()
   .refine(
     (v) => v === "" || v.startsWith("/uploads/pdfs/"),
-    "Lampiran PDF tidak valid"
+    "Lampiran PDF tidak valid. Upload file PDF lewat tombol upload."
   );
 
 const materialSchema = z.object({

@@ -6,8 +6,7 @@ import { Readable } from "stream";
 import { pipeline } from "stream/promises";
 import path from "path";
 import { randomUUID } from "crypto";
-
-const MAX_SIZE = 25 * 1024 * 1024;
+import { PDF_MAX_SIZE, PDF_SIZE_LABEL } from "@/lib/upload";
 
 async function isAdmin(req: NextRequest): Promise<boolean> {
   const token = req.cookies.get("gapensi_admin")?.value;
@@ -32,14 +31,14 @@ export async function POST(req: NextRequest) {
   const file = form.get("file");
 
   if (!(file instanceof File)) {
-    return NextResponse.json({ error: "File tidak ditemukan" }, { status: 400 });
+    return NextResponse.json({ error: "File tidak terkirim. Pilih file PDF dulu." }, { status: 400 });
   }
   if (file.type !== "application/pdf") {
-    return NextResponse.json({ error: "File harus berupa PDF" }, { status: 400 });
+    return NextResponse.json({ error: "File harus berupa PDF (.pdf)." }, { status: 400 });
   }
-  if (file.size > MAX_SIZE) {
+  if (file.size > PDF_MAX_SIZE) {
     return NextResponse.json(
-      { error: "Ukuran PDF maksimal 25 MB" },
+      { error: `Ukuran PDF terlalu besar. Maksimal ${PDF_SIZE_LABEL}.` },
       { status: 400 }
     );
   }
@@ -58,7 +57,7 @@ export async function POST(req: NextRequest) {
   } catch {
     await rm(filePath, { force: true }).catch(() => {});
     return NextResponse.json(
-      { error: "Gagal menyimpan PDF, coba lagi" },
+      { error: "Gagal menyimpan PDF di server. Coba lagi, atau cek izin folder upload." },
       { status: 500 }
     );
   }
