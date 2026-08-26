@@ -153,6 +153,13 @@ export default async function ActivityDetailPage({
       <section className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="text-h2 font-semibold">Peserta</h2>
+          <Link
+            href={`/admin/activities/${id}/export`}
+            className="inline-flex min-h-10 items-center rounded-md bg-accent px-4 text-sm font-semibold text-surface hover:brightness-110"
+          >
+            Export Excel
+          </Link>
+        </div>
           <form method="get" className="flex flex-wrap items-end gap-3">
             <div className="min-w-48 flex-1">
               <label

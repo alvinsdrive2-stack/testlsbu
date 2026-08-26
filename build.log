@@ -1,0 +1,47 @@
+
+> gapensi@0.1.0 build
+> next build --turbopack
+
+   ▲ Next.js 15.5.23 (Turbopack)
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Finished writing to disk in 663ms
+ ✓ Compiled successfully in 6.4s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/12) ...
+   Generating static pages (3/12) 
+   Generating static pages (6/12) 
+   Generating static pages (9/12) 
+ ✓ Generating static pages (12/12)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                         Size  First Load JS
+┌ ○ /                                0 B         126 kB
+├ ○ /_not-found                      0 B         126 kB
+├ ○ /admin                           0 B         130 kB
+├ ƒ /admin/activities                0 B         130 kB
+├ ƒ /admin/activities/[id]       5.51 kB         131 kB
+├ ○ /admin/activities/new        5.57 kB         131 kB
+├ ƒ /admin/login                     0 B         126 kB
+├ ƒ /admin/modules               5.91 kB         132 kB
+├ ƒ /admin/modules/[id]           138 kB         264 kB
+├ ƒ /api/admin/upload-video          0 B            0 B
+├ ƒ /j/[activityId]              4.94 kB         131 kB
+├ ƒ /j/[activityId]/pretest          0 B         131 kB
+├ ƒ /p                           3.36 kB         129 kB
+└ ƒ /t/[token]                       0 B         131 kB
++ First Load JS shared by all     132 kB
+  ├ chunks/3ad41a2e6c5c6eb6.js   17.2 kB
+  ├ chunks/92fbc226a643a238.js   13.4 kB
+  ├ chunks/d7727ebd8580c95f.js   59.2 kB
+  └ other shared chunks (total)  42.3 kB
+
+
+ƒ Middleware                     44.1 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -119,3 +119,4 @@ export async function deleteActivity(formData: FormData) {
   revalidatePath("/admin/activities");
   redirect("/admin/activities");
 }
+

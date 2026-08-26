@@ -1,0 +1,32 @@
+
+> gapensi@0.1.0 dev
+> next dev --turbopack
+
+ ⚠ Port 3000 is in use by process 25112, using available port 3001 instead.
+   ▲ Next.js 15.5.23 (Turbopack)
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.88.33:3001
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Compiled middleware in 190ms
+ ✓ Ready in 2.2s
+ ○ Compiling / ...
+ ✓ Compiled / in 3.3s
+ GET / 307 in 4143ms
+ ✓ Compiled /api/admin/upload-video in 315ms
+ POST /api/admin/upload-video 401 in 681ms
+ ✓ Compiled /admin/login in 382ms
+ GET /admin/login 200 in 533ms
+ GET / 307 in 152ms
+ ✓ Compiled /admin/modules in 396ms
+ GET /admin/modules 200 in 753ms
+ ○ Compiling /admin/modules/[id] ...
+ ✓ Compiled /admin/modules/[id] in 1414ms
+ GET /admin/modules/cmt1cg9fg00121h4cftvyg0dp 200 in 2682ms
+ GET /admin/modules/cmt1cg9fg00121h4cftvyg0dp 200 in 216ms
+ POST /api/admin/upload-video 200 in 360ms
+ POST /api/admin/upload-video 400 in 318ms
+ ✓ Compiled /p in 389ms
+ GET /p 200 in 641ms
+ GET /p 200 in 229ms
