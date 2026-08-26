@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import "@fontsource/poppins/300.css";
 import "@fontsource/poppins/400.css";
 
@@ -85,14 +85,12 @@ export default function CertificatePreviewPage() {
   const [dragging, setDragging] = useState<string | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  useEffect(() => {
-    if (imgRef.current) {
-      setImageSize({
-        width: imgRef.current.width,
-        height: imgRef.current.height,
-      });
+  const handleImageLoad = () => {
+    const img = imgRef.current;
+    if (img) {
+      setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
     }
-  }, []);
+  };
 
   const handleMouseDown = (id: string) => {
     setDragging(id);
@@ -170,6 +168,7 @@ export default function CertificatePreviewPage() {
           <div className="lg:col-span-2">
             <div
               className="relative inline-block cursor-crosshair"
+              style={{ containerType: "inline-size" }}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
@@ -181,6 +180,7 @@ export default function CertificatePreviewPage() {
                 className="max-w-full h-auto border border-hairline"
                 draggable={false}
                 style={{ maxWidth: "100%" }}
+                onLoad={handleImageLoad}
               />
               {texts.map((text) => {
                 const centerX = imageSize.width / 2;
@@ -199,7 +199,7 @@ export default function CertificatePreviewPage() {
                           : text.align === "end"
                           ? "translate(-100%, -50%)"
                           : "translate(0, -50%)",
-                      fontSize: `${text.fontSize / 10}px`,
+                      fontSize: `${(text.fontSize / 10 / imageSize.width) * 100}cqw`,
                       color: text.color,
                       fontWeight: text.fontWeight || "normal",
                       fontFamily: text.fontFamily || "Arial",
