@@ -35,11 +35,11 @@ export async function generateCertificate(
   const year = date.getFullYear();
 
   const lastCert = await prisma.participant.findFirst({
-    // @ts-ignore - certificateNumber not in generated types yet
+    // @ts-expect-error - certificateNumber not in generated types yet
     where: {
       certificateNumber: { contains: `/GAPENSI/*/` + year },
     },
-    // @ts-ignore - certificateIssuedAt not in generated types yet
+    // @ts-expect-error - certificateIssuedAt not in generated types yet
     orderBy: { certificateIssuedAt: "desc" },
   } as any);
 
@@ -55,7 +55,7 @@ export async function generateCertificate(
 
   await prisma.participant.update({
     where: { id: participantId },
-    // @ts-ignore - certificateNumber and certificateIssuedAt not in generated types yet
+    // @ts-expect-error - certificateNumber and certificateIssuedAt not in generated types yet
     data: {
       certificateNumber,
       certificateIssuedAt: new Date(),
