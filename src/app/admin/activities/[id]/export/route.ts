@@ -39,7 +39,12 @@ export async function GET(
   worksheet.getCell("A3").alignment = { horizontal: "center" };
 
   worksheet.getRow(5).values = ["NO", "NAMA PESERTA", "NAMA PERUSAHAAN", "NPWP PERUSAHAAN", "TELEPON", "ALAMAT EMAIL PESERTA"];
-  worksheet.getRow(5).font = { bold: true };
+  worksheet.getRow(5).font = { bold: true, color: { argb: "FFFFFFFF" } };
+  worksheet.getRow(5).fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF00B050" },
+  };
 
   participants.forEach((p, i) => {
     worksheet.getRow(i + 6).values = [
