@@ -41,13 +41,13 @@ export async function GET(req: NextRequest) {
       case "Modul": text = moduleName; break;
     }
 
-    ctx.font = `${config.fontSize / 10}px "Poppins"`;
+    ctx.font = `${config.fontWeight === "300" ? "300 " : ""}${config.fontSize / 10}px "Poppins"`;
     ctx.fillStyle = config.color;
     ctx.globalAlpha = 1;
+    ctx.textAlign = config.align === "middle" ? "center" : config.align;
+    ctx.textBaseline = "middle";
 
-    const finalX = config.align === "middle" ? centerX : config.align === "end" ? canvas.width - centerX : centerX;
-
-    ctx.fillText(text, finalX, config.y);
+    ctx.fillText(text, centerX, config.y);
   }
 
   const buffer = canvas.toBuffer("image/png");
