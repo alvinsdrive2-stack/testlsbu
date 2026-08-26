@@ -7,6 +7,7 @@ const nav = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/modules", label: "Modul" },
   { href: "/admin/activities", label: "Kegiatan" },
+  { href: "/admin/participants", label: "Peserta" },
 ];
 
 function useActive() {
