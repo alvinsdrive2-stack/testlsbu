@@ -17,6 +17,7 @@ function ensureFonts() {
   if (fontsRegistered) return;
   registerFont(path.join(process.cwd(), "public", "fonts", "Poppins-Regular.ttf"), { family: "Poppins", weight: "normal" });
   registerFont(path.join(process.cwd(), "public", "fonts", "Poppins-Light.ttf"), { family: "Poppins", weight: "300" });
+  registerFont(path.join(process.cwd(), "public", "fonts", "Poppins-Bold.ttf"), { family: "Poppins", weight: "bold" });
   fontsRegistered = true;
 }
 
@@ -29,11 +30,18 @@ export function drawCertificate(
   ctx.textBaseline = "middle";
 
   for (const field of fields) {
-    ctx.font = `${field.fontWeight === "300" ? "300 " : ""}${field.fontSize / 10}px "Poppins"`;
+    const weight =
+      field.fontWeight === "300"
+        ? "300 "
+        : field.fontWeight === "bold" || field.fontWeight === "700"
+        ? "bold "
+        : "";
+    ctx.font = `${weight}${field.fontSize / 10}px "${field.fontFamily || "Poppins"}"`;
     ctx.fillStyle = field.color;
     ctx.textAlign = field.align === "middle" ? "center" : field.align;
     const x = field.align === "middle" ? canvas.width / 2 : field.x;
-    ctx.fillText(values[field.key] ?? "", x, field.y);
+    const text = field.key === "number" ? `No. ${values[field.key] ?? ""}` : values[field.key] ?? "";
+    ctx.fillText(text, x, field.y);
   }
 }
 

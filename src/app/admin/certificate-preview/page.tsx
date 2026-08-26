@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import "@fontsource/poppins/300.css";
 import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/700.css";
 import {
   CERTIFICATE_FIELDS,
   type CertificateFieldConfig,
@@ -349,6 +350,7 @@ export default function CertificatePreviewPage() {
                     onChange={(e) => handleFontWeightChange(text.id, e.target.value)}
                     className="w-full rounded-md border border-hairline-strong px-3 py-2 text-sm"
                   >
+                    <option value="bold">Bold (700)</option>
                     <option value="normal">Normal (400)</option>
                     <option value="300">Light (300)</option>
                   </select>
