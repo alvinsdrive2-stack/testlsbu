@@ -33,6 +33,7 @@ export function ExamRunner({
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [confirming, setConfirming] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const submittedRef = useRef(false);
 
   const deadline = new Date(deadlineISO).getTime();
@@ -43,11 +44,20 @@ export function ExamRunner({
 
   async function doSubmit() {
     if (submittedRef.current) return;
-    submittedRef.current = true;
     setSubmitting(true);
     setConfirming(false);
-    await submitAttempt(attemptId);
-    router.refresh();
+    setSubmitError(null);
+    try {
+      await submitAttempt(attemptId);
+      submittedRef.current = true;
+      router.refresh();
+    } catch {
+      submittedRef.current = false;
+      setSubmitting(false);
+      setSubmitError(
+        "Gagal mengirim jawaban. Cek koneksi, lalu coba kirim lagi."
+      );
+    }
   }
 
   useEffect(() => {
@@ -177,7 +187,16 @@ export function ExamRunner({
         })}
         </div>
 
-        <div className="flex justify-end px-6 py-6 sm:px-8">
+        <div className="px-6 py-6 sm:px-8">
+          {submitError ? (
+            <p
+              role="alert"
+              className="mb-4 rounded-md border border-flag/30 bg-flag/10 px-4 py-3 text-sm font-medium text-flag"
+            >
+              {submitError}
+            </p>
+          ) : null}
+        <div className="flex justify-end">
           {confirming ? (
             <div className="w-full">
               <p className="font-semibold">

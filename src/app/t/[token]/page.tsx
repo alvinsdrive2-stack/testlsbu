@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { StartGate } from "@/components/ui/StartGate";
 import { TopBar } from "@/components/ui/TopBar";
 import { ExamScreen } from "@/components/exam/ExamScreen";
-import { startPosttestRetry } from "./actions";
+import { StartPosttestForm } from "./StartPosttestForm";
 import { AnswerReview } from "@/components/exam/AnswerReview";
 
 const CARD =
@@ -227,20 +227,7 @@ export default async function PosttestPage({
           durationMin={activity.module.posttestDurationMin}
           questionCount={questions.length}
         >
-          <form
-            action={async () => {
-              "use server";
-              await startPosttestRetry(token);
-            }}
-            className="mt-8"
-          >
-            <p className="mb-4 rounded-md border border-warning/40 bg-warning-soft px-4 py-3 text-left text-sm leading-relaxed text-ink">
-              Ujian hanya bisa dikerjakan <strong>selama sesi posttest
-              berlangsung</strong>. Kalau sesi berganti atau waktu habis,
-              jawaban terkirim otomatis dan ujian terkunci.
-            </p>
-            <Button type="submit">Mulai Posttest</Button>
-          </form>
+          <StartPosttestForm token={token} />
         </StartGate>
       </div>
     );

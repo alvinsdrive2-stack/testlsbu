@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-type Status = "idle" | "checking" | "taken" | "ok";
+type Status = "idle" | "checking" | "taken" | "ok" | "error";
 
 export function EmailField() {
   const [email, setEmail] = useState("");
@@ -22,10 +22,11 @@ export function EmailField() {
         const res = await fetch(
           `/api/check-email?email=${encodeURIComponent(value)}`
         );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: { taken: boolean } = await res.json();
         setStatus(data.taken ? "taken" : "ok");
       } catch {
-        setStatus("idle");
+        setStatus("error");
       }
     }, 500);
     return () => clearTimeout(t);
@@ -57,6 +58,12 @@ export function EmailField() {
       {status === "checking" ? (
         <p className="mt-1.5 text-[13px] text-ink-secondary">
           Memeriksa ketersediaan email…
+        </p>
+      ) : null}
+      {status === "error" ? (
+        <p role="alert" className="mt-1.5 text-[13px] font-medium text-ink-secondary">
+          Gagal memeriksa email. Coba ketik ulang — kalau terus gagal, daftar saja,
+          admin akan verifikasi manual.
         </p>
       ) : null}
       {status === "taken" ? (

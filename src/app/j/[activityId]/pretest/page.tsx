@@ -11,7 +11,7 @@ import { StartGate } from "@/components/ui/StartGate";
 import { TopBar } from "@/components/ui/TopBar";
 import { ExamScreen } from "@/components/exam/ExamScreen";
 import { AnswerReview } from "@/components/exam/AnswerReview";
-import { startPretest } from "./actions";
+import { StartPretestForm } from "./StartPretestForm";
 
 const CARD =
   "rounded-[var(--radius-card)] border border-hairline bg-surface p-10 shadow-[0_1px_3px_rgba(15,20,25,0.06)]";
@@ -190,15 +190,7 @@ export default async function PretestPage({
           durationMin={activity.module.pretestDurationMin}
           questionCount={questions.length}
         >
-          <form action={startPretest} className="mt-8">
-            <input type="hidden" name="activityId" value={activityId} />
-            <p className="mb-4 rounded-md border border-warning/40 bg-warning-soft px-4 py-3 text-left text-sm leading-relaxed text-ink">
-              Ujian hanya bisa dikerjakan <strong>selama sesi pretest
-              berlangsung</strong>. Kalau sesi berganti atau waktu habis,
-              jawaban terkirim otomatis dan ujian terkunci.
-            </p>
-            <Button type="submit">Mulai Pretest</Button>
-          </form>
+          <StartPretestForm activityId={activityId} />
         </StartGate>
       </div>
     );

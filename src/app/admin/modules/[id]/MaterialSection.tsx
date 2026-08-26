@@ -14,6 +14,7 @@ import { VideoField } from "./VideoField";
 import { PdfField } from "./PdfField";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 function ErrorNote({ error }: { error?: string }) {
   if (!error) return null;
@@ -79,11 +80,12 @@ export function MaterialSection({
           <Card key={m.id} className="p-5">
             <div className="flex items-center justify-between">
               <p className="text-sm text-ink-secondary">Materi {i + 1}</p>
-              <form action={deleteMaterial}>
-                <input type="hidden" name="materialId" value={m.id} />
-                <input type="hidden" name="moduleId" value={moduleId} />
+              <ActionForm
+                action={deleteMaterial}
+                inputs={{ materialId: m.id, moduleId }}
+              >
                 <ConfirmButton label="Hapus" />
-              </form>
+              </ActionForm>
             </div>
             <EditMaterialForm material={m} />
           </Card>

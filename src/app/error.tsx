@@ -21,8 +21,8 @@ export default function Error({
           Ups, ada yang tidak beres
         </h1>
         <p className="mt-3 text-[15px] leading-relaxed text-ink-secondary">
-          {error.message ||
-            "Terjadi kesalahan tak terduga. Silakan coba lagi."}
+          Terjadi kesalahan tak terduga saat memuat halaman. Silakan coba lagi —
+          kalau masih muncul, hubungi admin.
         </p>
         <button
           type="button"

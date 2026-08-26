@@ -9,10 +9,11 @@ import { TopBar } from "@/components/ui/TopBar";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { Countdown } from "@/components/ui/Countdown";
 import { PageTransition } from "@/components/ui/PageTransition";
-import { videoEmbedUrl } from "@/lib/video";
+import { videoEmbedUrl, youtubeVideoId } from "@/lib/video";
 import { sanitizeMaterialHtml } from "@/lib/sanitize";
 import { MaterialVideo } from "./MaterialVideo";
 import { MaterialPdf } from "./MaterialPdf";
+import { YouTubeEmbed } from "./YouTubeEmbed";
 
 export default async function ParticipantDashboardPage() {
   const token = await getParticipantToken();
@@ -67,6 +68,23 @@ export default async function ParticipantDashboardPage() {
 
   if (!participant) {
     redirect("/login");
+  }
+
+  if (!participant.activity) {
+    return (
+      <div className="min-h-screen">
+        <TopBar title="Dashboard" />
+        <main className="px-6 py-10">
+          <div className="mx-auto w-full max-w-md rounded-[var(--radius-card)] border border-hairline bg-surface p-10 text-center shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+            <p className="label-eyebrow text-ink-secondary">Kegiatan tidak ditemukan</p>
+            <p className="mt-4 text-[15px] leading-relaxed text-ink-secondary">
+              Data kegiatan kamu tidak ditemukan. Kemungkinan kegiatan sudah dihapus
+              admin. Hubungi admin untuk info lebih lanjut.
+            </p>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   const activity = participant.activity;
@@ -481,6 +499,7 @@ export default async function ParticipantDashboardPage() {
                   .sort((a, b) => a.order - b.order)
                   .map((m, i) => {
                     const embed = m.videoUrl ? videoEmbedUrl(m.videoUrl) : null;
+                    const ytId = m.videoUrl ? youtubeVideoId(m.videoUrl) : null;
                     const isLegacyPlainText = !/[<>]/.test(m.content);
                     return (
                       <article key={m.id} className="p-6">
@@ -505,7 +524,15 @@ export default async function ParticipantDashboardPage() {
                                 }}
                               />
                             )}
-                            {m.videoUrl && embed ? (
+                            {m.videoUrl && ytId ? (
+                              <div className="mt-6">
+                                <YouTubeEmbed
+                                  videoId={ytId}
+                                  watchUrl={m.videoUrl}
+                                />
+                              </div>
+                            ) : null}
+                            {m.videoUrl && embed && !ytId ? (
                               <div className="mt-6 aspect-video overflow-hidden rounded-md border border-hairline">
                                 <iframe
                                   src={embed}

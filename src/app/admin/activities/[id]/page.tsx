@@ -4,6 +4,7 @@ import type { Prisma } from "@prisma/client";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ActionForm } from "@/components/ui/ActionForm";
 import { prisma } from "@/lib/prisma";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 import { deleteActivity } from "../actions";
@@ -134,10 +135,13 @@ export default async function ActivityDetailPage({
             closedAt: activity.closedAt,
           }}
         />
-        <form action={deleteActivity} className="mt-6 border-t border-hairline pt-4">
-          <input type="hidden" name="activityId" value={activity.id} />
+        <ActionForm
+          action={deleteActivity}
+          inputs={{ activityId: activity.id }}
+          className="mt-6 border-t border-hairline pt-4"
+        >
           <ConfirmButton label="Hapus Kegiatan" />
-        </form>
+        </ActionForm>
       </section>
 
       <section className="space-y-4">
@@ -263,8 +267,10 @@ export default async function ActivityDetailPage({
                       <tr key={p.id} className="border-b border-hairline">
                         <td className="py-3 pr-6">
                           {p.stage === "POSTTEST_PASSED" && !p.certificateNumber ? (
-                            <form action={generateCertificate}>
-                              <input type="hidden" name="participantId" value={p.id} />
+                            <ActionForm
+                              action={generateCertificate}
+                              inputs={{ participantId: p.id }}
+                            >
                               <Button
                                 type="submit"
                                 variant="primary"
@@ -272,7 +278,7 @@ export default async function ActivityDetailPage({
                               >
                                 Beri Sertifikat
                               </Button>
-                            </form>
+                            </ActionForm>
                           ) : p.certificateNumber ? (
                             <span className="text-xs text-accent">✓ Diberikan</span>
                           ) : null}

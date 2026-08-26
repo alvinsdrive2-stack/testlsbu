@@ -111,10 +111,17 @@ export async function updateActivitySchedule(
   return { ok: true };
 }
 
-export async function deleteActivity(formData: FormData) {
+export async function deleteActivity(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
   const activityId = String(formData.get("activityId"));
 
-  await prisma.activity.delete({ where: { id: activityId } });
+  try {
+    await prisma.activity.delete({ where: { id: activityId } });
+  } catch {
+    return { error: "Gagal menghapus kegiatan. Coba lagi." };
+  }
 
   revalidatePath("/admin/activities");
   redirect("/admin/activities");

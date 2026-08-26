@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { moduleCreateSchema, moduleSettingsSchema } from "@/lib/schemas";
+import type { ActionFormState } from "@/components/ui/ActionForm";
 
 const questionCreateSchema = z.object({
   moduleId: z.string().min(1),
@@ -169,60 +170,80 @@ export async function updateExplanation(
   return {};
 }
 
-export async function deleteQuestion(formData: FormData) {
+export async function deleteQuestion(
+  _prev: ActionFormState,
+  formData: FormData
+): Promise<ActionFormState> {
   const questionId = String(formData.get("questionId"));
   const moduleId = String(formData.get("moduleId"));
 
-  const question = await prisma.question.findUnique({ where: { id: questionId } });
-  if (!question) return;
+  try {
+    const question = await prisma.question.findUnique({
+      where: { id: questionId },
+    });
+    if (!question) return { error: "Soal tidak ditemukan." };
 
-  await prisma.question.delete({ where: { id: questionId } });
+    await prisma.question.delete({ where: { id: questionId } });
 
-  const remaining = await prisma.question.findMany({
-    where: { moduleId, section: question.section },
-    orderBy: { order: "asc" },
-  });
+    const remaining = await prisma.question.findMany({
+      where: { moduleId, section: question.section },
+      orderBy: { order: "asc" },
+    });
 
-  let order = 1;
-  for (const q of remaining) {
-    await prisma.question.update({ where: { id: q.id }, data: { order } });
-    order++;
+    let order = 1;
+    for (const q of remaining) {
+      await prisma.question.update({ where: { id: q.id }, data: { order } });
+      order++;
+    }
+
+    revalidatePath(`/admin/modules/${moduleId}`);
+    return {};
+  } catch {
+    return { error: "Gagal menghapus soal. Coba lagi." };
   }
-
-  revalidatePath(`/admin/modules/${moduleId}`);
 }
 
-export async function moveQuestion(formData: FormData) {
+export async function moveQuestion(
+  _prev: ActionFormState,
+  formData: FormData
+): Promise<ActionFormState> {
   const questionId = String(formData.get("questionId"));
   const moduleId = String(formData.get("moduleId"));
   const direction = String(formData.get("direction")) as "up" | "down";
 
-  const question = await prisma.question.findUnique({ where: { id: questionId } });
-  if (!question) return;
+  try {
+    const question = await prisma.question.findUnique({
+      where: { id: questionId },
+    });
+    if (!question) return { error: "Soal tidak ditemukan." };
 
-  const siblings = await prisma.question.findMany({
-    where: { moduleId, section: question.section },
-    orderBy: { order: "asc" },
-  });
+    const siblings = await prisma.question.findMany({
+      where: { moduleId, section: question.section },
+      orderBy: { order: "asc" },
+    });
 
-  const index = siblings.findIndex((q) => q.id === questionId);
-  const swapWith = direction === "up" ? index - 1 : index + 1;
+    const index = siblings.findIndex((q) => q.id === questionId);
+    const swapWith = direction === "up" ? index - 1 : index + 1;
 
-  if (swapWith < 0 || swapWith >= siblings.length) return;
+    if (swapWith < 0 || swapWith >= siblings.length) return {};
 
-  const reordered = [...siblings];
-  [reordered[index], reordered[swapWith]] = [
-    reordered[swapWith],
-    reordered[index],
-  ];
+    const reordered = [...siblings];
+    [reordered[index], reordered[swapWith]] = [
+      reordered[swapWith],
+      reordered[index],
+    ];
 
-  let order = 1;
-  for (const q of reordered) {
-    await prisma.question.update({ where: { id: q.id }, data: { order } });
-    order++;
+    let order = 1;
+    for (const q of reordered) {
+      await prisma.question.update({ where: { id: q.id }, data: { order } });
+      order++;
+    }
+
+    revalidatePath(`/admin/modules/${moduleId}`);
+    return {};
+  } catch {
+    return { error: "Gagal mengubah urutan soal. Coba lagi." };
   }
-
-  revalidatePath(`/admin/modules/${moduleId}`);
 }
 
 export async function addOption(
@@ -247,46 +268,58 @@ export async function addOption(
   return {};
 }
 
-export async function setCorrectOption(formData: FormData) {
+export async function setCorrectOption(
+  _prev: ActionFormState,
+  formData: FormData
+): Promise<ActionFormState> {
   const optionId = String(formData.get("optionId"));
   const moduleId = String(formData.get("moduleId"));
 
-  const option = await prisma.option.findUnique({
-    where: { id: optionId },
-    include: { question: true },
-  });
-  if (!option) return;
-
-  await prisma.$transaction([
-    prisma.option.updateMany({
-      where: { questionId: option.questionId },
-      data: { isCorrect: false },
-    }),
-    prisma.option.update({
+  try {
+    const option = await prisma.option.findUnique({
       where: { id: optionId },
-      data: { isCorrect: true },
-    }),
-  ]);
+      include: { question: true },
+    });
+    if (!option) return { error: "Opsi tidak ditemukan." };
 
-  revalidatePath(`/admin/modules/${moduleId}`);
+    await prisma.$transaction([
+      prisma.option.updateMany({
+        where: { questionId: option.questionId },
+        data: { isCorrect: false },
+      }),
+      prisma.option.update({
+        where: { id: optionId },
+        data: { isCorrect: true },
+      }),
+    ]);
+
+    revalidatePath(`/admin/modules/${moduleId}`);
+    return {};
+  } catch {
+    return { error: "Gagal mengubah jawaban benar. Coba lagi." };
+  }
 }
 
 export async function deleteOption(
-  _prev: FormState,
+  _prev: ActionFormState,
   formData: FormData
-): Promise<FormState> {
+): Promise<ActionFormState> {
   const optionId = String(formData.get("optionId"));
   const moduleId = String(formData.get("moduleId"));
 
-  const option = await prisma.option.findUnique({ where: { id: optionId } });
-  if (!option) return {};
-  if (option.isCorrect)
-    return { error: "Jawaban benar tidak bisa dihapus. Ubah jawaban benar dulu." };
+  try {
+    const option = await prisma.option.findUnique({ where: { id: optionId } });
+    if (!option) return { error: "Opsi tidak ditemukan." };
+    if (option.isCorrect)
+      return { error: "Jawaban benar tidak bisa dihapus. Ubah jawaban benar dulu." };
 
-  await prisma.option.delete({ where: { id: optionId } });
+    await prisma.option.delete({ where: { id: optionId } });
 
-  revalidatePath(`/admin/modules/${moduleId}`);
-  return {};
+    revalidatePath(`/admin/modules/${moduleId}`);
+    return {};
+  } catch {
+    return { error: "Gagal menghapus opsi. Coba lagi." };
+  }
 }
 
 export async function createMaterial(
@@ -357,11 +390,18 @@ export async function updateMaterial(
   return {};
 }
 
-export async function deleteMaterial(formData: FormData) {
+export async function deleteMaterial(
+  _prev: ActionFormState,
+  formData: FormData
+): Promise<ActionFormState> {
   const materialId = String(formData.get("materialId"));
   const moduleId = String(formData.get("moduleId"));
 
-  await prisma.material.delete({ where: { id: materialId } });
-
-  revalidatePath(`/admin/modules/${moduleId}`);
+  try {
+    await prisma.material.delete({ where: { id: materialId } });
+    revalidatePath(`/admin/modules/${moduleId}`);
+    return {};
+  } catch {
+    return { error: "Gagal menghapus materi. Coba lagi." };
+  }
 }

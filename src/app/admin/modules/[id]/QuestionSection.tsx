@@ -18,6 +18,7 @@ import { TextArea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 function ErrorNote({ error }: { error?: string }) {
   if (!error) return null;
@@ -275,10 +276,10 @@ export function QuestionSection({
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-1">
-                  <form action={moveQuestion}>
-                    <input type="hidden" name="questionId" value={q.id} />
-                    <input type="hidden" name="moduleId" value={moduleId} />
-                    <input type="hidden" name="direction" value="up" />
+                  <ActionForm
+                    action={moveQuestion}
+                    inputs={{ questionId: q.id, moduleId, direction: "up" }}
+                  >
                     <Button
                       variant="ghost"
                       type="submit"
@@ -287,11 +288,11 @@ export function QuestionSection({
                     >
                       ↑
                     </Button>
-                  </form>
-                  <form action={moveQuestion}>
-                    <input type="hidden" name="questionId" value={q.id} />
-                    <input type="hidden" name="moduleId" value={moduleId} />
-                    <input type="hidden" name="direction" value="down" />
+                  </ActionForm>
+                  <ActionForm
+                    action={moveQuestion}
+                    inputs={{ questionId: q.id, moduleId, direction: "down" }}
+                  >
                     <Button
                       variant="ghost"
                       type="submit"
@@ -300,12 +301,13 @@ export function QuestionSection({
                     >
                       ↓
                     </Button>
-                  </form>
-                  <form action={deleteQuestion}>
-                    <input type="hidden" name="questionId" value={q.id} />
-                    <input type="hidden" name="moduleId" value={moduleId} />
+                  </ActionForm>
+                  <ActionForm
+                    action={deleteQuestion}
+                    inputs={{ questionId: q.id, moduleId }}
+                  >
                     <ConfirmButton label="Hapus" />
-                  </form>
+                  </ActionForm>
                 </div>
               </div>
 
@@ -356,21 +358,14 @@ export function QuestionSection({
                           </span>
                           <div className="flex shrink-0 gap-1">
                             {!opt.isCorrect ? (
-                              <form action={setCorrectOption}>
-                                <input
-                                  type="hidden"
-                                  name="optionId"
-                                  value={opt.id}
-                                />
-                                <input
-                                  type="hidden"
-                                  name="moduleId"
-                                  value={moduleId}
-                                />
+                              <ActionForm
+                                action={setCorrectOption}
+                                inputs={{ optionId: opt.id, moduleId }}
+                              >
                                 <Button variant="ghost" type="submit">
                                   Jadikan benar
                                 </Button>
-                              </form>
+                              </ActionForm>
                             ) : null}
                             <DeleteOptionButton
                               optionId={opt.id}

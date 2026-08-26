@@ -70,17 +70,28 @@ export default function CertificatePreviewPage() {
   );
   const [dragging, setDragging] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [loadError, setLoadError] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
+    let cancelled = false;
     fetch("/api/admin/certificate-config")
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
-        if (data?.fields) {
+        if (!cancelled && data?.fields) {
           setTexts((prev) => applyFields(prev, data.fields));
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // snapshot untuk panel render asli — debounce biar drag/typenggak spam render server
@@ -199,7 +210,10 @@ export default function CertificatePreviewPage() {
   };
 
   const copyConfig = () => {
-    navigator.clipboard.writeText(JSON.stringify(toFields(texts), null, 2));
+    setCopyFailed(false);
+    navigator.clipboard
+      .writeText(JSON.stringify(toFields(texts), null, 2))
+      .catch(() => setCopyFailed(true));
   };
 
   const realPreviewSrc = () => {
@@ -212,6 +226,13 @@ export default function CertificatePreviewPage() {
   return (
     <div className="min-h-screen bg-canvas p-8">
       <div className="mx-auto max-w-7xl space-y-6">
+        {loadError ? (
+          <p role="alert" className="rounded-md border border-flag/30 bg-flag/10 px-4 py-3 text-sm font-medium text-flag">
+            Gagal memuat konfigurasi tersimpan. Kalau kamu klik Simpan sekarang,
+            konfigurasi di server bisa tertimpa versi default. Refresh halaman buat
+            coba lagi.
+          </p>
+        ) : null}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-h1 font-bold">Preview Sertifikat</h1>
           <div className="flex items-center gap-3">
@@ -219,6 +240,9 @@ export default function CertificatePreviewPage() {
               <span className="text-sm font-medium text-accent">Tersimpan</span>
             ) : saveState === "error" ? (
               <span className="text-sm font-medium text-flag">Gagal simpan</span>
+            ) : null}
+            {copyFailed ? (
+              <span className="text-sm font-medium text-flag">Gagal menyalin</span>
             ) : null}
             <button
               onClick={copyConfig}

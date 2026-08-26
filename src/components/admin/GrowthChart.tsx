@@ -222,6 +222,7 @@ export function GrowthSection({ initialData }: { initialData: GrowthData }) {
   const [range, setRange] = useState(initialData.range);
   const [compare, setCompare] = useState(initialData.compare);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
   const reqId = useRef(0);
 
   async function select(r: GrowthRange, c: boolean) {
@@ -232,11 +233,18 @@ export function GrowthSection({ initialData }: { initialData: GrowthData }) {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/growth?range=${r}`);
-      if (!res.ok) return;
+      if (!res.ok) {
+        if (reqId.current === id) setFetchError(true);
+        return;
+      }
       const fresh = (await res.json()) as GrowthData;
-      if (reqId.current === id) setData(fresh);
+      if (reqId.current === id) {
+        setData(fresh);
+        setFetchError(false);
+      }
     } catch {
-      // biarkan data lama
+      // biarkan data lama, kasih tahu user kalau gagal
+      if (reqId.current === id) setFetchError(true);
     } finally {
       if (reqId.current === id) setLoading(false);
     }
@@ -276,6 +284,12 @@ export function GrowthSection({ initialData }: { initialData: GrowthData }) {
           </button>
         </div>
       </div>
+
+      {fetchError ? (
+        <p role="alert" className="rounded-md border border-flag/30 bg-flag/10 px-3 py-2 text-sm font-medium text-flag">
+          Gagal memuat data grafik. Coba ganti rentang lagi.
+        </p>
+      ) : null}
 
       {compare ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
