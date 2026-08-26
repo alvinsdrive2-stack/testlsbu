@@ -40,7 +40,12 @@ export function drawCertificate(
     ctx.fillStyle = field.color;
     ctx.textAlign = field.align === "middle" ? "center" : field.align;
     const x = field.align === "middle" ? canvas.width / 2 : field.x;
-    const text = field.key === "number" ? `No. ${values[field.key] ?? ""}` : values[field.key] ?? "";
+    const text =
+      field.key === "number"
+        ? `No. ${values[field.key] ?? ""}`
+        : field.key === "npwp"
+          ? `NPWP: ${values[field.key] ?? ""}`
+          : values[field.key] ?? "";
     ctx.fillText(text, x, field.y);
   }
 }
