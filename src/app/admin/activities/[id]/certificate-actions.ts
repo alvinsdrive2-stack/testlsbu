@@ -14,30 +14,14 @@ export async function generateCertificate(
 
   const participant = await prisma.participant.findUnique({
     where: { id: participantId },
-    select: {
-      id: true,
-      nama: true,
-      badanUsaha: true,
-      npwp: true,
-      wa: true,
-      email: true,
-      stage: true,
-      certificateNumber: true,
-      certificateIssuedAt: true,
-      activity: {
-        select: {
-          id: true,
-          module: { select: { id: true, title: true } },
-        },
-      },
-    },
+    include: { activity: { include: { module: true } } },
   });
 
   if (!participant) {
     return { error: "Peserta tidak ditemukan" };
   }
 
-  if (participant.certificateNumber) {
+  if ((participant as any).certificateNumber) {
     return { error: "Sertifikat sudah diterbitkan" };
   }
 
@@ -53,7 +37,7 @@ export async function generateCertificate(
       certificateNumber: { contains: `/GAPENSI/*/` + year },
     },
     orderBy: { certificateIssuedAt: "desc" },
-  });
+  } as any);
 
   let nextSequence = 1;
   if (lastCert?.certificateNumber) {
@@ -71,9 +55,9 @@ export async function generateCertificate(
       certificateNumber,
       certificateIssuedAt: new Date(),
     },
-  });
+  } as any);
 
-  revalidatePath(`/admin/activities/${participant.activityId}`);
+  revalidatePath(`/admin/activities/${participant.activity.id}`);
 
   return { certificateNumber };
 }
