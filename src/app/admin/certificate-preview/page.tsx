@@ -83,7 +83,6 @@ export default function CertificatePreviewPage() {
   ]);
 
   const [dragging, setDragging] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -96,11 +95,6 @@ export default function CertificatePreviewPage() {
   }, []);
 
   const handleMouseDown = (id: string, e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
     setDragging(id);
   };
 

@@ -3,7 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { generateCertificateNumber } from "@/lib/certificate";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 type CertificateState = { error?: string; certificateNumber?: string };
 

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import sharp from "sharp";
 import path from "path";
 import { createCanvas, loadImage, registerFont } from "canvas";
 
@@ -20,7 +19,7 @@ export async function GET(req: NextRequest) {
   const name = searchParams.get("name") || "Nama Peserta";
   const company = searchParams.get("company") || "Nama Perusahaan";
   const npwp = searchParams.get("npwp") || "NPWP Perusahaan";
-  const module = searchParams.get("module") || "Nama Modul";
+  const moduleName = searchParams.get("module") || "Nama Modul";
 
   const templatePath = path.join(process.cwd(), "public", "template", "template1.png");
 
@@ -39,12 +38,8 @@ export async function GET(req: NextRequest) {
       case "Nama": text = name; break;
       case "Perusahaan": text = company; break;
       case "NPWP": text = npwp; break;
-      case "Modul": text = module; break;
+      case "Modul": text = moduleName; break;
     }
-
-    const fontPath = config.fontWeight === "300"
-      ? path.join(process.cwd(), "public", "fonts", "Poppins-Light.ttf")
-      : path.join(process.cwd(), "public", "fonts", "Poppins-Regular.ttf");
 
     ctx.font = `${config.fontSize / 10}px "Poppins"`;
     ctx.fillStyle = config.color;

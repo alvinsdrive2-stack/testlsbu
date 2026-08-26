@@ -51,10 +51,6 @@ export async function GET(
       case "Modul": text = participant.activity.module.title; break;
     }
 
-    const fontPath = config.fontWeight === "300"
-      ? path.join(process.cwd(), "public", "fonts", "Poppins-Light.ttf")
-      : path.join(process.cwd(), "public", "fonts", "Poppins-Regular.ttf");
-
     ctx.font = `${config.fontSize / 10}px "Poppins"`;
     ctx.fillStyle = config.color;
     ctx.globalAlpha = 1;
