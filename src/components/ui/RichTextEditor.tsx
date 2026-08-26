@@ -57,7 +57,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          "prose-gapensi min-h-40 w-full rounded-b-md border border-t-0 border-hairline-strong bg-surface px-3.5 py-3 text-base focus:outline-none",
+          "prose-gapensi min-h-56 w-full rounded-b-md border border-t-0 border-hairline-strong bg-surface px-3.5 py-3 text-base focus:outline-none",
       },
     },
     onUpdate: ({ editor }) => {
@@ -89,7 +89,7 @@ export function RichTextEditor({
           ref={hiddenRef}
           defaultValue={defaultValue}
         />
-        <div className="min-h-40 animate-pulse rounded-md border border-hairline-strong bg-canvas" />
+        <div className="min-h-56 animate-pulse rounded-md border border-hairline-strong bg-canvas" />
       </div>
     );
   }
