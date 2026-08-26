@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCertificateFields } from "@/lib/certificate-config-server";
 import { renderCertificate, type CertificateFieldKey } from "@/lib/certificate-render";
 
 export async function GET(
@@ -27,7 +28,7 @@ export async function GET(
     module: participant.activity.module.title,
   } as Record<CertificateFieldKey, string>;
 
-  const buffer = await renderCertificate(values);
+  const buffer = await renderCertificate(values, await getCertificateFields());
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {

@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "@fontsource/poppins/300.css";
 import "@fontsource/poppins/400.css";
-import { CERTIFICATE_FIELDS } from "@/lib/certificate-fields";
+import {
+  CERTIFICATE_FIELDS,
+  type CertificateFieldConfig,
+} from "@/lib/certificate-fields";
 
 interface DraggableText {
   id: string;
@@ -26,6 +29,27 @@ const DEFAULT_CONTENT: Record<string, string> = {
   module: "Nama Modul",
 };
 
+function applyFields(
+  prev: DraggableText[],
+  fields: CertificateFieldConfig[]
+): DraggableText[] {
+  return prev.map((t) => {
+    const f = fields.find((f) => f.key === t.id);
+    return f
+      ? {
+          ...t,
+          x: f.x,
+          y: f.y,
+          fontSize: f.fontSize,
+          color: f.color,
+          align: f.align,
+          fontWeight: f.fontWeight,
+          fontFamily: f.fontFamily,
+        }
+      : t;
+  });
+}
+
 export default function CertificatePreviewPage() {
   const [imageSize, setImageSize] = useState({ width: 2000, height: 1414 });
   const [texts, setTexts] = useState<DraggableText[]>(
@@ -42,9 +66,27 @@ export default function CertificatePreviewPage() {
       fontFamily: f.fontFamily,
     }))
   );
-
   const [dragging, setDragging] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/certificate-config")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.fields) {
+          setTexts((prev) => applyFields(prev, data.fields));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // snapshot untuk panel render asli — debounce biar drag/typenggak spam render server
+  const [renderInputs, setRenderInputs] = useState<DraggableText[]>(texts);
+  useEffect(() => {
+    const t = setTimeout(() => setRenderInputs(texts), 400);
+    return () => clearTimeout(t);
+  }, [texts]);
 
   const handleImageLoad = () => {
     const img = imgRef.current;
@@ -98,31 +140,92 @@ export default function CertificatePreviewPage() {
     );
   };
 
-  const copyConfig = () => {
-    const config = texts.map((t) => ({
+  const handleFontSizeChange = (id: string, size: number) => {
+    setTexts((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, fontSize: size } : t))
+    );
+  };
+
+  const handleFontWeightChange = (id: string, weight: string) => {
+    setTexts((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, fontWeight: weight } : t))
+    );
+  };
+
+  const toFields = (list: DraggableText[]): CertificateFieldConfig[] =>
+    list.map((t) => ({
+      key: t.id as CertificateFieldConfig["key"],
       label: t.label,
       x: t.x,
       y: t.y,
       fontSize: t.fontSize,
       color: t.color,
       align: t.align,
-      fontWeight: t.fontWeight,
-      fontFamily: t.fontFamily,
+      fontWeight: t.fontWeight || "normal",
+      fontFamily: t.fontFamily || "Poppins",
     }));
-    navigator.clipboard.writeText(JSON.stringify(config, null, 2));
+
+  const handleSave = async () => {
+    setSaveState("saving");
+    try {
+      const res = await fetch("/api/admin/certificate-config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: toFields(texts) }),
+      });
+      setSaveState(res.ok ? "saved" : "error");
+    } catch {
+      setSaveState("error");
+    }
+  };
+
+  const handleReset = () => {
+    setTexts((prev) => applyFields(prev, CERTIFICATE_FIELDS));
+    setSaveState("idle");
+  };
+
+  const copyConfig = () => {
+    navigator.clipboard.writeText(JSON.stringify(toFields(texts), null, 2));
+  };
+
+  const realPreviewSrc = () => {
+    const p = new URLSearchParams();
+    for (const t of renderInputs) p.set(t.id, t.content);
+    p.set("config", encodeURIComponent(JSON.stringify(toFields(renderInputs))));
+    return `/api/certificate-preview?${p.toString()}`;
   };
 
   return (
     <div className="min-h-screen bg-canvas p-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-h1 font-bold">Preview Sertifikat</h1>
-          <button
-            onClick={copyConfig}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-surface hover:brightness-110"
-          >
-            Copy Konfigurasi
-          </button>
+          <div className="flex items-center gap-3">
+            {saveState === "saved" ? (
+              <span className="text-sm font-medium text-accent">Tersimpan</span>
+            ) : saveState === "error" ? (
+              <span className="text-sm font-medium text-flag">Gagal simpan</span>
+            ) : null}
+            <button
+              onClick={copyConfig}
+              className="rounded-md border border-hairline-strong bg-surface px-4 py-2 text-sm font-semibold hover:bg-canvas"
+            >
+              Copy JSON
+            </button>
+            <button
+              onClick={handleReset}
+              className="rounded-md border border-hairline-strong bg-surface px-4 py-2 text-sm font-semibold hover:bg-canvas"
+            >
+              Reset Default
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saveState === "saving"}
+              className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-surface hover:brightness-110 disabled:opacity-40"
+            >
+              {saveState === "saving" ? "Menyimpan..." : "Simpan Konfigurasi"}
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -194,9 +297,7 @@ export default function CertificatePreviewPage() {
                     value={text.fontSize}
                     onChange={(e) => {
                       const size = parseInt(e.target.value) || 24;
-                      setTexts((prev) =>
-                        prev.map((t) => (t.id === text.id ? { ...t, fontSize: size } : t))
-                      );
+                      handleFontSizeChange(text.id, size);
                     }}
                     className="w-full rounded-md border border-hairline-strong px-3 py-2 text-sm"
                   />
@@ -230,6 +331,17 @@ export default function CertificatePreviewPage() {
                   </select>
                 </div>
                 <div className="mt-3">
+                  <label className="mb-1 block text-xs text-ink-secondary">Ketebalan</label>
+                  <select
+                    value={text.fontWeight || "normal"}
+                    onChange={(e) => handleFontWeightChange(text.id, e.target.value)}
+                    className="w-full rounded-md border border-hairline-strong px-3 py-2 text-sm"
+                  >
+                    <option value="normal">Normal (400)</option>
+                    <option value="300">Light (300)</option>
+                  </select>
+                </div>
+                <div className="mt-3">
                   <label className="mb-1 block text-xs text-ink-secondary">Warna</label>
                   <div className="flex gap-2">
                     <input
@@ -257,16 +369,14 @@ export default function CertificatePreviewPage() {
             Hasil Render Asli (1:1 dengan sertifikat download)
           </h2>
           <img
-            key={texts.map((t) => t.content).join("|")}
-            src={`/api/certificate-preview?${new URLSearchParams(
-              texts.map((t) => [t.id, t.content])
-            ).toString()}`}
+            src={realPreviewSrc()}
             alt="Hasil render sertifikat"
             className="max-w-full h-auto rounded-[var(--radius-card)] border border-hairline"
           />
           <p className="text-sm text-ink-secondary">
-            Gambar ini dirender engine yang sama persis dengan file download.
-            Posisi dan ukuran diambil dari config di src/lib/certificate-render.ts.
+            Dirender engine yang sama dengan file download peserta, pakai konfigurasi
+            di atas (belum perlu disimpan). Klik Simpan Konfigurasi untuk dipakai
+            permanen di sertifikat peserta.
           </p>
         </section>
       </div>

@@ -145,3 +145,11 @@ model Answer {
   @@unique([attemptId, questionId])
   @@map("answer")
 }
+
+model CertificateConfig {
+  id        String   @id
+  fields    Json
+  updatedAt DateTime @updatedAt
+
+  @@map("certificate_config")
+}

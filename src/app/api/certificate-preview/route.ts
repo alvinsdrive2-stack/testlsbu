@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { renderCertificate, type CertificateFieldKey } from "@/lib/certificate-render";
+import { getCertificateFields } from "@/lib/certificate-config-server";
+import { validateCertificateFields, type CertificateFieldKey } from "@/lib/certificate-fields";
+import { renderCertificate } from "@/lib/certificate-render";
 
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
@@ -11,7 +13,21 @@ export async function GET(req: NextRequest) {
     module: sp.get("module") || "Nama Modul",
   } as Record<CertificateFieldKey, string>;
 
-  const buffer = await renderCertificate(values);
+  let fields;
+  const configParam = sp.get("config");
+  if (configParam) {
+    try {
+      fields =
+        validateCertificateFields(JSON.parse(decodeURIComponent(configParam))) ??
+        (await getCertificateFields());
+    } catch {
+      fields = await getCertificateFields();
+    }
+  } else {
+    fields = await getCertificateFields();
+  }
+
+  const buffer = await renderCertificate(values, fields);
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
