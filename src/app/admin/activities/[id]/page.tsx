@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
@@ -72,12 +70,10 @@ export default async function ActivityDetailPage({
           nama: true,
           badanUsaha: true,
           stage: true,
-          // @ts-ignore - certificateNumber not in generated types yet
           certificateNumber: true,
-          // @ts-ignore - certificateIssuedAt not in generated types yet
           certificateIssuedAt: true,
           attempts: { select: { section: true, score: true, passed: true } },
-        } as any,
+        },
       }),
       prisma.participant.groupBy({
         by: ["stage"],
@@ -272,8 +268,7 @@ export default async function ActivityDetailPage({
                               <Button
                                 type="submit"
                                 variant="primary"
-                                size="sm"
-                                className="text-xs"
+                                className="min-h-8 px-3 py-1 text-xs"
                               >
                                 Beri Sertifikat
                               </Button>

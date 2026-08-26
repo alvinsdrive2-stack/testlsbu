@@ -1,17 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 "use server";
 
 import { prisma } from "@/lib/prisma";
 import { generateCertificateNumber } from "@/lib/certificate";
 import { revalidatePath } from "next/cache";
 
-type CertificateState = { error?: string; certificateNumber?: string };
-
-export async function generateCertificate(
-  _prev: CertificateState,
-  formData: FormData
-): Promise<CertificateState> {
+export async function generateCertificate(formData: FormData): Promise<void> {
   const participantId = String(formData.get("participantId"));
 
   const participant = await prisma.participant.findUnique({
@@ -19,53 +12,37 @@ export async function generateCertificate(
     include: { activity: { include: { module: true } } },
   });
 
-  if (!participant) {
-    return { error: "Peserta tidak ditemukan" };
-  }
+  if (!participant) return;
+  if (participant.certificateNumber) return;
+  if (participant.stage !== "POSTTEST_PASSED") return;
 
-  // @ts-ignore - certificateNumber not in generated types yet
-  if ((participant as any).certificateNumber) {
-    return { error: "Sertifikat sudah diterbitkan" };
-  }
-
-  if (participant.stage !== "POSTTEST_PASSED") {
-    return { error: "Peserta belum lulus posttest" };
-  }
-
-  const date = new Date();
-  const year = date.getFullYear();
+  const year = new Date().getFullYear();
 
   const lastCert = await prisma.participant.findFirst({
-    // @ts-ignore - certificateNumber not in generated types yet
     where: {
-      certificateNumber: { contains: `/GAPENSI/*/` + year },
+      AND: [
+        { certificateNumber: { contains: "GAPENSI/" } },
+        { certificateNumber: { endsWith: `/${year}` } },
+      ],
     },
-    // @ts-ignore - certificateIssuedAt not in generated types yet
     orderBy: { certificateIssuedAt: "desc" },
-  } as any);
+  });
 
   let nextSequence = 1;
-  // @ts-ignore - certificateNumber not in generated types yet
-  if ((lastCert as any)?.certificateNumber) {
-    // @ts-ignore - certificateNumber not in generated types yet
-    const match = (lastCert as any).certificateNumber.match(/(\d+)\/PUB\/GAPENSI\//);
+  if (lastCert?.certificateNumber) {
+    const match = lastCert.certificateNumber.match(/(\d+)\/PUB\/GAPENSI\//);
     if (match) {
       nextSequence = parseInt(match[1]) + 1;
     }
   }
 
-  const certificateNumber = generateCertificateNumber(nextSequence);
-
   await prisma.participant.update({
     where: { id: participantId },
-    // @ts-ignore - certificateNumber and certificateIssuedAt not in generated types yet
     data: {
-      certificateNumber,
+      certificateNumber: generateCertificateNumber(nextSequence),
       certificateIssuedAt: new Date(),
     },
-  } as any);
+  });
 
   revalidatePath(`/admin/activities/${participant.activity.id}`);
-
-  return { certificateNumber };
 }
