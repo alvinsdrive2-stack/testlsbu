@@ -22,7 +22,7 @@ export async function generateCertificate(
     return { error: "Peserta tidak ditemukan" };
   }
 
-  // @ts-ignore - certificateNumber not in generated types yet
+  // @ts-expect-error - certificateNumber not in generated types yet
   if ((participant as any).certificateNumber) {
     return { error: "Sertifikat sudah diterbitkan" };
   }
