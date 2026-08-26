@@ -67,9 +67,6 @@ export default async function ActivityDetailPage({
         orderBy: { createdAt: "asc" },
         skip: (page - 1) * PAGE_SIZE,
         take: PAGE_SIZE,
-        include: {
-          attempts: { select: { section: true, score: true, passed: true } },
-        },
         select: {
           id: true,
           nama: true,
