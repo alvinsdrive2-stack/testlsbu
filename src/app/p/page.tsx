@@ -424,6 +424,9 @@ export default async function ParticipantDashboardPage() {
                         </p>
                       ) : null}
                     </div>
+                    <Button href={`/api/certificate/${participant.token}?download=1`}>
+                      Download Sertifikat
+                    </Button>
                   </div>
                   <div className="overflow-hidden rounded-md border border-hairline">
                     <iframe

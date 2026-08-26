@@ -135,9 +135,9 @@ export function ExamRunner({
           role="note"
           className="mb-5 rounded-md border border-warning/40 bg-warning-soft px-4 py-3 text-sm leading-relaxed text-ink"
         >
-          <span className="font-semibold">Perhatian:</span> kamu hanya bisa
+          <span className="font-semibold">Perhatian:</span> Anda hanya bisa
           mengerjakan selama masih sesi ujian berlangsung. Saat sesi berganti,
-          jawabanmu <span className="font-semibold">terkirim otomatis</span> dan
+          jawaban Anda <span className="font-semibold">terkirim otomatis</span> dan
           ujian terkunci.
           {sessionCutoff
             ? " Sisa waktu di atas mengikuti batas akhir sesi — lebih pendek dari durasi penuh ujian."

@@ -41,11 +41,14 @@ function PosttestFailed({
               {score}
             </p>
             <p className="mt-1 text-xs font-semibold text-ink-secondary">
+              dari 100
+            </p>
+            <p className="mt-1 text-xs font-semibold text-ink-secondary">
               Passing grade {passingGrade} · Percobaan ke-{attempt}
             </p>
             <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
               {gap > 0 ? `Kurang ${gap} poin lagi buat lulus. ` : ""}
-              Coba lagi kapan pun kamu siap.
+              Kerjakan ulang setelah mereview jawaban Anda di bawah.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-2">
               <ActionForm action={startPosttestRetry} inputs={{ token }}>
@@ -93,12 +96,15 @@ function PosttestPassed({
             <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-accent">
               {score}
             </p>
+            <p className="mt-1 text-xs font-semibold text-ink-secondary">
+              dari 100
+            </p>
             <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-sm font-semibold text-success">
               <span aria-hidden className="size-2 rounded-full bg-success" />
               Lulus
             </p>
             <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
-              Kamu lulus posttest. Cek dashboard untuk melihat status dan materi.
+              Anda lulus posttest. Cek dashboard untuk melihat status dan materi.
             </p>
             <div className="mt-8">
               <Button href="/p">Ke Dashboard</Button>

@@ -30,11 +30,15 @@ export async function GET(
 
   const buffer = await renderCertificate(values, await getCertificateFields());
 
+  const isDownload = req.nextUrl.searchParams.get("download") === "1";
+
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "image/png",
       "Cache-Control": "public, max-age=3600",
-      "Content-Disposition": `attachment; filename="sertifikat-${participant.certificateNumber}.png"`,
+      "Content-Disposition": `${
+        isDownload ? "attachment" : "inline"
+      }; filename="sertifikat-${participant.certificateNumber}.png"`,
     },
   });
 }

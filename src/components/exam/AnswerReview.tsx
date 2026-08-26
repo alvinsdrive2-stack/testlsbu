@@ -23,7 +23,7 @@ export async function AnswerReview({ attemptId }: { attemptId: string }) {
         Review Jawaban — {attempt.section === "PRETEST" ? "Pretest" : "Posttest"}
       </h2>
       <p className="mt-1 text-sm text-ink-secondary">
-        Lihat jawaban kamu. Jawaban yang benar cuma dijelaskan, jawaban yang salah tidak dibocorkan.
+        Lihat jawaban Anda. Jawaban yang benar cuma dijelaskan, jawaban yang salah tidak dibocorkan.
       </p>
       <div className="mt-4 overflow-hidden border border-hairline bg-surface shadow-[0_2px_8px_rgba(15,20,25,0.08)]">
         <div className="divide-y divide-hairline">
@@ -58,7 +58,7 @@ export async function AnswerReview({ attemptId }: { attemptId: string }) {
                   {q.text}
                 </p>
                 <p className="mt-4 text-sm text-ink-secondary">
-                  Jawaban kamu:{" "}
+                  Jawaban Anda:{" "}
                   <span className="font-medium text-ink">{chosen ? chosen.text : "—"}</span>
                 </p>
                 {answered && correct && q.explanation ? (

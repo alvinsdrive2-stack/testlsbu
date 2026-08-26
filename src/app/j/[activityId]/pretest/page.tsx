@@ -25,10 +25,14 @@ const FLOW_STEPS = [
 
 function PretestResult({
   score,
+  passed,
+  passingGrade,
   activityTitle,
   attemptId,
 }: {
   score: number;
+  passed: boolean;
+  passingGrade: number;
   activityTitle: string;
   attemptId: string;
 }) {
@@ -42,14 +46,32 @@ function PretestResult({
             <p className="mt-4 text-[var(--text-hero)] font-bold tabular-nums text-accent">
               {score}
             </p>
-            <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-sm font-semibold text-success">
-              <span aria-hidden className="size-2 rounded-full bg-success" />
-              Pretest Selesai
+            <p className="mt-1 text-xs font-semibold text-ink-secondary">
+              dari 100
             </p>
-            <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
-              Baca materi pelatihan di dashboard untuk bersiap menghadapi
-              posttest.
-            </p>
+            {passed ? (
+              <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-sm font-semibold text-success">
+                <span aria-hidden className="size-2 rounded-full bg-success" />
+                Lulus
+              </p>
+            ) : (
+              <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-flag/10 px-3 py-1.5 text-sm font-semibold text-flag">
+                <span aria-hidden className="size-2 rounded-full bg-flag" />
+                Belum Lulus
+              </p>
+            )}
+            {passed ? (
+              <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+                Anda lulus pretest. Baca materi pelatihan di dashboard untuk
+                bersiap menghadapi posttest.
+              </p>
+            ) : (
+              <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+                Nilai Anda belum mencapai passing grade {passingGrade}.
+                Perhatikan materi di sesi materi supaya nilai Anda bisa meningkat
+                di posttest nanti.
+              </p>
+            )}
             <div className="mt-8">
               <Button href="/p" className="w-full">
                 Ke Dashboard
@@ -175,6 +197,8 @@ export default async function PretestPage({
       return (
         <PretestResult
           score={submitted.score}
+          passed={submitted.passed ?? false}
+          passingGrade={activity.module.pretestPassingGrade}
           activityTitle={activity.title}
           attemptId={submitted.id}
         />
@@ -218,6 +242,8 @@ export default async function PretestPage({
     return (
       <PretestResult
         score={refreshed.score}
+        passed={refreshed.passed ?? false}
+        passingGrade={activity.module.pretestPassingGrade}
         activityTitle={activity.title}
         attemptId={refreshed.id}
       />

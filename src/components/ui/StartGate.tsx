@@ -33,7 +33,7 @@ export function StartGate({
           </span>
         </div>
         <p className="mt-4 text-sm text-ink-secondary">
-          Jawaban tersimpan otomatis. Waktu berjalan begitu kamu mulai.
+          Jawaban tersimpan otomatis. Waktu berjalan begitu Anda mulai.
         </p>
         {children}
         </div>
