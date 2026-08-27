@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState } from "react";
 import { updateActivitySchedule } from "../actions";
 import { Button } from "@/components/ui/Button";
+import { useActionToast } from "@/components/ui/useActionToast";
 import {
   toJakartaInputValue,
   type ActivityPhase,
@@ -80,15 +81,7 @@ export function ScheduleForm({
     { ok?: boolean; error?: string },
     FormData
   >(updateActivitySchedule, {});
-  const [flash, setFlash] = useState(false);
-
-  useEffect(() => {
-    if (state.ok) {
-      setFlash(true);
-      const t = setTimeout(() => setFlash(false), 2500);
-      return () => clearTimeout(t);
-    }
-  }, [state]);
+  useActionToast(state, { success: "Jadwal tersimpan" });
 
   const currentIdx = PHASE_ORDER.indexOf(activePhase);
 
@@ -165,11 +158,6 @@ export function ScheduleForm({
         <Button type="submit" disabled={pending}>
           {pending ? "Menyimpan…" : "Simpan Jadwal"}
         </Button>
-        {flash ? (
-          <p role="status" className="text-sm font-medium text-accent">
-            Tersimpan ✓
-          </p>
-        ) : null}
         {state.error ? (
           <p role="alert" className="text-sm font-medium text-flag">
             {state.error}
