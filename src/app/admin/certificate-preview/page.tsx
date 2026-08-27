@@ -8,6 +8,7 @@ import {
   CERTIFICATE_FIELDS,
   type CertificateFieldConfig,
 } from "@/lib/certificate-fields";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 interface DraggableText {
   id: string;
@@ -199,8 +200,11 @@ export default function CertificatePreviewPage() {
         body: JSON.stringify({ fields: toFields(texts) }),
       });
       setSaveState(res.ok ? "saved" : "error");
+      if (res.ok) toastSuccess("Konfigurasi sertifikat tersimpan");
+      else toastError("Gagal menyimpan konfigurasi.");
     } catch {
       setSaveState("error");
+      toastError("Gagal menyimpan konfigurasi.");
     }
   };
 
