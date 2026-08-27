@@ -65,7 +65,7 @@ export async function createModule(
   });
 
   revalidatePath("/admin/modules");
-  redirect(`/admin/modules/${mod.id}`);
+  redirect(`/admin/modules/${mod.id}?created=1`);
 }
 
 type SettingsState = { ok?: boolean; error?: string };

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { SettingsForm } from "./SettingsForm";
 import { QuestionSection } from "./QuestionSection";
 import { MaterialSection } from "./MaterialSection";
+import { QueryToast } from "@/components/ui/QueryToast";
 
 export default async function ModuleBuilderPage({
   params,
@@ -29,6 +30,7 @@ export default async function ModuleBuilderPage({
 
   return (
     <AdminShell title={mod.title} eyebrow="Modul">
+      <QueryToast success={{ created: "Modul berhasil dibuat" }} />
       <Link
         href="/admin/modules"
         className="text-sm font-medium text-accent hover:underline"

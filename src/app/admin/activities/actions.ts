@@ -88,7 +88,7 @@ export async function createActivity(
   });
 
   revalidatePath("/admin/activities");
-  redirect(`/admin/activities/${activity.id}`);
+  redirect(`/admin/activities/${activity.id}?created=1`);
 }
 
 type ScheduleState = { ok?: boolean; error?: string };
@@ -124,6 +124,6 @@ export async function deleteActivity(
   }
 
   revalidatePath("/admin/activities");
-  redirect("/admin/activities");
+  redirect("/admin/activities?deleted=1");
 }
 

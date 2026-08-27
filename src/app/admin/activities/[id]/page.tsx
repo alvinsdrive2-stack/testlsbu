@@ -11,6 +11,7 @@ import { deleteActivity } from "../actions";
 import { generateCertificate } from "./certificate-actions";
 import { CopyLink } from "./CopyLink";
 import { ScheduleForm } from "./ScheduleForm";
+import { QueryToast } from "@/components/ui/QueryToast";
 
 type Stage = "REGISTERED" | "PRETEST_DONE" | "POSTTEST_PASSED";
 
@@ -106,6 +107,7 @@ export default async function ActivityDetailPage({
 
   return (
     <AdminShell title={activity.title} eyebrow={activity.module.title}>
+      <QueryToast success={{ created: "Kegiatan berhasil dibuat" }} />
       <Link
         href="/admin/activities"
         className="text-sm font-medium text-accent hover:underline"

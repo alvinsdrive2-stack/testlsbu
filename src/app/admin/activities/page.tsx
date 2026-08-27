@@ -11,6 +11,7 @@ import {
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 import type { Prisma } from "@prisma/client";
 import { AddActivityFab } from "./AddActivityFab";
+import { QueryToast } from "@/components/ui/QueryToast";
 
 const activityInclude = {
   module: { select: { title: true } },
@@ -125,6 +126,7 @@ export default async function ActivitiesPage({
 
   return (
     <AdminShell title="Kegiatan" eyebrow="Bimtek & pelatihan">
+      <QueryToast success={{ deleted: "Kegiatan berhasil dihapus" }} />
       <section className="flex flex-wrap items-center justify-between gap-3">
         <p className="label-eyebrow text-ink-secondary">
           {upcoming.length} mendatang · {finished.length} selesai
