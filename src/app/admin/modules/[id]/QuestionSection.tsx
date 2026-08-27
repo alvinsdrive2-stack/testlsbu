@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/Button";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { ActionForm } from "@/components/ui/ActionForm";
+import { useActionToast } from "@/components/ui/useActionToast";
+import { toastSuccess } from "@/lib/toast";
 
 function ErrorNote({ error }: { error?: string }) {
   if (!error) return null;
@@ -54,6 +56,7 @@ function EditQuestionForm({
   initialText: string;
 }) {
   const [state, formAction] = useActionState(updateQuestion, {});
+  useActionToast(state, { success: "Soal tersimpan" });
   return (
     <form action={formAction} className="space-y-3">
       <input type="hidden" name="questionId" value={questionId} />
@@ -83,6 +86,7 @@ function ExplanationForm({
   initialExplanation: string;
 }) {
   const [state, formAction] = useActionState(updateExplanation, {});
+  useActionToast(state, { success: "Penjelasan tersimpan" });
   return (
     <form
       action={formAction}
@@ -113,6 +117,7 @@ function AddOptionForm({
   moduleId: string;
 }) {
   const [state, formAction] = useActionState(addOption, {});
+  useActionToast(state, { success: "Opsi ditambahkan" });
   return (
     <form action={formAction} className="flex items-end gap-2 pt-2">
       <input type="hidden" name="questionId" value={questionId} />
@@ -145,6 +150,7 @@ function DeleteOptionButton({
   moduleId: string;
 }) {
   const [state, formAction] = useActionState(deleteOption, {});
+  useActionToast(state, { success: "Opsi dihapus" });
   return (
     <div className="flex items-center gap-2">
       <form action={formAction}>
@@ -170,6 +176,7 @@ function CreateQuestionModal({
 
   useEffect(() => {
     if (state.ok && state.questionId) {
+      toastSuccess("Soal baru ditambahkan");
       onCreated(state.questionId);
     }
   }, [state, onCreated]);
@@ -279,6 +286,7 @@ export function QuestionSection({
                   <ActionForm
                     action={moveQuestion}
                     inputs={{ questionId: q.id, moduleId, direction: "up" }}
+                    successMessage="Urutan soal diubah"
                   >
                     <Button
                       variant="ghost"
@@ -292,6 +300,7 @@ export function QuestionSection({
                   <ActionForm
                     action={moveQuestion}
                     inputs={{ questionId: q.id, moduleId, direction: "down" }}
+                    successMessage="Urutan soal diubah"
                   >
                     <Button
                       variant="ghost"
@@ -305,6 +314,7 @@ export function QuestionSection({
                   <ActionForm
                     action={deleteQuestion}
                     inputs={{ questionId: q.id, moduleId }}
+                    successMessage="Soal dihapus"
                   >
                     <ConfirmButton label="Hapus" />
                   </ActionForm>
@@ -361,6 +371,7 @@ export function QuestionSection({
                               <ActionForm
                                 action={setCorrectOption}
                                 inputs={{ optionId: opt.id, moduleId }}
+                                successMessage="Jawaban benar diperbarui"
                               >
                                 <Button variant="ghost" type="submit">
                                   Jadikan benar
