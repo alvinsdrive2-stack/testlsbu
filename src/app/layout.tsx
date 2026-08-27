@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { NavigationProgress } from "@/components/ui/NavigationProgress";
+import { ToasterHost } from "@/components/ui/ToasterHost";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body>
         <NavigationProgress />
         {children}
+        <ToasterHost />
       </body>
     </html>
   );
