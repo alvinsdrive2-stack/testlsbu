@@ -1,6 +1,7 @@
 import { login } from "./actions";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { Button } from "@/components/ui/Button";
+import { QueryToast } from "@/components/ui/QueryToast";
 
 export default async function AdminLoginPage({
   searchParams,
@@ -11,6 +12,7 @@ export default async function AdminLoginPage({
 
   return (
     <>
+      <QueryToast error={{ error: "Password salah." }} />
       <Backdrop />
       <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-[var(--radius-card)] border border-hairline bg-surface p-10 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">

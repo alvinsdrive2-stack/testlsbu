@@ -3,6 +3,7 @@ import { loginParticipant } from "./actions";
 import { Button } from "@/components/ui/Button";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { QueryToast } from "@/components/ui/QueryToast";
 
 export default async function ParticipantLoginPage({
   searchParams,
@@ -13,6 +14,7 @@ export default async function ParticipantLoginPage({
 
   return (
     <div className="min-h-screen">
+      <QueryToast error={{ error: "Email atau nomor WA tidak ditemukan." }} />
       <Backdrop />
       <main className="flex min-h-screen items-center justify-center px-4 py-10">
         <PageTransition className="w-full max-w-sm">

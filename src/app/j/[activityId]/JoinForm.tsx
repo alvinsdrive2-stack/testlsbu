@@ -5,6 +5,7 @@ import { registerParticipant } from "./actions";
 import { TextField } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { EmailField } from "./EmailField";
+import { useActionToast } from "@/components/ui/useActionToast";
 
 type State = { error?: string };
 
@@ -28,6 +29,7 @@ export function JoinForm({ activityId }: { activityId: string }) {
     registerParticipant,
     {}
   );
+  useActionToast(state);
 
   return (
     <form action={formAction} className="space-y-7">

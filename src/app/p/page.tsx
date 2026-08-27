@@ -14,6 +14,7 @@ import { sanitizeMaterialHtml } from "@/lib/sanitize";
 import { MaterialVideo } from "./MaterialVideo";
 import { MaterialPdf } from "./MaterialPdf";
 import { YouTubeEmbed } from "./YouTubeEmbed";
+import { QueryToast } from "@/components/ui/QueryToast";
 
 export default async function ParticipantDashboardPage() {
   const token = await getParticipantToken();
@@ -211,6 +212,7 @@ export default async function ParticipantDashboardPage() {
   return (
     <div className="min-h-screen">
       <AutoRefresh boundaries={boundaries} />
+      <QueryToast success={{ joined: "Pendaftaran berhasil. Selamat datang!" }} />
       <Backdrop />
       <TopBar
         title={activity.title}

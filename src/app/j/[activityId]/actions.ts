@@ -51,7 +51,7 @@ export async function registerParticipant(
   if (existing) {
     if (existing.wa === parsed.data.wa) {
       await createParticipantSession(existing.token);
-      redirect("/p");
+      redirect("/p?joined=1");
     }
     return {
       error:
@@ -72,5 +72,5 @@ export async function registerParticipant(
   });
 
   await createParticipantSession(participant.token);
-  redirect("/p");
+  redirect("/p?joined=1");
 }
