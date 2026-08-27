@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toastError, toastSuccess, toastWarning } from "@/lib/toast";
 import {
   PDF_MAX_SIZE,
   PDF_SIZE_LABEL,
@@ -30,11 +31,14 @@ export function PdfField({ defaultValue = "" }: { defaultValue?: string }) {
 
     if (file.type !== "application/pdf") {
       setError("File harus berupa PDF (.pdf).");
+      toastWarning("File harus berupa PDF (.pdf)");
       setBusy(false);
       return;
     }
     if (file.size > PDF_MAX_SIZE) {
-      setError(`Ukuran PDF terlalu besar. Maksimal ${PDF_SIZE_LABEL}.`);
+      const msg = `Ukuran PDF terlalu besar. Maksimal ${PDF_SIZE_LABEL}.`;
+      setError(msg);
+      toastWarning(msg);
       setBusy(false);
       return;
     }
@@ -43,8 +47,10 @@ export function PdfField({ defaultValue = "" }: { defaultValue?: string }) {
     if (res.ok) {
       setUploadedUrl(res.url);
       setRemoved(false);
+      toastSuccess("PDF berhasil diunggah");
     } else {
       setError(res.error);
+      toastError(res.error);
     }
     setBusy(false);
     e.target.value = "";

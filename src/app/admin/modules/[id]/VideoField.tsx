@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toastError, toastSuccess, toastWarning } from "@/lib/toast";
 import { Button } from "@/components/ui/Button";
 import {
   VIDEO_FORMAT_LABEL,
@@ -50,21 +51,27 @@ export function VideoField({ defaultValue = "" }: { defaultValue?: string }) {
 
     if (file.type === "video/x-matroska") {
       setError(MKV_HINT);
+      toastWarning(MKV_HINT);
       setBusy(false);
       return;
     }
     if (!file.type.startsWith("video/")) {
       setError("File harus berupa video.");
+      toastWarning("File harus berupa video");
       setBusy(false);
       return;
     }
     if (file.type && !VIDEO_MIMES.has(file.type)) {
-      setError(`Format video tidak didukung. Gunakan ${VIDEO_FORMAT_LABEL}.`);
+      const msg = `Format video tidak didukung. Gunakan ${VIDEO_FORMAT_LABEL}.`;
+      setError(msg);
+      toastWarning(msg);
       setBusy(false);
       return;
     }
     if (file.size > VIDEO_MAX_SIZE) {
-      setError(`Ukuran video terlalu besar. Maksimal ${VIDEO_SIZE_LABEL}.`);
+      const msg = `Ukuran video terlalu besar. Maksimal ${VIDEO_SIZE_LABEL}.`;
+      setError(msg);
+      toastWarning(msg);
       setBusy(false);
       return;
     }
@@ -73,8 +80,10 @@ export function VideoField({ defaultValue = "" }: { defaultValue?: string }) {
     if (res.ok) {
       setUploadedUrl(res.url);
       setRemoved(false);
+      toastSuccess("Video berhasil diunggah");
     } else {
       setError(res.error);
+      toastError(res.error);
     }
     setBusy(false);
     e.target.value = "";
