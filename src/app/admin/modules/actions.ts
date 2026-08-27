@@ -150,7 +150,7 @@ export async function updateQuestion(
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);
-  return {};
+  return { ok: true };
 }
 
 export async function updateExplanation(
@@ -167,7 +167,7 @@ export async function updateExplanation(
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);
-  return {};
+  return { ok: true };
 }
 
 export async function deleteQuestion(
@@ -197,7 +197,7 @@ export async function deleteQuestion(
     }
 
     revalidatePath(`/admin/modules/${moduleId}`);
-    return {};
+    return { ok: true };
   } catch {
     return { error: "Gagal menghapus soal. Coba lagi." };
   }
@@ -240,7 +240,7 @@ export async function moveQuestion(
     }
 
     revalidatePath(`/admin/modules/${moduleId}`);
-    return {};
+    return { ok: true };
   } catch {
     return { error: "Gagal mengubah urutan soal. Coba lagi." };
   }
@@ -265,7 +265,7 @@ export async function addOption(
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);
-  return {};
+  return { ok: true };
 }
 
 export async function setCorrectOption(
@@ -294,7 +294,7 @@ export async function setCorrectOption(
     ]);
 
     revalidatePath(`/admin/modules/${moduleId}`);
-    return {};
+    return { ok: true };
   } catch {
     return { error: "Gagal mengubah jawaban benar. Coba lagi." };
   }
@@ -316,7 +316,7 @@ export async function deleteOption(
     await prisma.option.delete({ where: { id: optionId } });
 
     revalidatePath(`/admin/modules/${moduleId}`);
-    return {};
+    return { ok: true };
   } catch {
     return { error: "Gagal menghapus opsi. Coba lagi." };
   }
@@ -357,7 +357,7 @@ export async function createMaterial(
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);
-  return {};
+  return { ok: true };
 }
 
 export async function updateMaterial(
@@ -387,7 +387,7 @@ export async function updateMaterial(
   });
 
   revalidatePath(`/admin/modules/${moduleId}`);
-  return {};
+  return { ok: true };
 }
 
 export async function deleteMaterial(
@@ -400,7 +400,7 @@ export async function deleteMaterial(
   try {
     await prisma.material.delete({ where: { id: materialId } });
     revalidatePath(`/admin/modules/${moduleId}`);
-    return {};
+    return { ok: true };
   } catch {
     return { error: "Gagal menghapus materi. Coba lagi." };
   }

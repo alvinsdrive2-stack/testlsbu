@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { activityPhase } from "@/lib/activity-phase";
 
-export type PosttestFormState = { error?: string };
+export type PosttestFormState = { error?: string; ok?: boolean };
 
 export async function startPosttestRetry(
   _prev: PosttestFormState,
@@ -48,7 +48,7 @@ export async function startPosttestRetry(
     });
 
     revalidatePath(`/t/${token}`);
-    return {};
+    return { ok: true };
   } catch {
     return { error: "Gagal memulai posttest. Coba lagi." };
   }
