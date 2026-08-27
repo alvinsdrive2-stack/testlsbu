@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveAnswer, submitAttempt } from "./actions";
 import { Button } from "@/components/ui/Button";
+import { toastError } from "@/lib/toast";
 
 export type ExamQuestion = {
   id: string;
@@ -57,6 +58,7 @@ export function ExamRunner({
       setSubmitError(
         "Gagal mengirim jawaban. Cek koneksi, lalu coba kirim lagi."
       );
+      toastError("Gagal mengirim jawaban. Coba kirim lagi.");
     }
   }
 
@@ -81,6 +83,7 @@ export function ExamRunner({
       setSaveState("saved");
     } catch {
       setSaveState("error");
+      toastError("Jawaban gagal tersimpan. Cek koneksi internetmu.");
     }
   }
 
