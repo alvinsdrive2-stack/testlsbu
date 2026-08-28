@@ -142,32 +142,28 @@ export default async function ParticipantDashboardPage() {
         Kegiatan sudah ditutup. Hubungi admin untuk info lebih lanjut.
       </p>
     );
-  } else if (phase === "POSTTEST") {
-    cta = pretestDone ? (
-      <Button href={`/t/${participant.token}`}>Kerjakan Posttest</Button>
-    ) : (
-      <p className="text-[15px] leading-relaxed text-ink-secondary">
-        Kamu belum menyelesaikan pretest dan kegiatan sudah lanjut ke tahap
-        posttest. Hubungi admin.
-      </p>
+  } else if (!pretestDone && phase !== "SCHEDULED") {
+    // Pretest tetap bisa dikerjakan walau sesi pretest lewat (peserta telat daftar)
+    const hasActive = participant.attempts.some(
+      (a) => a.section === "PRETEST" && !a.submittedAt
     );
-  } else if (phase === "PRETEST") {
-    if (pretestDone) {
-      cta = (
-        <p className="text-[15px] leading-relaxed text-ink-secondary">
-          Pretest kamu selesai. Materi dibuka setelah sesi pretest berakhir.
-        </p>
-      );
-    } else {
-      const hasActive = participant.attempts.some(
-        (a) => a.section === "PRETEST" && !a.submittedAt
-      );
-      cta = (
+    cta = (
+      <div className="space-y-2">
         <Button href={`/j/${activity.id}/pretest`}>
           {hasActive ? "Lanjut Pretest" : "Mulai Pretest"}
         </Button>
-      );
-    }
+        {phase !== "PRETEST" ? (
+          <p className="text-[13px] text-ink-secondary">
+            Sesi pretest sudah terlewat — kamu tetap bisa mengerjakannya, lalu
+            lanjut ke sesi berikutnya sesuai jadwal.
+          </p>
+        ) : null}
+      </div>
+    );
+  } else if (phase === "POSTTEST") {
+    cta = (
+      <Button href={`/t/${participant.token}`}>Kerjakan Posttest</Button>
+    );
   } else if (pretestDone) {
     cta = (
       <p className="text-[15px] leading-relaxed text-ink-secondary">

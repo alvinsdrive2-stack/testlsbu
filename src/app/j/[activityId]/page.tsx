@@ -33,13 +33,13 @@ export default async function JoinPage({
 
   const phase = activityPhase(activity, new Date());
 
-  if (phase !== "REGISTRATION") {
+  // Pendaftaran tetap dibuka selama kegiatan berjalan (pretest/materi/posttest)
+  // — peserta telat nyusul sesi yang sedang berjalan sesuai jadwal.
+  if (phase === "SCHEDULED" || phase === "CLOSED") {
     const heading =
       phase === "SCHEDULED"
         ? "Pendaftaran belum dibuka"
-        : phase === "CLOSED"
-          ? "Kegiatan sudah ditutup"
-          : "Pendaftaran sudah ditutup";
+        : "Kegiatan sudah ditutup";
     return (
       <div className="min-h-screen">
         <TopBar title={activity.title} />
@@ -89,6 +89,12 @@ export default async function JoinPage({
                 Modul {activity.module.title}. Silakan lengkapi data diri pada
                 formulir di samping untuk memulai pretest.
               </p>
+              {phase !== "REGISTRATION" ? (
+                <p className="mt-3 rounded-md border border-accent/30 bg-accent-soft px-3 py-2 text-sm font-medium text-accent">
+                  Kegiatan sudah berjalan. Pendaftaran tetap dibuka — kamu akan
+                  mengikuti sesi yang sedang berlangsung sesuai jadwal.
+                </p>
+              ) : null}
               <div className="mt-8 space-y-3 border-t border-hairline pt-6 text-[15px] text-ink-secondary">
                 <p>1. Daftar dan kerjakan pretest</p>
                 <p>2. Pelajari materi pelatihan</p>

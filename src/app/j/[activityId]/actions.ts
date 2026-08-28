@@ -42,8 +42,17 @@ export async function registerParticipant(
   }
 
   const activity = await prisma.activity.findUnique({ where: { id: activityId } });
-  if (!activity || activityPhase(activity, new Date()) !== "REGISTRATION") {
+  if (!activity) {
     return { error: "Kegiatan tidak tersedia. Hubungi admin." };
+  }
+  const phase = activityPhase(activity, new Date());
+  if (phase === "SCHEDULED" || phase === "CLOSED") {
+    return {
+      error:
+        phase === "CLOSED"
+          ? "Kegiatan sudah ditutup."
+          : "Pendaftaran belum dibuka.",
+    };
   }
 
   const email = parsed.data.email.trim().toLowerCase();

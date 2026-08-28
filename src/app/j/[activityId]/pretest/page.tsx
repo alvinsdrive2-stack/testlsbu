@@ -138,6 +138,7 @@ export default async function PretestPage({
     select: {
       id: true,
       activityId: true,
+      stage: true,
       activity: {
         select: {
           title: true,
@@ -173,7 +174,11 @@ export default async function PretestPage({
       />
     );
   }
-  if (phase !== "PRETEST") {
+  // Peserta yang daftar telat tetap bisa nyusul pretest sampai kegiatan tutup
+  const canPretest =
+    phase === "PRETEST" ||
+    (participant.stage === "REGISTERED" && phase !== "SCHEDULED");
+  if (!canPretest) {
     return (
       <ExamResult
         title={
