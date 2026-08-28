@@ -8,7 +8,7 @@ import {
   type StageCounts,
 } from "@/components/admin/ProgressFunnel";
 import { GrowthSection } from "@/components/admin/GrowthChart";
-import { buildGrowth, growthSince } from "@/lib/growth";
+import { buildGrowth, growthSince, toCountRows } from "@/lib/growth";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 
 const PHASE_CHIP: Record<string, string> = {
@@ -27,9 +27,8 @@ export default async function AdminDashboardPage() {
     activityCount,
     participantCount,
     allActivities,
-    stageRows,
-    growthActivities,
-    growthParticipants,
+    activityCountRows,
+    participantCountRows,
   ] = await Promise.all([
     prisma.module.count(),
     prisma.activity.count(),
@@ -42,19 +41,19 @@ export default async function AdminDashboardPage() {
         _count: { select: { participants: true } },
       },
     }),
-    prisma.participant.groupBy({
-      by: ["activityId", "stage"],
-      _count: { _all: true },
-    }),
-    prisma.activity.findMany({
-      where: { createdAt: { gte: since } },
-      select: { createdAt: true },
-    }),
-    prisma.participant.findMany({
-      where: { createdAt: { gte: since } },
-      select: { createdAt: true },
-    }),
+    prisma.$queryRaw<{ day: string; c: number | bigint }[]>`
+      SELECT DATE_FORMAT(DATE_ADD(createdAt, INTERVAL 7 HOUR), '%Y-%m-%d') AS day, COUNT(*) AS c
+      FROM activity WHERE createdAt >= ${since} GROUP BY day`,
+    prisma.$queryRaw<{ day: string; c: number | bigint }[]>`
+      SELECT DATE_FORMAT(DATE_ADD(createdAt, INTERVAL 7 HOUR), '%Y-%m-%d') AS day, COUNT(*) AS c
+      FROM participant WHERE createdAt >= ${since} GROUP BY day`,
   ]);
+
+  const stageRows = await prisma.participant.groupBy({
+    by: ["activityId", "stage"],
+    _count: { _all: true },
+    where: { activityId: { in: allActivities.map((a) => a.id) } },
+  });
 
   const now = new Date();
   const upcoming = allActivities.filter(
@@ -85,7 +84,7 @@ export default async function AdminDashboardPage() {
       label: "Peserta",
       value: participantCount,
       caption: "Total Terdaftar",
-      href: "/admin/activities",
+      href: "/admin/participants",
     },
   ];
 
@@ -117,7 +116,11 @@ export default async function AdminDashboardPage() {
 
       <GrowthSection
         initialData={{
-          ...buildGrowth("week", growthActivities, growthParticipants),
+          ...buildGrowth(
+            "week",
+            toCountRows(activityCountRows),
+            toCountRows(participantCountRows)
+          ),
           compare: false,
         }}
       />

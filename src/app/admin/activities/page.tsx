@@ -73,37 +73,43 @@ function ActivityRow({
   );
 }
 
+const PAGE_SIZE = 25;
+
 export default async function ActivitiesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
+  const page = Math.max(1, Number(sp.page) || 1);
+  const where = q
+    ? {
+        OR: [{ title: { contains: q } }, { module: { title: { contains: q } } }],
+      }
+    : {};
 
-  const [moduleCount, activities, stageRows, modules] = await Promise.all([
+  const [moduleCount, total, activities, modules] = await Promise.all([
     prisma.module.count(),
+    prisma.activity.count({ where }),
     prisma.activity.findMany({
-      where: q
-        ? {
-            OR: [
-              { title: { contains: q } },
-              { module: { title: { contains: q } } },
-            ],
-          }
-        : {},
+      where,
       orderBy: { createdAt: "desc" },
       include: activityInclude,
-    }),
-    prisma.participant.groupBy({
-      by: ["activityId", "stage"],
-      _count: { _all: true },
+      take: PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
     }),
     prisma.module.findMany({
       orderBy: { createdAt: "desc" },
       select: { id: true, title: true },
     }),
   ]);
+
+  const stageRows = await prisma.participant.groupBy({
+    by: ["activityId", "stage"],
+    _count: { _all: true },
+    where: { activityId: { in: activities.map((a) => a.id) } },
+  });
 
   const stageByActivity = new Map<string, StageCounts>();
   for (const r of stageRows) {
@@ -118,6 +124,25 @@ export default async function ActivitiesPage({
     phase: activityPhase(a, now),
     counts: stageByActivity.get(a.id) ?? emptyCounts(),
   }));
+
+  // Ringkasan global (bukan cuma halaman ini) — kolom tanggal saja, murah
+  const phaseRows = await prisma.activity.findMany({
+    where,
+    select: {
+      id: true,
+      registrationStart: true,
+      pretestStart: true,
+      materialStart: true,
+      posttestStart: true,
+      closedAt: true,
+    },
+  });
+  const upcomingCount = phaseRows.filter(
+    (a) => activityPhase(a, now) !== "CLOSED"
+  ).length;
+  const finishedCount = phaseRows.length - upcomingCount;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   const upcoming = withMeta.filter((a) => a.phase !== "CLOSED");
   const finished = withMeta.filter((a) => a.phase === "CLOSED");
 
@@ -129,7 +154,7 @@ export default async function ActivitiesPage({
       <QueryToast success={{ deleted: "Kegiatan berhasil dihapus" }} />
       <section className="flex flex-wrap items-center justify-between gap-3">
         <p className="label-eyebrow text-ink-secondary">
-          {upcoming.length} mendatang · {finished.length} selesai
+          {upcomingCount} mendatang · {finishedCount} selesai
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <form method="get">
@@ -208,6 +233,43 @@ export default async function ActivitiesPage({
               </div>
             )}
           </section>
+
+          {totalPages > 1 ? (
+            <nav
+              aria-label="Navigasi halaman"
+              className="flex items-center justify-between"
+            >
+              {page > 1 ? (
+                <Button
+                  href={`/admin/activities?${new URLSearchParams({
+                    ...(q ? { q } : {}),
+                    page: String(page - 1),
+                  })}`}
+                  variant="secondary"
+                >
+                  ← Sebelumnya
+                </Button>
+              ) : (
+                <span />
+              )}
+              <span className="text-sm text-ink-secondary tabular-nums">
+                Halaman {page} dari {totalPages}
+              </span>
+              {page < totalPages ? (
+                <Button
+                  href={`/admin/activities?${new URLSearchParams({
+                    ...(q ? { q } : {}),
+                    page: String(page + 1),
+                  })}`}
+                  variant="secondary"
+                >
+                  Selanjutnya →
+                </Button>
+              ) : (
+                <span />
+              )}
+            </nav>
+          ) : null}
         </>
       )}
 

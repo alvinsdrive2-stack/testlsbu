@@ -25,23 +25,31 @@ export async function generateCertificate(
   const year = new Date().getFullYear();
 
   try {
-    const lastCert = await prisma.participant.findFirst({
+    // Counter per tahun di CertificateConfig — increment atomik, aman dari
+    // dua admin yang menerbitkan sertifikat bersamaan.
+    const counterId = `cert-seq-${year}`;
+    const issuedThisYear = await prisma.participant.count({
       where: {
-        AND: [
-          { certificateNumber: { contains: "GAPENSI/" } },
-          { certificateNumber: { endsWith: `/${year}` } },
-        ],
+        certificateNumber: { not: null },
+        certificateIssuedAt: {
+          gte: new Date(`${year}-01-01T00:00:00`),
+          lt: new Date(`${year + 1}-01-01T00:00:00`),
+        },
       },
-      orderBy: { certificateIssuedAt: "desc" },
     });
 
-    let nextSequence = 1;
-    if (lastCert?.certificateNumber) {
-      const match = lastCert.certificateNumber.match(/(\d+)\/PUB\/GAPENSI\//);
-      if (match) {
-        nextSequence = parseInt(match[1]) + 1;
-      }
-    }
+    const nextSequence = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`
+        INSERT INTO certificate_config (id, fields, updatedAt)
+        VALUES (${counterId}, JSON_OBJECT('seq', ${issuedThisYear + 1}), NOW())
+        ON DUPLICATE KEY UPDATE
+          fields = JSON_SET(fields, '$.seq', JSON_EXTRACT(fields, '$.seq') + 1),
+          updatedAt = NOW()`;
+      const rows = await tx.$queryRaw<{ seq: number | bigint }[]>`
+        SELECT JSON_EXTRACT(fields, '$.seq') AS seq
+        FROM certificate_config WHERE id = ${counterId}`;
+      return Number(rows[0].seq);
+    });
 
     await prisma.participant.update({
       where: { id: participantId },

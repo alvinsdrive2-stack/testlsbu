@@ -24,10 +24,11 @@ export default async function ModulesPage({
     }),
   ]);
 
+  const countMap = new Map(
+    questionCounts.map((c) => [`${c.moduleId}:${c.section}`, c._count._all])
+  );
   const countFor = (moduleId: string, section: string) =>
-    questionCounts.find(
-      (c) => c.moduleId === moduleId && c.section === section
-    )?._count._all ?? 0;
+    countMap.get(`${moduleId}:${section}`) ?? 0;
 
   return (
     <AdminShell title="Modul" eyebrow="Pustaka soal & materi">

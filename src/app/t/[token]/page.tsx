@@ -5,6 +5,7 @@ import { getExamQuestions } from "@/lib/exam-questions";
 import { finalizeAttempt } from "@/app/exam/actions";
 import { ExamResult } from "@/app/exam/ExamResult";
 import { Button } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { ActionForm } from "@/components/ui/ActionForm";
 import { StartGate } from "@/components/ui/StartGate";
 import { TopBar } from "@/components/ui/TopBar";
@@ -52,7 +53,7 @@ function PosttestFailed({
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-2">
               <ActionForm action={startPosttestRetry} inputs={{ token }}>
-                <Button type="submit">Coba Lagi</Button>
+                <SubmitButton pendingLabel="Menyiapkan…">Coba Lagi</SubmitButton>
               </ActionForm>
               <Button variant="secondary" href="/p">
                 Ke Dashboard
@@ -126,28 +127,43 @@ export default async function PosttestPage({
 
   const participant = await prisma.participant.findUnique({
     where: { token },
-    include: { activity: { include: { module: true } } },
+    select: {
+      id: true,
+      activity: {
+        select: {
+          title: true,
+          registrationStart: true,
+          pretestStart: true,
+          materialStart: true,
+          posttestStart: true,
+          closedAt: true,
+          moduleId: true,
+          module: {
+            select: {
+              showAnswerReview: true,
+              posttestPassingGrade: true,
+              posttestDurationMin: true,
+              shuffleQuestions: true,
+              shuffleOptions: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!participant) {
     return (
       <ExamResult
         title="Link tidak valid"
-        body="Hubungi admin untuk mendapatkan link posttest yang benar."
+        body="Hubungi admin untuk mendapatkan link posttest yang benar. Kalau kamu peserta kegiatan ini, cek dashboard peserta kamu."
+        href="/login"
+        hrefLabel="Masuk Dashboard"
       />
     );
   }
 
   const activity = participant.activity;
-
-  const failedPosttest = await prisma.attempt.count({
-    where: {
-      participantId: participant.id,
-      section: "POSTTEST",
-      submittedAt: { not: null },
-      passed: false,
-    },
-  });
 
   const phase = activityPhase(activity, new Date());
   if (phase === "CLOSED") {
@@ -167,9 +183,21 @@ export default async function PosttestPage({
     );
   }
 
-  const passedAttempt = await prisma.attempt.findFirst({
-    where: { participantId: participant.id, section: "POSTTEST", passed: true },
-  });
+  const [passedAttempt, questions, activeAttempt] = await Promise.all([
+    prisma.attempt.findFirst({
+      where: { participantId: participant.id, section: "POSTTEST", passed: true },
+    }),
+    getExamQuestions(activity.moduleId),
+    prisma.attempt.findFirst({
+      where: {
+        participantId: participant.id,
+        section: "POSTTEST",
+        submittedAt: null,
+      },
+      include: { answers: true },
+    }),
+  ]);
+
   if (passedAttempt) {
     return (
       <PosttestPassed
@@ -180,8 +208,6 @@ export default async function PosttestPage({
     );
   }
 
-  const questions = await getExamQuestions(activity.moduleId);
-
   if (questions.length === 0) {
     return (
       <ExamResult
@@ -191,24 +217,25 @@ export default async function PosttestPage({
     );
   }
 
-  const activeAttempt = await prisma.attempt.findFirst({
-    where: {
-      participantId: participant.id,
-      section: "POSTTEST",
-      submittedAt: null,
-    },
-    include: { answers: true },
-  });
-
   if (!activeAttempt) {
-    const lastSubmitted = await prisma.attempt.findFirst({
-      where: {
-        participantId: participant.id,
-        section: "POSTTEST",
-        submittedAt: { not: null },
-      },
-      orderBy: { submittedAt: "desc" },
-    });
+    const [failedPosttest, lastSubmitted] = await Promise.all([
+      prisma.attempt.count({
+        where: {
+          participantId: participant.id,
+          section: "POSTTEST",
+          submittedAt: { not: null },
+          passed: false,
+        },
+      }),
+      prisma.attempt.findFirst({
+        where: {
+          participantId: participant.id,
+          section: "POSTTEST",
+          submittedAt: { not: null },
+        },
+        orderBy: { submittedAt: "desc" },
+      }),
+    ]);
     if (lastSubmitted && lastSubmitted.score !== null) {
       return (
         <PosttestFailed
@@ -245,21 +272,31 @@ export default async function PosttestPage({
   const cutoff = sessionEnd
     ? Math.min(deadline.getTime(), sessionEnd.getTime())
     : deadline.getTime();
+  let refreshed = activeAttempt;
   if (Date.now() > cutoff) {
-    await finalizeAttempt(activeAttempt.id);
+    const finalized = await finalizeAttempt(activeAttempt.id);
+    if (finalized) {
+      refreshed = await prisma.attempt.findUniqueOrThrow({
+        where: { id: activeAttempt.id },
+        include: { answers: true },
+      });
+    }
   }
 
-  const refreshed = await prisma.attempt.findUniqueOrThrow({
-    where: { id: activeAttempt.id },
-    include: { answers: true },
-  });
-
   if (refreshed.submittedAt && refreshed.score !== null) {
+    const attemptNo = await prisma.attempt.count({
+      where: {
+        participantId: participant.id,
+        section: "POSTTEST",
+        submittedAt: { not: null },
+        passed: false,
+      },
+    });
     return (
       <PosttestFailed
         score={refreshed.score}
         passingGrade={activity.module.posttestPassingGrade}
-        attempt={failedPosttest}
+        attempt={attemptNo}
         token={token}
         attemptId={refreshed.id}
       />

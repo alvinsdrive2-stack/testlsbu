@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { computeScore } from "@/lib/exam";
-import { getExamQuestions } from "@/lib/exam-questions";
 
 export async function saveAnswer(attemptId: string, questionId: string, optionId: string) {
   const attempt = await prisma.attempt.findUnique({ where: { id: attemptId } });
@@ -27,55 +27,82 @@ export async function submitAttempt(attemptId: string) {
   revalidatePath("/p");
 }
 
-export async function finalizeAttempt(attemptId: string) {
+export async function finalizeAttempt(attemptId: string): Promise<boolean> {
   const attempt = await prisma.attempt.findUnique({
     where: { id: attemptId },
-    include: {
-      participant: { include: { activity: { include: { module: true } } } },
-      answers: true,
+    select: {
+      section: true,
+      participantId: true,
+      submittedAt: true,
+      participant: {
+        select: {
+          stage: true,
+          activity: {
+            select: {
+              moduleId: true,
+              module: {
+                select: { pretestPassingGrade: true, posttestPassingGrade: true },
+              },
+            },
+          },
+        },
+      },
+      answers: { select: { questionId: true, optionId: true } },
     },
   });
-  if (!attempt || attempt.submittedAt) return;
+  if (!attempt || attempt.submittedAt) return false;
 
-  const questions = await getExamQuestions(
-    attempt.participant.activity.moduleId
-  );
+  // Bank soal selalu section PRETEST (lihat getExamQuestions)
+  const moduleId = attempt.participant.activity.moduleId;
+  const options = await prisma.option.findMany({
+    where: { question: { moduleId, section: "PRETEST" }, isCorrect: true },
+    select: { questionId: true, id: true },
+  });
 
   const correctByQuestion = new Map(
-    questions.map((q) => [q.id, q.options.find((o) => o.isCorrect)?.id ?? null])
+    options.map((o) => [o.questionId, o.id] as const)
   );
-
+  const totalQuestions = options.length;
   let correct = 0;
-  for (const [questionId, correctOptionId] of correctByQuestion) {
-    const answer = attempt.answers.find((a) => a.questionId === questionId);
-    if (answer && answer.optionId && answer.optionId === correctOptionId) {
+  for (const answer of attempt.answers) {
+    if (answer.optionId && correctByQuestion.get(answer.questionId) === answer.optionId) {
       correct++;
     }
   }
 
-  const score = computeScore(questions.length, correct);
+  const score = computeScore(totalQuestions, correct);
   const passingGrade =
     attempt.section === "PRETEST"
       ? attempt.participant.activity.module.pretestPassingGrade
       : attempt.participant.activity.module.posttestPassingGrade;
   const passed = score >= passingGrade;
 
-  await prisma.attempt.update({
-    where: { id: attemptId },
-    data: { score, passed, submittedAt: new Date() },
-  });
-
-  if (attempt.section === "PRETEST" && attempt.participant.stage === "REGISTERED") {
-    await prisma.participant.update({
-      where: { id: attempt.participantId },
-      data: { stage: "PRETEST_DONE" },
-    });
+  const updates: Prisma.PrismaPromise<unknown>[] = [
+    prisma.attempt.update({
+      where: { id: attemptId },
+      data: { score, passed, submittedAt: new Date() },
+    }),
+  ];
+  if (
+    attempt.section === "PRETEST" &&
+    attempt.participant.stage === "REGISTERED"
+  ) {
+    updates.push(
+      prisma.participant.update({
+        where: { id: attempt.participantId },
+        data: { stage: "PRETEST_DONE" },
+      })
+    );
   }
-
   if (attempt.section === "POSTTEST" && passed) {
-    await prisma.participant.update({
-      where: { id: attempt.participantId },
-      data: { stage: "POSTTEST_PASSED" },
-    });
+    updates.push(
+      prisma.participant.update({
+        where: { id: attempt.participantId },
+        data: { stage: "POSTTEST_PASSED" },
+      })
+    );
   }
+
+  await prisma.$transaction(updates);
+  return true;
 }

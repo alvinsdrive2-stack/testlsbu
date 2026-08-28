@@ -183,18 +183,17 @@ export async function deleteQuestion(
     });
     if (!question) return { error: "Soal tidak ditemukan." };
 
-    await prisma.question.delete({ where: { id: questionId } });
-
-    const remaining = await prisma.question.findMany({
-      where: { moduleId, section: question.section },
-      orderBy: { order: "asc" },
-    });
-
-    let order = 1;
-    for (const q of remaining) {
-      await prisma.question.update({ where: { id: q.id }, data: { order } });
-      order++;
-    }
+    await prisma.$transaction([
+      prisma.question.delete({ where: { id: questionId } }),
+      prisma.question.updateMany({
+        where: {
+          moduleId,
+          section: question.section,
+          order: { gt: question.order },
+        },
+        data: { order: { decrement: 1 } },
+      }),
+    ]);
 
     revalidatePath(`/admin/modules/${moduleId}`);
     return { ok: true };
@@ -217,27 +216,26 @@ export async function moveQuestion(
     });
     if (!question) return { error: "Soal tidak ditemukan." };
 
-    const siblings = await prisma.question.findMany({
-      where: { moduleId, section: question.section },
-      orderBy: { order: "asc" },
+    const neighbor = await prisma.question.findFirst({
+      where: {
+        moduleId,
+        section: question.section,
+        order: direction === "up" ? { lt: question.order } : { gt: question.order },
+      },
+      orderBy: { order: direction === "up" ? "desc" : "asc" },
     });
+    if (!neighbor) return {};
 
-    const index = siblings.findIndex((q) => q.id === questionId);
-    const swapWith = direction === "up" ? index - 1 : index + 1;
-
-    if (swapWith < 0 || swapWith >= siblings.length) return {};
-
-    const reordered = [...siblings];
-    [reordered[index], reordered[swapWith]] = [
-      reordered[swapWith],
-      reordered[index],
-    ];
-
-    let order = 1;
-    for (const q of reordered) {
-      await prisma.question.update({ where: { id: q.id }, data: { order } });
-      order++;
-    }
+    await prisma.$transaction([
+      prisma.question.update({
+        where: { id: question.id },
+        data: { order: neighbor.order },
+      }),
+      prisma.question.update({
+        where: { id: neighbor.id },
+        data: { order: question.order },
+      }),
+    ]);
 
     revalidatePath(`/admin/modules/${moduleId}`);
     return { ok: true };
@@ -319,6 +317,22 @@ export async function deleteOption(
     return { ok: true };
   } catch {
     return { error: "Gagal menghapus opsi. Coba lagi." };
+  }
+}
+
+// Konten MediumText diambil on-demand saat editor materi dibuka (M8)
+export async function getMaterialContent(
+  materialId: string
+): Promise<{ content: string } | { error: string }> {
+  try {
+    const material = await prisma.material.findUnique({
+      where: { id: materialId },
+      select: { content: true },
+    });
+    if (!material) return { error: "Materi tidak ditemukan." };
+    return { content: material.content };
+  } catch {
+    return { error: "Gagal memuat konten materi." };
   }
 }
 

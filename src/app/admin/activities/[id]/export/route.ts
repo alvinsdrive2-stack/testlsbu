@@ -19,6 +19,13 @@ export async function GET(
   const participants = await prisma.participant.findMany({
     where: { activityId: id },
     orderBy: { nama: "asc" },
+    select: {
+      nama: true,
+      badanUsaha: true,
+      npwp: true,
+      wa: true,
+      email: true,
+    },
   });
 
   const ExcelJS = await import("exceljs");

@@ -11,8 +11,12 @@ export async function GET(
 
   const participant = await prisma.participant.findUnique({
     where: { token },
-    include: {
-      activity: { include: { module: true } },
+    select: {
+      certificateNumber: true,
+      nama: true,
+      badanUsaha: true,
+      npwp: true,
+      activity: { select: { module: { select: { title: true } } } },
     },
   });
 

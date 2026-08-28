@@ -25,33 +25,6 @@ ALTER TABLE `participant` DROP FOREIGN KEY `Participant_activityId_fkey`;
 -- DropForeignKey
 ALTER TABLE `question` DROP FOREIGN KEY `Question_moduleId_fkey`;
 
--- AddForeignKey
-ALTER TABLE `question` ADD CONSTRAINT `question_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `option` ADD CONSTRAINT `option_questionId_fkey` FOREIGN KEY (`questionId`) REFERENCES `question`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `material` ADD CONSTRAINT `material_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `activity` ADD CONSTRAINT `activity_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `participant` ADD CONSTRAINT `participant_activityId_fkey` FOREIGN KEY (`activityId`) REFERENCES `activity`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `attempt` ADD CONSTRAINT `attempt_participantId_fkey` FOREIGN KEY (`participantId`) REFERENCES `participant`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `answer` ADD CONSTRAINT `answer_attemptId_fkey` FOREIGN KEY (`attemptId`) REFERENCES `attempt`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `answer` ADD CONSTRAINT `answer_questionId_fkey` FOREIGN KEY (`questionId`) REFERENCES `question`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `answer` ADD CONSTRAINT `answer_optionId_fkey` FOREIGN KEY (`optionId`) REFERENCES `option`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
 -- RedefineIndex
 DROP INDEX `Activity_moduleId_idx` ON `activity`;
 CREATE INDEX `activity_moduleId_idx` ON `activity`(`moduleId`);
@@ -83,3 +56,30 @@ CREATE UNIQUE INDEX `participant_token_key` ON `participant`(`token`);
 -- RedefineIndex
 DROP INDEX `Question_moduleId_section_idx` ON `question`;
 CREATE INDEX `question_moduleId_section_idx` ON `question`(`moduleId`, `section`);
+
+-- AddForeignKey
+ALTER TABLE `question` ADD CONSTRAINT `question_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `option` ADD CONSTRAINT `option_questionId_fkey` FOREIGN KEY (`questionId`) REFERENCES `question`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `material` ADD CONSTRAINT `material_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `activity` ADD CONSTRAINT `activity_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `participant` ADD CONSTRAINT `participant_activityId_fkey` FOREIGN KEY (`activityId`) REFERENCES `activity`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `attempt` ADD CONSTRAINT `attempt_participantId_fkey` FOREIGN KEY (`participantId`) REFERENCES `participant`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `answer` ADD CONSTRAINT `answer_attemptId_fkey` FOREIGN KEY (`attemptId`) REFERENCES `attempt`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `answer` ADD CONSTRAINT `answer_questionId_fkey` FOREIGN KEY (`questionId`) REFERENCES `question`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `answer` ADD CONSTRAINT `answer_optionId_fkey` FOREIGN KEY (`optionId`) REFERENCES `option`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

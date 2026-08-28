@@ -114,6 +114,8 @@ model Participant {
   createdAt           DateTime         @default(now())
 
   @@index([activityId])
+  @@index([email])
+  @@index([wa])
   @@map("participant")
 }
 

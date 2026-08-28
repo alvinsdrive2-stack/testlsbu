@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 import { getParticipantToken } from "@/lib/session";
 import { AutoRefresh } from "./AutoRefresh";
-import { ProfileMenu } from "./ProfileMenu";
+import { ProfileMenu } from "@/components/ui/ProfileMenu";
+import { logout } from "./actions";
 import { Button } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
 import { Backdrop } from "@/components/ui/Backdrop";
@@ -47,16 +48,6 @@ export default async function ParticipantDashboardPage() {
             select: {
               id: true,
               title: true,
-              materials: {
-                select: {
-                  id: true,
-                  order: true,
-                  title: true,
-                  content: true,
-                  videoUrl: true,
-                  pdfUrl: true,
-                },
-              },
             },
           },
         },
@@ -102,6 +93,14 @@ export default async function ParticipantDashboardPage() {
   const materiOpen = phase === "MATERIAL";
   const materiDone = pretestDone && (phase === "MATERIAL" || phase === "POSTTEST");
 
+  // Konten MediumText hanya diambil saat materi benar-benar ditampilkan
+  const materials = materiOpen && !participant.certificateNumber
+    ? await prisma.material.findMany({
+        where: { moduleId: activity.module.id },
+        orderBy: { order: "asc" },
+      })
+    : [];
+
   const stages = [
     { label: "Daftar", done: true },
     { label: "Pretest", done: pretestDone },
@@ -110,7 +109,7 @@ export default async function ParticipantDashboardPage() {
   ];
   const doneCount = stages.filter((s) => s.done).length;
   const progress = doneCount * 25;
-  const stageLabel = `${stages[doneCount - 1].label} · ${doneCount} dari 4`;
+  const stageLabel = `${stages[Math.max(0, doneCount - 1)].label} · ${doneCount} dari 4`;
 
   const fmt = (d: Date | null) =>
     d
@@ -184,19 +183,31 @@ export default async function ParticipantDashboardPage() {
     );
   }
 
-  const menu = [
+  const menu: {
+    label: string;
+    href: string | null;
+    active?: boolean;
+    disabledReason?: string;
+  }[] = [
     { label: "Dashboard", href: "/p", active: true },
-    { label: "Nilai Pretest", href: "#nilai", active: false },
-    { label: "Materi", href: "#materi", active: false },
+    { label: "Nilai Pretest", href: "#nilai" },
+    { label: "Materi", href: "#materi" },
     {
       label: "Posttest",
       href:
         phase === "POSTTEST" && pretestDone
           ? `/t/${participant.token}`
-          : "#",
-      active: false,
+          : null,
+      disabledReason: "Dibuka saat sesi posttest dimulai",
     },
   ];
+
+  const menuItemClass = (active?: boolean) =>
+    `rounded-md text-center text-[15px] font-medium transition-colors ${
+      active
+        ? "bg-accent-soft text-accent"
+        : "text-ink-secondary hover:bg-canvas hover:text-ink"
+    }`;
 
   const boundaries = [
     activity.registrationStart,
@@ -216,28 +227,68 @@ export default async function ParticipantDashboardPage() {
       <Backdrop />
       <TopBar
         title={activity.title}
-        right={<ProfileMenu nama={participant.nama} />}
+        right={
+          <ProfileMenu
+            name={participant.nama}
+            roleLabel="Peserta"
+            logoutAction={logout}
+          />
+        }
       />
 
       <main>
         <PageTransition className="mx-auto grid max-w-[1843px] grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_minmax(0,1fr)]">
         {/* Kolom kiri: menu + progress + nilai/posttest/profil */}
         <aside className="order-2 space-y-4 md:order-1 md:sticky md:top-20 md:self-start">
-          <nav className="hidden rounded-[var(--radius-card)] border border-hairline bg-surface p-2 shadow-[0_1px_3px_rgba(15,20,25,0.06)] md:block">
-              {menu.map((m) => (
+          <nav
+            aria-label="Menu peserta"
+            className="flex gap-2 overflow-x-auto rounded-[var(--radius-card)] border border-hairline bg-surface p-2 md:hidden"
+          >
+            {menu.map((m) =>
+              m.href ? (
                 <a
                   key={m.label}
                   href={m.href}
                   aria-current={m.active ? "page" : undefined}
-                  className={`block rounded-md px-3 py-2.5 text-center text-[15px] font-medium transition-colors ${
-                    m.active
-                      ? "bg-accent-soft text-accent"
-                      : "text-ink-secondary hover:bg-canvas hover:text-ink"
-                  }`}
+                  className={`${menuItemClass(m.active)} shrink-0 px-4 py-2.5`}
                 >
                   {m.label}
                 </a>
-              ))}
+              ) : (
+                <span
+                  key={m.label}
+                  aria-disabled="true"
+                  title={m.disabledReason}
+                  className={`${menuItemClass(false)} shrink-0 cursor-not-allowed px-4 py-2.5 opacity-50`}
+                >
+                  {m.label}
+                </span>
+              )
+            )}
+          </nav>
+
+          <nav className="hidden rounded-[var(--radius-card)] border border-hairline bg-surface p-2 md:block">
+              {menu.map((m) =>
+                m.href ? (
+                  <a
+                    key={m.label}
+                    href={m.href}
+                    aria-current={m.active ? "page" : undefined}
+                    className={`${menuItemClass(m.active)} block px-3 py-2.5`}
+                  >
+                    {m.label}
+                  </a>
+                ) : (
+                  <span
+                    key={m.label}
+                    aria-disabled="true"
+                    title={m.disabledReason}
+                    className={`${menuItemClass(false)} block cursor-not-allowed px-3 py-2.5 opacity-50`}
+                  >
+                    {m.label}
+                  </span>
+                )
+              )}
             </nav>
 
             <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-4 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
@@ -494,14 +545,13 @@ export default async function ParticipantDashboardPage() {
                     )}
                   </div>
                 </div>
-              ) : activity.module.materials.length === 0 ? (
+              ) : materials.length === 0 ? (
                 <p className="mt-4 text-[15px] text-ink-secondary">
                   Belum ada materi dari admin.
                 </p>
               ) : (
                 <div className="mt-4 divide-y divide-hairline">
-                {activity.module.materials
-                  .sort((a, b) => a.order - b.order)
+                {materials
                   .map((m, i) => {
                     const embed = m.videoUrl ? videoEmbedUrl(m.videoUrl) : null;
                     const ytId = m.videoUrl ? youtubeVideoId(m.videoUrl) : null;

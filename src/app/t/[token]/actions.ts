@@ -15,7 +15,22 @@ export async function startPosttestRetry(
   try {
     const participant = await prisma.participant.findUnique({
       where: { token },
-      include: { activity: true, attempts: true },
+      select: {
+        id: true,
+        activity: {
+          select: {
+            registrationStart: true,
+            pretestStart: true,
+            materialStart: true,
+            posttestStart: true,
+            closedAt: true,
+          },
+        },
+        attempts: {
+          where: { section: "POSTTEST" },
+          select: { passed: true, submittedAt: true },
+        },
+      },
     });
     if (
       !participant ||
@@ -24,12 +39,8 @@ export async function startPosttestRetry(
       return { error: "Sesi posttest belum berlangsung atau sudah ditutup." };
     }
 
-    const hasPassed = participant.attempts.some(
-      (a) => a.section === "POSTTEST" && a.passed
-    );
-    const hasActive = participant.attempts.some(
-      (a) => a.section === "POSTTEST" && !a.submittedAt
-    );
+    const hasPassed = participant.attempts.some((a) => a.passed);
+    const hasActive = participant.attempts.some((a) => !a.submittedAt);
     if (hasPassed) {
       return { error: "Kamu sudah lulus posttest." };
     }

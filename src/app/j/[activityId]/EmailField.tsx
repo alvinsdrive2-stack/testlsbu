@@ -69,8 +69,11 @@ export function EmailField() {
       {status === "taken" ? (
         <p role="alert" className="mt-1.5 text-[13px] font-medium text-flag">
           Email ini sudah terdaftar. Silakan gunakan nomor WA yang sama dengan
-          pendaftaran sebelumnya untuk masuk langsung, atau login melalui
-          halaman login.
+          pendaftaran sebelumnya untuk masuk langsung, atau{" "}
+          <a href="/login" className="underline hover:opacity-80">
+            login di sini
+          </a>
+          .
         </p>
       ) : null}
       {status === "ok" ? (

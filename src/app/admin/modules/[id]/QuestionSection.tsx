@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import type { Question, Option } from "@prisma/client";
 import {
   createQuestion,
@@ -14,6 +13,7 @@ import {
   updateExplanation,
 } from "../actions";
 import { Card } from "@/components/ui/Card";
+import { AddFab, Modal } from "@/components/ui/Modal";
 import { TextArea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { SubmitButton } from "@/components/ui/SubmitButton";
@@ -181,54 +181,23 @@ function CreateQuestionModal({
     }
   }, [state, onCreated]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-[2px]"
-      onClick={onClose}
-    >
-      <Card
-        role="dialog"
-        aria-modal="true"
-        aria-label="Tambah soal baru"
-        className="w-full max-w-lg p-5"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-h2 font-bold">Soal baru</h3>
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={onClose}
-            aria-label="Tutup"
-            className="px-3"
-          >
-            ✕
-          </Button>
+    <Modal label="Tambah soal baru" title="Soal baru" open onClose={onClose}>
+      <form action={formAction} className="space-y-3">
+        <input type="hidden" name="moduleId" value={moduleId} />
+        <TextArea
+          label="Teks soal"
+          name="text"
+          required
+          minLength={3}
+          autoFocus
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <SubmitButton pendingLabel="Menambah…">Tambah Soal</SubmitButton>
+          <ErrorNote error={state.error} />
         </div>
-        <form action={formAction} className="space-y-3">
-          <input type="hidden" name="moduleId" value={moduleId} />
-          <TextArea
-            label="Teks soal"
-            name="text"
-            required
-            minLength={3}
-            autoFocus
-          />
-          <div className="flex flex-wrap items-center gap-3">
-            <SubmitButton pendingLabel="Menambah…">Tambah Soal</SubmitButton>
-            <ErrorNote error={state.error} />
-          </div>
-        </form>
-      </Card>
-    </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -241,11 +210,6 @@ export function QuestionSection({
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [modalOpen, setModalOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleCreated = (questionId: string) => {
     setModalOpen(false);
@@ -404,37 +368,18 @@ export function QuestionSection({
         })}
       </div>
 
-      {mounted
-        ? createPortal(
-            <>
-              <button
-                type="button"
-                onClick={() => setModalOpen(true)}
-                aria-label="Tambah soal baru"
-                className="fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full bg-accent text-white shadow-lg shadow-accent/30 transition-all duration-200 ease-out hover:bg-accent-hover active:scale-95"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden className="size-6">
-                  <path
-                    d="M12 5v14M5 12h14"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
+      <AddFab
+        label="Tambah soal baru"
+        onClick={() => setModalOpen(true)}
+      />
 
-              {modalOpen ? (
-                <CreateQuestionModal
-                  moduleId={moduleId}
-                  onCreated={handleCreated}
-                  onClose={() => setModalOpen(false)}
-                />
-              ) : null}
-            </>,
-            document.body
-          )
-        : null}
+      {modalOpen ? (
+        <CreateQuestionModal
+          moduleId={moduleId}
+          onCreated={handleCreated}
+          onClose={() => setModalOpen(false)}
+        />
+      ) : null}
     </section>
   );
 }

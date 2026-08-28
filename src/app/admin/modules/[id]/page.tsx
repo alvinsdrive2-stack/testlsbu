@@ -22,6 +22,14 @@ export default async function ModuleBuilderPage({
       },
       materials: {
         orderBy: { order: "asc" },
+        select: {
+          id: true,
+          moduleId: true,
+          title: true,
+          videoUrl: true,
+          pdfUrl: true,
+          order: true,
+        },
       },
     },
   });

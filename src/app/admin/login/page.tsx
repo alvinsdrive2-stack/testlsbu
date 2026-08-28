@@ -1,6 +1,6 @@
 import { login } from "./actions";
 import { Backdrop } from "@/components/ui/Backdrop";
-import { Button } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { QueryToast } from "@/components/ui/QueryToast";
 
 export default async function AdminLoginPage({
@@ -53,9 +53,9 @@ export default async function AdminLoginPage({
               Password salah.
             </p>
           ) : null}
-          <Button type="submit" className="w-full">
+          <SubmitButton pendingLabel="Memproses…" className="w-full">
             Masuk
-          </Button>
+          </SubmitButton>
         </form>
       </div>
     </main>

@@ -135,7 +135,29 @@ export default async function PretestPage({
 
   const participant = await prisma.participant.findUnique({
     where: { token },
-    include: { activity: { include: { module: true } } },
+    select: {
+      id: true,
+      activityId: true,
+      activity: {
+        select: {
+          title: true,
+          registrationStart: true,
+          pretestStart: true,
+          materialStart: true,
+          posttestStart: true,
+          closedAt: true,
+          moduleId: true,
+          module: {
+            select: {
+              pretestPassingGrade: true,
+              pretestDurationMin: true,
+              shuffleQuestions: true,
+              shuffleOptions: true,
+            },
+          },
+        },
+      },
+    },
   });
   if (!participant || participant.activityId !== activityId) {
     redirect(`/j/${activityId}`);
@@ -164,7 +186,17 @@ export default async function PretestPage({
     );
   }
 
-  const questions = await getExamQuestions(activity.moduleId);
+  const [questions, activeAttempt] = await Promise.all([
+    getExamQuestions(activity.moduleId),
+    prisma.attempt.findFirst({
+      where: {
+        participantId: participant.id,
+        section: "PRETEST",
+        submittedAt: null,
+      },
+      include: { answers: true },
+    }),
+  ]);
 
   if (questions.length === 0) {
     return (
@@ -174,15 +206,6 @@ export default async function PretestPage({
       />
     );
   }
-
-  const activeAttempt = await prisma.attempt.findFirst({
-    where: {
-      participantId: participant.id,
-      section: "PRETEST",
-      submittedAt: null,
-    },
-    include: { answers: true },
-  });
 
   if (!activeAttempt) {
     const submitted = await prisma.attempt.findFirst({
@@ -229,14 +252,16 @@ export default async function PretestPage({
   const cutoff = sessionEnd
     ? Math.min(deadline.getTime(), sessionEnd.getTime())
     : deadline.getTime();
+  let refreshed = activeAttempt;
   if (Date.now() > cutoff) {
-    await finalizeAttempt(activeAttempt.id);
+    const finalized = await finalizeAttempt(activeAttempt.id);
+    if (finalized) {
+      refreshed = await prisma.attempt.findUniqueOrThrow({
+        where: { id: activeAttempt.id },
+        include: { answers: true },
+      });
+    }
   }
-
-  const refreshed = await prisma.attempt.findUniqueOrThrow({
-    where: { id: activeAttempt.id },
-    include: { answers: true },
-  });
 
   if (refreshed.submittedAt && refreshed.score !== null) {
     return (

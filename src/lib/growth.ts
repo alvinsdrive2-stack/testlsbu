@@ -1,5 +1,17 @@
 export type GrowthRange = "week" | "month" | "year";
 
+export type CountRow = { createdAt: Date; count: number };
+
+export type RawCountRow = { day: string; c: number | bigint };
+
+/** Baris agregat SQL (per hari WIB) → instant UTC yang cocok dengan bucketOf. */
+export function toCountRows(rows: RawCountRow[]): CountRow[] {
+  return rows.map((r) => ({
+    createdAt: new Date(Date.parse(`${r.day}T00:00:00Z`) - JST),
+    count: Number(r.c),
+  }));
+}
+
 export type GrowthBucket = {
   label: string;
   activities: number;
@@ -44,8 +56,8 @@ export function growthSince(range: GrowthRange): Date {
 
 export function buildGrowth(
   range: GrowthRange,
-  activities: { createdAt: Date }[],
-  participants: { createdAt: Date }[]
+  activities: CountRow[],
+  participants: CountRow[]
 ): Omit<GrowthData, "compare"> {
   const now = new Date();
   const nowDay = Math.floor((now.getTime() + JST) / DAY);
@@ -100,7 +112,7 @@ export function buildGrowth(
     prevParticipants: 0,
   };
   const fill = (
-    rows: { createdAt: Date }[],
+    rows: CountRow[],
     key: "activities" | "participants",
     prevKey: "prevActivities" | "prevParticipants"
   ) => {
@@ -108,11 +120,11 @@ export function buildGrowth(
       const b = bucketOf(r.createdAt);
       if (b < 0) continue;
       if (b < n) {
-        buckets[b][key]++;
-        totals[key]++;
+        buckets[b][key] += r.count;
+        totals[key] += r.count;
       } else {
-        buckets[b - n][prevKey]++;
-        totals[prevKey]++;
+        buckets[b - n][prevKey] += r.count;
+        totals[prevKey] += r.count;
       }
     }
   };

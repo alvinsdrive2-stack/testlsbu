@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { Button } from "@/components/ui/Button";
 
 export default function Home() {
   return (
@@ -20,9 +21,12 @@ export default function Home() {
               404 — Halaman tidak ditemukan
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              Jika ingin mendaftar kegiatan, silahkan register ke BPD Gapensi
-              daerah Anda.
+              Jika ingin mendaftar kegiatan, silakan register ke BPD Gapensi
+              daerah Anda. Sudah terdaftar? Masuk lewat dashboard peserta.
             </p>
+            <div className="mt-8 flex justify-center gap-3">
+              <Button href="/login">Masuk Dashboard</Button>
+            </div>
           </div>
         </PageTransition>
       </main>

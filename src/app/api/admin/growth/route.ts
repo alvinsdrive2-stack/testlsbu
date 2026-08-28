@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
-import { buildGrowth, growthSince, type GrowthRange } from "@/lib/growth";
+import {
+  buildGrowth,
+  growthSince,
+  toCountRows,
+  type GrowthRange,
+} from "@/lib/growth";
 
 async function isAdmin(req: NextRequest): Promise<boolean> {
   const token = req.cookies.get("gapensi_admin")?.value;
@@ -29,15 +34,15 @@ export async function GET(req: NextRequest) {
 
   const since = growthSince(range);
   const [activities, participants] = await Promise.all([
-    prisma.activity.findMany({
-      where: { createdAt: { gte: since } },
-      select: { createdAt: true },
-    }),
-    prisma.participant.findMany({
-      where: { createdAt: { gte: since } },
-      select: { createdAt: true },
-    }),
+    prisma.$queryRaw<{ day: string; c: number | bigint }[]>`
+      SELECT DATE_FORMAT(DATE_ADD(createdAt, INTERVAL 7 HOUR), '%Y-%m-%d') AS day, COUNT(*) AS c
+      FROM activity WHERE createdAt >= ${since} GROUP BY day`,
+    prisma.$queryRaw<{ day: string; c: number | bigint }[]>`
+      SELECT DATE_FORMAT(DATE_ADD(createdAt, INTERVAL 7 HOUR), '%Y-%m-%d') AS day, COUNT(*) AS c
+      FROM participant WHERE createdAt >= ${since} GROUP BY day`,
   ]);
 
-  return NextResponse.json(buildGrowth(range, activities, participants));
+  return NextResponse.json(
+    buildGrowth(range, toCountRows(activities), toCountRows(participants))
+  );
 }

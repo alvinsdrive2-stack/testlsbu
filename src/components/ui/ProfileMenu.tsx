@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { logout } from "./actions";
 
-function initials(nama: string): string {
-  return nama
+function initials(name: string): string {
+  return name
     .split(/\s+/)
     .filter(Boolean)
     .map((w) => w[0])
@@ -13,7 +12,17 @@ function initials(nama: string): string {
     .toUpperCase();
 }
 
-export function ProfileMenu({ nama }: { nama: string }) {
+export function ProfileMenu({
+  name,
+  roleLabel,
+  logoutAction,
+  variant = "labeled",
+}: {
+  name: string;
+  roleLabel: string;
+  logoutAction: () => Promise<void>;
+  variant?: "labeled" | "compact";
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -37,33 +46,46 @@ export function ProfileMenu({ nama }: { nama: string }) {
 
   return (
     <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label="Menu akun"
-        className="flex items-center gap-2.5 rounded-full p-1 transition-colors hover:bg-canvas"
-      >
-        <span
-          aria-hidden
-          className="flex size-9 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-[13px] font-bold text-white"
+      {variant === "compact" ? (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label="Menu akun"
+          className="flex size-10 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-sm font-bold text-white transition-transform duration-150 ease-out hover:scale-105 active:scale-95"
         >
-          {initials(nama)}
-        </span>
-        <span className="hidden text-[15px] font-medium sm:inline">{nama}</span>
-      </button>
+          {initials(name) || "A"}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label="Menu akun"
+          className="flex items-center gap-2.5 rounded-full p-1 transition-colors hover:bg-canvas"
+        >
+          <span
+            aria-hidden
+            className="flex size-9 items-center justify-center rounded-full border-[3px] border-ink bg-accent text-[13px] font-bold text-white"
+          >
+            {initials(name)}
+          </span>
+          <span className="hidden text-[15px] font-medium sm:inline">{name}</span>
+        </button>
+      )}
 
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-hairline bg-surface shadow-[0_8px_30px_rgba(15,20,25,0.14)]"
+          className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-md border border-hairline bg-surface shadow-[0_8px_30px_rgba(15,20,25,0.14)]"
         >
           <div className="border-b border-hairline px-4 py-3">
-            <p className="truncate text-sm font-semibold text-ink">{nama}</p>
-            <p className="text-[13px] text-ink-secondary">Peserta</p>
+            <p className="truncate text-sm font-semibold text-ink">{name}</p>
+            <p className="text-[13px] text-ink-secondary">{roleLabel}</p>
           </div>
-          <form action={logout}>
+          <form action={logoutAction}>
             <button
               role="menuitem"
               type="submit"

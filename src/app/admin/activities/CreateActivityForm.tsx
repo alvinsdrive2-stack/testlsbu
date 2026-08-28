@@ -100,7 +100,9 @@ export function CreateActivityForm({
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton>Buat Kegiatan</SubmitButton>
         {state.error ? (
-          <span className="text-sm text-flag">{state.error}</span>
+          <span role="alert" className="text-sm text-flag">
+            {state.error}
+          </span>
         ) : null}
       </div>
     </form>

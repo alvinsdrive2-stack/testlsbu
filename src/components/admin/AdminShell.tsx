@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SidebarNav, MobileNav } from "./AdminNav";
-import { ProfileMenu } from "./ProfileMenu";
+import { ProfileMenu } from "@/components/ui/ProfileMenu";
+import { logout } from "@/app/admin/actions";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { Backdrop } from "@/components/ui/Backdrop";
 
@@ -19,17 +20,25 @@ export function AdminShell({
       <Backdrop />
 
       <div className="fixed right-4 top-4 z-30">
-        <ProfileMenu />
+        <ProfileMenu
+          name="Admin"
+          roleLabel="Panel Gapensi"
+          logoutAction={logout}
+          variant="compact"
+        />
       </div>
 
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col shadow-2xl bg-surface pt-3 md:flex">
-        <Link href="/admin" className="flex flex-col items-center gap-3 text-center pb-4 shadow-xl rounded-2xl w-full">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-hairline bg-surface pt-3 md:flex">
+        <Link
+          href="/admin"
+          className="flex flex-col items-center gap-3 border-b border-hairline pb-4 text-center"
+        >
           <Image
             src="/favicon.png"
             alt="Logo Gapensi"
             width={160}
             height={160}
-            className="h-20 w-auto rounded-xl"
+            className="h-20 w-auto rounded-lg"
           />
           <span className="flex flex-col items-center gap-1">
             <span className="text-xl font-bold leading-none tracking-tight text-accent">
@@ -65,7 +74,7 @@ export function AdminShell({
           <MobileNav />
         </header>
 
-        <main className="mx-auto my-[2.5vh] min-h-[95vh] max-w-11/12  bg-white px-6 py-8 shadow-2xl">
+        <main className="mx-auto my-[2.5vh] min-h-[95vh] w-[calc(100%-2rem)] max-w-[1400px] bg-surface px-6 py-8">
           <PageTransition>
             {eyebrow ? (
               <p className="label-eyebrow mb-2 text-ink-secondary">{eyebrow}</p>

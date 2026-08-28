@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Prisma, ParticipantStage } from "@prisma/client";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { prisma } from "@/lib/prisma";
 
 const PAGE_SIZE = 10;
@@ -122,9 +123,16 @@ export default async function AdminParticipantsPage({
       </div>
 
       {total === 0 ? (
-        <p className="text-sm text-ink-secondary">
-          {q ? "Tidak ada peserta yang cocok dengan pencarian." : "Belum ada peserta terdaftar."}
-        </p>
+        <EmptyState
+          title={q ? "Tidak ada peserta yang cocok" : "Belum ada peserta terdaftar"}
+          description={
+            q
+              ? "Coba kata kunci lain atau reset pencarian."
+              : "Peserta mendaftar lewat link kegiatan yang kamu bagikan."
+          }
+          actionHref={q ? "/admin/participants" : undefined}
+          actionLabel={q ? "Reset pencarian" : undefined}
+        />
       ) : (
         <>
           <p className="text-sm tabular-nums text-ink-secondary">

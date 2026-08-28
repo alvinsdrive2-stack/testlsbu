@@ -76,7 +76,17 @@
       "Bash(curl -sL -o public/fonts/Poppins-Light.ttf \"https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Light.ttf\")",
       "Bash(curl -sL -o public/fonts/Poppins-Bold.ttf \"https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Bold.ttf\")",
       "Bash(curl -sL -o public/fonts/Poppins-Thin.ttf \"https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Thin.ttf\")",
-      "Bash(Out-Null)"
+      "Bash(Out-Null)",
+      "Bash(curl -sI https://test.lspgatensi.id/)",
+      "Bash(curl *)",
+      "Bash(grep -oE \"playabilityStatus[^}]*|VIDEO_UNAVAILABLE|LOGIN_REQUIRED|UNPLAYABLE|ERRORCODE[^,]*|[0-9]{3}\" /tmp/embed.html)",
+      "Bash(grep -oE 'unplayable[^,{]*' /tmp/embed.html)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(grep -oE 'playabilityStatus[^}]{0,200}' /tmp/yt.html)",
+      "Bash(cd ~)",
+      "Bash(ls /home/lspgatensi-test/htdocs/test.lspgatensi.id/public/uploads/pdfs/)",
+      "Bash(ls /home/lspgatensi-test/htdocs/test.lspgatensi.id/public/uploads/videos/)",
+      "Bash(Get-ChildItem C:Gapensi *)"
     ]
   }
 }

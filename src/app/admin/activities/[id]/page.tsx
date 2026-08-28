@@ -5,6 +5,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { ActionForm } from "@/components/ui/ActionForm";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { prisma } from "@/lib/prisma";
 import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 import { deleteActivity } from "../actions";
@@ -142,6 +143,10 @@ export default async function ActivityDetailPage({
           inputs={{ activityId: activity.id }}
           className="mt-6 border-t border-hairline pt-4"
         >
+          <p role="alert" className="mb-3 text-[13px] font-medium text-flag">
+            Hapus kegiatan menghapus semua data peserta, hasil pretest/posttest,
+            dan sertifikat yang terkait — tidak bisa dikembalikan.
+          </p>
           <ConfirmButton label="Hapus Kegiatan" />
         </ActionForm>
       </section>
@@ -273,13 +278,12 @@ export default async function ActivityDetailPage({
                               action={generateCertificate}
                               inputs={{ participantId: p.id }}
                             >
-                              <Button
-                                type="submit"
-                                variant="primary"
+                              <SubmitButton
+                                pendingLabel="Memproses…"
                                 className="min-h-8 px-3 py-1 text-xs"
                               >
                                 Beri Sertifikat
-                              </Button>
+                              </SubmitButton>
                             </ActionForm>
                           ) : p.certificateNumber ? (
                             <span className="text-xs text-accent">✓ Diberikan</span>

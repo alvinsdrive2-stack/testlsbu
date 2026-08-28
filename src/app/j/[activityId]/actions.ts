@@ -47,6 +47,7 @@ export async function registerParticipant(
   const existing = await prisma.participant.findFirst({
     where: { email },
     orderBy: { createdAt: "desc" },
+    select: { wa: true, token: true },
   });
   if (existing) {
     if (existing.wa === parsed.data.wa) {

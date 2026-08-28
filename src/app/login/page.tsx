@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { loginParticipant } from "./actions";
-import { Button } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { QueryToast } from "@/components/ui/QueryToast";
@@ -77,9 +77,9 @@ export default async function ParticipantLoginPage({
                   saat pendaftaran.
                 </p>
               ) : null}
-              <Button type="submit" className="w-full">
+              <SubmitButton pendingLabel="Memproses…" className="w-full">
                 Masuk
-              </Button>
+              </SubmitButton>
             </form>
           </div>
         </PageTransition>

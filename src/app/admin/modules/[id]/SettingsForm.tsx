@@ -90,7 +90,7 @@ export function SettingsForm({ module }: { module: Settings }) {
               name="shuffleQuestions"
               checked={sq}
               onChange={(e) => setSq(e.target.checked)}
-              className="size-4 accent-[#002b66]"
+              className="size-4 accent-accent"
             />
             Acak urutan soal
           </label>
@@ -100,7 +100,7 @@ export function SettingsForm({ module }: { module: Settings }) {
               name="shuffleOptions"
               checked={so}
               onChange={(e) => setSo(e.target.checked)}
-              className="size-4 accent-[#002b66]"
+              className="size-4 accent-accent"
             />
             Acak urutan opsi jawaban
           </label>
@@ -110,7 +110,7 @@ export function SettingsForm({ module }: { module: Settings }) {
               name="showAnswerReview"
               checked={sar}
               onChange={(e) => setSar(e.target.checked)}
-              className="size-4 accent-[#002b66]"
+              className="size-4 accent-accent"
             />
             Izinkan peserta melihat review jawaban
           </label>

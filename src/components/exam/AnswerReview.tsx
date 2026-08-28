@@ -4,9 +4,10 @@ import { getExamQuestions } from "@/lib/exam-questions";
 export async function AnswerReview({ attemptId }: { attemptId: string }) {
   const attempt = await prisma.attempt.findUnique({
     where: { id: attemptId },
-    include: {
-      answers: true,
-      participant: { include: { activity: true } },
+    select: {
+      section: true,
+      answers: { select: { questionId: true, optionId: true } },
+      participant: { select: { activity: { select: { moduleId: true } } } },
     },
   });
   if (!attempt) return null;
