@@ -60,7 +60,11 @@ export async function AnswerReview({ attemptId }: { attemptId: string }) {
                 </p>
                 <p className="mt-4 text-sm text-ink-secondary">
                   Jawaban Anda:{" "}
-                  <span className="font-medium text-ink">{chosen ? chosen.text : "—"}</span>
+                  <span className="font-medium text-ink">
+                    {chosen
+                      ? `${String.fromCharCode(65 + q.options.findIndex((o) => o.id === chosen.id))}. ${chosen.text}`
+                      : "—"}
+                  </span>
                 </p>
                 {answered && correct && q.explanation ? (
                   <p className="mt-3 rounded-md bg-success-soft px-4 py-3 text-sm leading-relaxed text-success">

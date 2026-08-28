@@ -311,7 +311,7 @@ export function QuestionSection({
                   />
 
                   <div className="space-y-2 border-t border-hairline pt-4">
-                    {q.options.map((opt) => (
+                    {q.options.map((opt, oi) => (
                       <div key={opt.id}>
                         <div
                           className={`flex items-center justify-between gap-2 border px-3 py-2 text-sm ${
@@ -327,6 +327,9 @@ export function QuestionSection({
                                 : "text-ink-secondary"
                             }
                           >
+                            <span className="font-semibold">
+                              {String.fromCharCode(65 + oi)}.
+                            </span>{" "}
                             {opt.isCorrect ? "✓ " : ""}
                             {opt.text}
                           </span>

@@ -159,8 +159,9 @@ export function ExamRunner({
               <p className="text-sm font-semibold text-ink-secondary">Soal {i + 1}</p>
               <p className="mt-2 text-[17px] font-medium leading-relaxed">{q.text}</p>
               <div className="mt-5 space-y-2.5">
-                {q.options.map((opt) => {
+                {q.options.map((opt, oi) => {
                   const isSelected = selected === opt.id;
+                  const letter = String.fromCharCode(65 + oi);
                   return (
                     <label
                       key={opt.id}
@@ -180,6 +181,7 @@ export function ExamRunner({
                         onChange={() => select(q.id, opt.id)}
                         className="size-4 accent-accent"
                       />
+                      <span className="shrink-0 font-semibold">{letter}.</span>
                       {opt.text}
                     </label>
                   );
