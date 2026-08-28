@@ -82,7 +82,7 @@ export function AddFab({ label, onClick }: { label: string; onClick: () => void 
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-lg border border-accent-hover bg-accent text-white transition-colors hover:bg-accent-hover"
+      className="fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full border border-accent-hover bg-accent text-white transition-colors hover:bg-accent-hover"
     >
       <svg viewBox="0 0 24 24" aria-hidden className="size-6">
         <path
