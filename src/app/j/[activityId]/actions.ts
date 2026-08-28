@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { activityPhase } from "@/lib/activity-phase";
+import { activityPhase, isRegistrationOpen } from "@/lib/activity-phase";
 import { createParticipantSession } from "@/lib/session";
 
 const registerSchema = z.object({
@@ -45,13 +45,15 @@ export async function registerParticipant(
   if (!activity) {
     return { error: "Kegiatan tidak tersedia. Hubungi admin." };
   }
-  const phase = activityPhase(activity, new Date());
-  if (phase === "SCHEDULED" || phase === "CLOSED") {
+  if (!isRegistrationOpen(activity, new Date())) {
+    const phase = activityPhase(activity, new Date());
     return {
       error:
         phase === "CLOSED"
           ? "Kegiatan sudah ditutup."
-          : "Pendaftaran belum dibuka.",
+          : phase === "SCHEDULED"
+            ? "Pendaftaran belum dibuka."
+            : "Pendaftaran sedang ditutup. Hubungi admin.",
     };
   }
 

@@ -7,11 +7,12 @@ import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { ActionForm } from "@/components/ui/ActionForm";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { prisma } from "@/lib/prisma";
-import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
+import { activityPhase, PHASE_LABEL, isRegistrationOpen } from "@/lib/activity-phase";
 import { deleteActivity } from "../actions";
 import { generateCertificate } from "./certificate-actions";
 import { CopyLink } from "./CopyLink";
 import { ScheduleForm } from "./ScheduleForm";
+import { RegistrationToggle } from "./RegistrationToggle";
 import { QueryToast } from "@/components/ui/QueryToast";
 
 type Stage = "REGISTERED" | "PRETEST_DONE" | "POSTTEST_PASSED";
@@ -120,6 +121,16 @@ export default async function ActivityDetailPage({
         <p className="mt-1 text-h1 font-bold text-accent">
           {PHASE_LABEL[phase]}
         </p>
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-hairline pb-4">
+          <RegistrationToggle
+            activityId={activity.id}
+            open={isRegistrationOpen(activity, new Date())}
+          />
+          <p className="text-[13px] leading-relaxed text-ink-secondary">
+            Default mengikuti jadwal — sesi pendaftaran lewat, otomatis tutup.
+            Toggle ini untuk buka manual walau kegiatan sedang berjalan.
+          </p>
+        </div>
         {totalParticipants > 0 ? (
           <p className="mt-3 text-sm tabular-nums text-ink-secondary">
             {totalParticipants} peserta · {stageCounts.REGISTERED} terdaftar ·{" "}

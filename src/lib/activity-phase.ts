@@ -51,6 +51,21 @@ export function activityPhase(
   return current ?? (anySet ? "SCHEDULED" : "REGISTRATION");
 }
 
+/**
+ * Pendaftaran buka atau tidak.
+ * `registrationOpen` (override manual admin): null = otomatis ikut fase
+ * (buka selama REGISTRATION), true = dipaksa buka, false = dipaksa tutup.
+ * Selalu tutup sebelum kegiatan mulai dan setelah ditutup.
+ */
+export function isRegistrationOpen(
+  schedule: ActivitySchedule & { registrationOpen?: boolean | null },
+  now: Date
+): boolean {
+  const phase = activityPhase(schedule, now);
+  if (phase === "SCHEDULED" || phase === "CLOSED") return false;
+  return schedule.registrationOpen ?? phase === "REGISTRATION";
+}
+
 const JAKARTA_OFFSET_MS = 7 * 60 * 60 * 1000;
 
 /** Date -> nilai input datetime-local dalam waktu Jakarta (WIB). */

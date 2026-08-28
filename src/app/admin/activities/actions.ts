@@ -127,3 +127,23 @@ export async function deleteActivity(
   redirect("/admin/activities?deleted=1");
 }
 
+export async function setRegistrationOpen(
+  _prev: { ok?: boolean; error?: string },
+  formData: FormData
+): Promise<{ ok?: boolean; error?: string }> {
+  const activityId = String(formData.get("activityId"));
+  const open = formData.get("open") === "1";
+
+  try {
+    await prisma.activity.update({
+      where: { id: activityId },
+      data: { registrationOpen: open },
+    });
+  } catch {
+    return { error: "Gagal mengubah status pendaftaran. Coba lagi." };
+  }
+
+  revalidatePath(`/admin/activities/${activityId}`);
+  return { ok: true };
+}
+

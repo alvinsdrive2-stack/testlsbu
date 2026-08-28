@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { activityPhase } from "@/lib/activity-phase";
+import { activityPhase, isRegistrationOpen } from "@/lib/activity-phase";
 import { getParticipantToken } from "@/lib/session";
 import { Reveal } from "@/components/ui/Reveal";
 import { TopBar } from "@/components/ui/TopBar";
@@ -32,14 +32,16 @@ export default async function JoinPage({
   }
 
   const phase = activityPhase(activity, new Date());
+  const registrationOpen = isRegistrationOpen(activity, new Date());
 
-  // Pendaftaran tetap dibuka selama kegiatan berjalan (pretest/materi/posttest)
-  // — peserta telat nyusul sesi yang sedang berjalan sesuai jadwal.
-  if (phase === "SCHEDULED" || phase === "CLOSED") {
+  // Pendaftaran bisa dibuka manual admin lewat toggle walau sesi pendaftaran lewat.
+  if (!registrationOpen) {
     const heading =
       phase === "SCHEDULED"
         ? "Pendaftaran belum dibuka"
-        : "Kegiatan sudah ditutup";
+        : phase === "CLOSED"
+          ? "Kegiatan sudah ditutup"
+          : "Pendaftaran ditutup";
     return (
       <div className="min-h-screen">
         <TopBar title={activity.title} />

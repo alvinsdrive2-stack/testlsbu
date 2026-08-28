@@ -89,6 +89,7 @@ model Activity {
   materialStart     DateTime?
   posttestStart     DateTime?
   closedAt          DateTime?
+  registrationOpen  Boolean?
   createdAt         DateTime      @default(now())
   participants      Participant[]
 
