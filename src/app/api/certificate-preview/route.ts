@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
     company: sp.get("company") || "Nama Perusahaan",
     npwp: sp.get("npwp") || "NPWP Perusahaan",
     module: sp.get("module") || "Nama Modul",
+    date: sp.get("date") || "1 Januari 2026",
   } as Record<CertificateFieldKey, string>;
 
   let fields;

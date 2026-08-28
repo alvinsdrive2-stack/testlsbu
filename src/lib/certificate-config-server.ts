@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import {
   CERTIFICATE_FIELDS,
-  validateCertificateFields,
+  parseStoredCertificateFields,
   type CertificateFieldConfig,
 } from "./certificate-fields";
 
@@ -9,8 +9,7 @@ export async function getCertificateFields(): Promise<CertificateFieldConfig[]> 
   try {
     const row = await prisma.certificateConfig.findUnique({ where: { id: "default" } });
     if (row) {
-      const parsed = validateCertificateFields(row.fields);
-      if (parsed) return parsed;
+      return parseStoredCertificateFields(row.fields);
     }
   } catch {
     // tabel belum ada / DB error — pakai default

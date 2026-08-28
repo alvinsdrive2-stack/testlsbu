@@ -30,6 +30,7 @@ const DEFAULT_CONTENT: Record<string, string> = {
   company: "Nama Perusahaan",
   npwp: "NPWP Perusahaan",
   module: "Nama Modul",
+  date: "1 Januari 2026",
 };
 
 function applyFields(

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export type CertificateFieldKey = "number" | "name" | "company" | "npwp" | "module";
+export type CertificateFieldKey = "number" | "name" | "company" | "npwp" | "module" | "date";
 
 export type CertificateFieldConfig = {
   key: CertificateFieldKey;
@@ -20,10 +20,11 @@ export const CERTIFICATE_FIELDS: CertificateFieldConfig[] = [
   { key: "company",  label: "Perusahaan",       x: 950, y: 560,  fontSize: 750,  color: "#012A4D", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
   { key: "npwp",     label: "NPWP",             x: 962, y: 641,  fontSize: 450,  color: "#012A4D", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
   { key: "module",   label: "Modul",            x: 986, y: 1044, fontSize: 415,  color: "#0d0d0d", align: "middle", fontWeight: "bold",   fontFamily: "Poppins" },
+  { key: "date",     label: "Tanggal Uji",      x: 950, y: 950,  fontSize: 380,  color: "#0d0d0d", align: "middle", fontWeight: "normal", fontFamily: "Poppins" },
 ];
 
 const fieldSchema = z.object({
-  key: z.enum(["number", "name", "company", "npwp", "module"]),
+  key: z.enum(["number", "name", "company", "npwp", "module", "date"]),
   label: z.string().min(1),
   x: z.number().int().min(0),
   y: z.number().int().min(0),
@@ -34,10 +35,21 @@ const fieldSchema = z.object({
   fontFamily: z.string().min(1),
 });
 
-const fieldsSchema = z.array(fieldSchema).length(5).refine(
-  (fields) => new Set(fields.map((f) => f.key)).size === 5,
+const fieldsSchema = z.array(fieldSchema).length(6).refine(
+  (fields) => new Set(fields.map((f) => f.key)).size === 6,
   { message: "Key field sertifikat harus unik dan lengkap" }
 );
+
+// Config tersimpan bisa dari versi lama (belum punya field baru) —
+// ambil yang valid, sisanya merge dari default sesuai urutan CERTIFICATE_FIELDS.
+export function parseStoredCertificateFields(
+  raw: unknown
+): CertificateFieldConfig[] {
+  const result = z.array(fieldSchema).safeParse(raw);
+  const list = result.success ? result.data : [];
+  const byKey = new Map(list.map((f) => [f.key, f] as const));
+  return CERTIFICATE_FIELDS.map((d) => byKey.get(d.key) ?? d);
+}
 
 export function validateCertificateFields(raw: unknown): CertificateFieldConfig[] | null {
   const result = fieldsSchema.safeParse(raw);

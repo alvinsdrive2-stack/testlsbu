@@ -17,7 +17,12 @@ export async function GET(
       nama: true,
       badanUsaha: true,
       npwp: true,
-      activity: { select: { module: { select: { title: true } } } },
+      activity: {
+        select: {
+          module: { select: { title: true } },
+          posttestStart: true,
+        },
+      },
     },
   });
 
@@ -25,12 +30,19 @@ export async function GET(
     return NextResponse.json({ error: "Sertifikat tidak ditemukan" }, { status: 404 });
   }
 
+  const examDate = participant.activity.posttestStart
+    ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(
+        participant.activity.posttestStart
+      )
+    : "";
+
   const values = {
     number: participant.certificateNumber,
     name: participant.nama,
     company: participant.badanUsaha,
     npwp: formatNpwp(participant.npwp),
     module: participant.activity.module.title,
+    date: examDate,
   } as Record<CertificateFieldKey, string>;
 
   const buffer = await renderCertificate(values, await getCertificateFields());
