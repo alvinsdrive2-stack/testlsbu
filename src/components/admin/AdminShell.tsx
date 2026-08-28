@@ -74,7 +74,7 @@ export function AdminShell({
           <MobileNav />
         </header>
 
-        <main className="mx-auto my-[2.5vh] min-h-[95vh] w-[calc(100%-2rem)] max-w-[1400px] bg-surface px-6 py-8">
+        <main className="mx-auto my-[2.5vh] min-h-[95vh] w-[calc(100%-2rem)] max-w-[1400px] bg-surface px-6 py-8 shadow-[0_2px_16px_rgba(15,20,25,0.08)]">
           <PageTransition>
             {eyebrow ? (
               <p className="label-eyebrow mb-2 text-ink-secondary">{eyebrow}</p>

@@ -352,7 +352,7 @@ ActionForm, Backdrop, Button, Card, ConfirmButton, Countdown, Field, NavigationP
 9. ✅ Paralelisasi halaman ujian (M2); filter groupBy (M3); growth SQL aggregate (M4); export select (M5).
 
 **Gelombang 3 — UX struktural:**
-10. ✅ Loading skeleton global (`loading.tsx` di `/admin`, `/p`, `/j/[activityId]`, `/t/[token]` + `ui/Skeleton.tsx`).
+10. ✅ Loading state: skeleton `loading.tsx` sempat dipasang global, lalu dicabut — user milih transisi overlay logo circular (`NavigationProgress`, sudah ada di layout).
 11. ✅ Nav mobile `/p` + link `#` jadi disabled dengan alasan.
 12. ✅ Peringatan cascade hapus kegiatan; validasi urutan jadwal.
 13. ✅ `certificate-preview`: top bar, drag mouse+touch, input X/Y numerik, indikator "belum disimpan" + guard beforeunload.

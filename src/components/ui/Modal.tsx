@@ -67,7 +67,17 @@ export function Modal({
 }
 
 export function AddFab({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Portal ke body: biar `fixed` gak ketawan containing block transform
+  // dari PageTransition (animate-page-enter pakai fill-mode both).
+  if (!mounted) return null;
+
+  return createPortal(
     <button
       type="button"
       onClick={onClick}
@@ -83,6 +93,7 @@ export function AddFab({ label, onClick }: { label: string; onClick: () => void 
           strokeLinecap="round"
         />
       </svg>
-    </button>
+    </button>,
+    document.body
   );
 }
