@@ -10,7 +10,10 @@ const registerSchema = z.object({
   activityId: z.string().min(1),
   nama: z.string().min(3, "Nama minimal 3 karakter"),
   badanUsaha: z.string().min(3, "Nama badan usaha minimal 3 karakter"),
-  npwp: z.string().min(5, "NPWP minimal 5 karakter"),
+  npwp: z
+    .string()
+    .transform((v) => v.replace(/\D/g, ""))
+    .refine((d) => d.length >= 15 && d.length <= 16, "NPWP harus 15 atau 16 digit"),
   wa: z.string().min(8, "No WA minimal 8 digit"),
   email: z.string().email("Email tidak valid"),
   isGapensiMember: z.boolean(),

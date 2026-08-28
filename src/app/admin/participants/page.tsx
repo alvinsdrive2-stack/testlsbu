@@ -4,6 +4,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { prisma } from "@/lib/prisma";
+import { formatNpwp } from "@/lib/format";
 
 const PAGE_SIZE = 10;
 
@@ -89,6 +90,8 @@ export default async function AdminParticipantsPage({
   const headers: { key: SortField | null; label: string }[] = [
     { key: "nama", label: "Nama" },
     { key: "badanUsaha", label: "Badan Usaha" },
+    { key: null, label: "No. WA" },
+    { key: null, label: "NPWP" },
     { key: "stage", label: "Status" },
     { key: null, label: "Kegiatan" },
     { key: "createdAt", label: "Terdaftar" },
@@ -184,6 +187,12 @@ export default async function AdminParticipantsPage({
                       <p className="text-[13px] text-ink-secondary">{p.email}</p>
                     </td>
                     <td className="py-3 pr-6 text-ink-secondary">{p.badanUsaha}</td>
+                    <td className="py-3 pr-6 whitespace-nowrap tabular-nums text-ink-secondary">
+                      {p.wa}
+                    </td>
+                    <td className="py-3 pr-6 whitespace-nowrap tabular-nums text-ink-secondary">
+                      {formatNpwp(p.npwp)}
+                    </td>
                     <td className="py-3 pr-6">{STAGE_LABEL[p.stage]}</td>
                     <td className="py-3 pr-6">
                       <Link

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { formatNpwp } from "@/lib/format";
 
 export async function GET(
   req: NextRequest,
@@ -58,7 +59,7 @@ export async function GET(
       i + 1,
       p.nama,
       p.badanUsaha,
-      p.npwp || "-",
+      p.npwp ? formatNpwp(p.npwp) : "-",
       p.wa || "-",
       p.email,
     ];

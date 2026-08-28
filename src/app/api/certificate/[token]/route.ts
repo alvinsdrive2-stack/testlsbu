@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCertificateFields } from "@/lib/certificate-config-server";
 import { renderCertificate, type CertificateFieldKey } from "@/lib/certificate-render";
+import { formatNpwp } from "@/lib/format";
 
 export async function GET(
   req: NextRequest,
@@ -28,7 +29,7 @@ export async function GET(
     number: participant.certificateNumber,
     name: participant.nama,
     company: participant.badanUsaha,
-    npwp: participant.npwp,
+    npwp: formatNpwp(participant.npwp),
     module: participant.activity.module.title,
   } as Record<CertificateFieldKey, string>;
 

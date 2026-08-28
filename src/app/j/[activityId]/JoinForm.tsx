@@ -1,13 +1,29 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { registerParticipant } from "./actions";
 import { TextField } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { EmailField } from "./EmailField";
 import { useActionToast } from "@/components/ui/useActionToast";
+import { maskNpwp } from "@/lib/format";
 
 type State = { error?: string };
+
+function NpwpField() {
+  const [value, setValue] = useState("");
+  return (
+    <TextField
+      label="NPWP badan usaha"
+      name="npwp"
+      required
+      inputMode="numeric"
+      placeholder="XX.XXX.XXX.X-XXX.XXX"
+      value={value}
+      onChange={(e) => setValue(maskNpwp(e.target.value))}
+    />
+  );
+}
 
 function Fieldset({
   legend,
@@ -44,7 +60,7 @@ export function JoinForm({ activityId }: { activityId: string }) {
         />
       </Fieldset>
       <Fieldset legend="Legal & kontak">
-        <TextField label="NPWP badan usaha" name="npwp" required minLength={5} />
+        <NpwpField />
         <TextField label="No WA" name="wa" required minLength={8} />
         <EmailField />
         <p className="text-[13px] leading-relaxed text-ink-secondary">
