@@ -90,7 +90,8 @@ export default async function ParticipantDashboardPage() {
   );
 
   const phase = activityPhase(activity, new Date());
-  const materiOpen = phase === "MATERIAL";
+  // Materi terbuka begitu peserta selesai pretest, atau saat sesi materi tiba
+  const materiOpen = pretestDone || phase === "MATERIAL";
   const materiDone = pretestDone && (phase === "MATERIAL" || phase === "POSTTEST");
 
   // Konten MediumText hanya diambil saat materi benar-benar ditampilkan

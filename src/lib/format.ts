@@ -1,9 +1,13 @@
-// NPWP badan usaha 15 digit: XX.XXX.XXX.X-XXX.XXX
+// NPWP 15 digit: XX.XXX.XXX.X-XXX.XXX
+// NPWP 16 digit (NIK terintegrasi): XX.XXX.XXX.X-XXX.XXXX
 export function formatNpwp(raw: string | null | undefined): string {
   if (!raw) return "";
   const d = raw.replace(/\D/g, "");
-  if (d.length !== 15) return raw;
-  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}.${d.slice(8, 9)}-${d.slice(9, 12)}.${d.slice(12, 15)}`;
+  if (d.length === 15)
+    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}.${d.slice(8, 9)}-${d.slice(9, 12)}.${d.slice(12, 15)}`;
+  if (d.length === 16)
+    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}.${d.slice(8, 9)}-${d.slice(9, 12)}.${d.slice(12, 16)}`;
+  return raw;
 }
 
 // Mask buat input register: format progresif selagi ngetik, maks 16 digit

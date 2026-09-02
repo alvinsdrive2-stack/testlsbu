@@ -86,7 +86,8 @@
       "Bash(cd ~)",
       "Bash(ls /home/lspgatensi-test/htdocs/test.lspgatensi.id/public/uploads/pdfs/)",
       "Bash(ls /home/lspgatensi-test/htdocs/test.lspgatensi.id/public/uploads/videos/)",
-      "Bash(Get-ChildItem C:Gapensi *)"
+      "Bash(Get-ChildItem C:Gapensi *)",
+      "Bash(npm pkg *)"
     ]
   }
 }

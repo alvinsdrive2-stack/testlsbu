@@ -8,7 +8,6 @@ import {
   deleteMaterial,
   getMaterialContent,
 } from "../actions";
-import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/Field";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { VideoField } from "./VideoField";

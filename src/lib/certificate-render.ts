@@ -44,7 +44,7 @@ export function drawCertificate(
       field.key === "number"
         ? `No. ${values[field.key] ?? ""}`
         : field.key === "npwp"
-          ? `NPWP: ${values[field.key] ?? ""}`
+          ? `NPWP BUJK: ${values[field.key] ?? ""}`
           : values[field.key] ?? "";
     ctx.fillText(text, x, field.y);
   }
