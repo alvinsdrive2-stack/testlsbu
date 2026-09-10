@@ -17,6 +17,7 @@ export async function startPosttestRetry(
       where: { token },
       select: {
         id: true,
+        certificateNumber: true,
         activity: {
           select: {
             registrationStart: true,
@@ -37,6 +38,9 @@ export async function startPosttestRetry(
       activityPhase(participant.activity, new Date()) !== "POSTTEST"
     ) {
       return { error: "Sesi posttest belum berlangsung atau sudah ditutup." };
+    }
+    if (participant.certificateNumber) {
+      return { error: "Kamu sudah menerima sertifikat kegiatan ini." };
     }
 
     const hasPassed = participant.attempts.some((a) => a.passed);

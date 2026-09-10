@@ -106,7 +106,7 @@ export default async function ParticipantDashboardPage() {
     { label: "Daftar", done: true },
     { label: "Pretest", done: pretestDone },
     { label: "Materi", done: materiDone },
-    { label: "Posttest", done: postPassed },
+    { label: "Posttest", done: postPassed || Boolean(participant.certificateNumber) },
   ];
   const doneCount = stages.filter((s) => s.done).length;
   const progress = doneCount * 25;
@@ -130,7 +130,16 @@ export default async function ParticipantDashboardPage() {
   ].filter((r) => r.date !== null);
 
   let cta: React.ReactNode = null;
-  if (postPassed) {
+  if (participant.certificateNumber) {
+    // Sertifikat sudah terbit (termasuk penerbitan massal oleh admin) —
+    // peserta selesai, tidak ada lagi tombol ujian di fase mana pun.
+    cta = (
+      <span className="inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-[15px] font-semibold text-success">
+        <span aria-hidden className="size-2 rounded-full bg-success" />
+        Selesai — sertifikat terbit
+      </span>
+    );
+  } else if (postPassed) {
     cta = (
       <span className="inline-flex items-center gap-2 rounded-md bg-success-soft px-3 py-1.5 text-[15px] font-semibold text-success">
         <span aria-hidden className="size-2 rounded-full bg-success" />
@@ -142,6 +151,12 @@ export default async function ParticipantDashboardPage() {
       <p className="text-[15px] leading-relaxed text-ink-secondary">
         Kegiatan sudah ditutup. Hubungi admin untuk info lebih lanjut.
       </p>
+    );
+  } else if (phase === "POSTTEST") {
+    // Sesi posttest sudah berjalan — langsung mulai posttest, pretest tidak
+    // lagi diwajibkan (peserta telat daftar saat sesi materi).
+    cta = (
+      <Button href={`/t/${participant.token}`}>Kerjakan Posttest</Button>
     );
   } else if (!pretestDone && phase !== "SCHEDULED") {
     // Pretest tetap bisa dikerjakan walau sesi pretest lewat (peserta telat daftar)
@@ -160,10 +175,6 @@ export default async function ParticipantDashboardPage() {
           </p>
         ) : null}
       </div>
-    );
-  } else if (phase === "POSTTEST") {
-    cta = (
-      <Button href={`/t/${participant.token}`}>Kerjakan Posttest</Button>
     );
   } else if (pretestDone) {
     cta = (
@@ -192,10 +203,12 @@ export default async function ParticipantDashboardPage() {
     {
       label: "Posttest",
       href:
-        phase === "POSTTEST" && pretestDone
+        phase === "POSTTEST" && !participant.certificateNumber
           ? `/t/${participant.token}`
           : null,
-      disabledReason: "Dibuka saat sesi posttest dimulai",
+      disabledReason: participant.certificateNumber
+        ? "Selesai — sertifikat sudah terbit"
+        : "Dibuka saat sesi posttest dimulai",
     },
   ];
 
@@ -345,26 +358,24 @@ export default async function ParticipantDashboardPage() {
 
             <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
               <p className="label-eyebrow text-ink-secondary">Posttest</p>
-              {postPassed ? (
+              {participant.certificateNumber ? (
+                <p className="mt-2 text-[15px] font-semibold text-success">
+                  Selesai — sertifikat sudah terbit
+                </p>
+              ) : postPassed ? (
                 <p className="mt-2 text-[15px] font-semibold text-success">
                   Sudah lulus
                 </p>
               ) : phase === "POSTTEST" ? (
-                pretestDone ? (
-                  <p className="mt-2 text-[15px] font-medium">
-                    Siap dikerjakan —{" "}
-                    <a
-                      href={`/t/${participant.token}`}
-                      className="text-accent hover:underline"
-                    >
-                      buka link
-                    </a>
-                  </p>
-                ) : (
-                  <p className="mt-2 text-[15px] text-ink-secondary">
-                    Tunggu pretest selesai
-                  </p>
-                )
+                <p className="mt-2 text-[15px] font-medium">
+                  Siap dikerjakan —{" "}
+                  <a
+                    href={`/t/${participant.token}`}
+                    className="text-accent hover:underline"
+                  >
+                    buka link
+                  </a>
+                </p>
               ) : phase === "CLOSED" ? (
                 <p className="mt-2 text-[15px] text-ink-secondary">
                   Kegiatan sudah ditutup
@@ -478,11 +489,12 @@ export default async function ParticipantDashboardPage() {
                       Download Sertifikat
                     </Button>
                   </div>
-                  <div className="overflow-hidden rounded-md border border-hairline">
-                    <iframe
+                  <div className="overflow-hidden rounded-md border border-hairline bg-canvas">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={`/api/certificate/${participant.token}`}
-                      className="h-[800px] w-full"
-                      title="Sertifikat"
+                      alt="Sertifikat kelulusan"
+                      className="block h-auto w-full"
                     />
                   </div>
                 </div>

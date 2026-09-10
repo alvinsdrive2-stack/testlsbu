@@ -129,6 +129,7 @@ export default async function PosttestPage({
     where: { token },
     select: {
       id: true,
+      certificateNumber: true,
       activity: {
         select: {
           title: true,
@@ -159,6 +160,19 @@ export default async function PosttestPage({
         body="Hubungi admin untuk mendapatkan link posttest yang benar. Kalau kamu peserta kegiatan ini, cek dashboard peserta kamu."
         href="/login"
         hrefLabel="Masuk Dashboard"
+      />
+    );
+  }
+
+  // Sertifikat sudah terbit (mis. penerbitan massal admin) — posttest selesai,
+  // tidak ada ujian yang bisa dimulai lagi lewat link ini.
+  if (participant.certificateNumber) {
+    return (
+      <ExamResult
+        title="Posttest selesai"
+        body="Anda sudah menerima sertifikat untuk kegiatan ini. Cek dashboard untuk melihat dan mengunduh sertifikat Anda."
+        href="/p"
+        hrefLabel="Ke Dashboard"
       />
     );
   }
