@@ -5,17 +5,11 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { activityPhase, isRegistrationOpen } from "@/lib/activity-phase";
 import { createParticipantSession } from "@/lib/session";
+import { participantFields } from "@/lib/schemas";
 
 const registerSchema = z.object({
   activityId: z.string().min(1),
-  nama: z.string().min(3, "Nama minimal 3 karakter"),
-  badanUsaha: z.string().min(3, "Nama badan usaha minimal 3 karakter"),
-  npwp: z
-    .string()
-    .transform((v) => v.replace(/\D/g, ""))
-    .refine((d) => d.length >= 15 && d.length <= 16, "NPWP harus 15 atau 16 digit"),
-  wa: z.string().min(8, "No WA minimal 8 digit"),
-  email: z.string().email("Email tidak valid"),
+  ...participantFields,
   isGapensiMember: z.boolean(),
 });
 

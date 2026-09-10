@@ -10,6 +10,8 @@ import { prisma } from "@/lib/prisma";
 import { activityPhase, PHASE_LABEL, isRegistrationOpen } from "@/lib/activity-phase";
 import { deleteActivity } from "../actions";
 import { generateCertificate } from "./certificate-actions";
+import { ImportParticipantsForm } from "./ImportParticipantsForm";
+import { IssueAllCertificatesButton } from "./IssueAllCertificatesButton";
 import { CopyLink } from "./CopyLink";
 import { ScheduleForm } from "./ScheduleForm";
 import { RegistrationToggle } from "./RegistrationToggle";
@@ -61,7 +63,7 @@ export default async function ActivityDetailPage({
       : {}),
   };
 
-  const [total, participants, stageRows] =
+  const [total, participants, stageRows, uncertifiedCount] =
     await Promise.all([
       prisma.participant.count({ where }),
       prisma.participant.findMany({
@@ -73,6 +75,7 @@ export default async function ActivityDetailPage({
           id: true,
           nama: true,
           badanUsaha: true,
+          wa: true,
           stage: true,
           certificateNumber: true,
           certificateIssuedAt: true,
@@ -83,6 +86,9 @@ export default async function ActivityDetailPage({
         by: ["stage"],
         where: { activityId: id },
         _count: { _all: true },
+      }),
+      prisma.participant.count({
+        where: { activityId: id, certificateNumber: null },
       }),
     ]);
 
@@ -181,13 +187,34 @@ export default async function ActivityDetailPage({
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="text-h2 font-semibold">Peserta</h2>
+          <h2 className="text-h2 font-semibold">Import Peserta</h2>
           <Link
-            href={`/admin/activities/${id}/export`}
-            className="inline-flex min-h-10 items-center rounded-md bg-accent px-4 text-sm font-semibold text-surface hover:brightness-110"
+            href={`/admin/activities/${id}/import-template`}
+            className="inline-flex min-h-10 items-center rounded-md border border-hairline-strong bg-surface px-4 text-sm font-semibold text-ink hover:bg-canvas"
           >
-            Export Excel
+            Unduh Template
           </Link>
+        </div>
+        <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+          <ImportParticipantsForm activityId={id} />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 className="text-h2 font-semibold">Peserta</h2>
+          <div className="flex flex-wrap items-center gap-3">
+            <IssueAllCertificatesButton
+              activityId={id}
+              count={uncertifiedCount}
+            />
+            <Link
+              href={`/admin/activities/${id}/export`}
+              className="inline-flex min-h-10 items-center rounded-md bg-accent px-4 text-sm font-semibold text-surface hover:brightness-110"
+            >
+              Export Excel
+            </Link>
+          </div>
         </div>
         <form method="get" className="flex flex-wrap items-end gap-3">
           <div className="min-w-48 flex-1">
@@ -253,6 +280,7 @@ export default async function ActivityDetailPage({
                       "Aksi",
                       "Nama",
                       "Badan Usaha",
+                      "No. WA",
                       "Status",
                       "Nilai Pretest",
                       "Posttest Terbaik",
@@ -303,6 +331,9 @@ export default async function ActivityDetailPage({
                         <td className="py-3 pr-6 font-medium">{p.nama}</td>
                         <td className="py-3 pr-6 text-ink-secondary">
                           {p.badanUsaha}
+                        </td>
+                        <td className="py-3 pr-6 tabular-nums text-ink-secondary">
+                          {p.wa}
                         </td>
                         <td className="py-3 pr-6">{STAGE_LABEL[p.stage]}</td>
                         <td className="py-3 pr-6 tabular-nums">
