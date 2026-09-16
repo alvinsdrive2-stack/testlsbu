@@ -19,11 +19,11 @@ export async function generateCertificate(
 
   const participant = await prisma.participant.findUnique({
     where: { id: participantId },
-    include: { activity: { include: { module: true } } },
+    include: { activity: { include: { module: true } }, certificate: true },
   });
 
   if (!participant) return { error: "Peserta tidak ditemukan." };
-  if (participant.certificateNumber)
+  if (participant.certificate)
     return { error: "Peserta ini sudah diberi sertifikat." };
   if (participant.stage !== "POSTTEST_PASSED")
     return { error: "Peserta belum lulus posttest." };
@@ -58,7 +58,7 @@ export async function generateAllCertificates(
   if (!activity) return { error: "Kegiatan tidak ditemukan." };
 
   const pending = await prisma.participant.findMany({
-    where: { activityId, certificateNumber: null },
+    where: { activityId, certificate: null },
     select: { id: true },
   });
   if (pending.length === 0)

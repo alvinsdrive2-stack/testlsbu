@@ -13,35 +13,34 @@ export async function GET(
   const participant = await prisma.participant.findUnique({
     where: { token },
     select: {
-      certificateNumber: true,
-      nama: true,
-      badanUsaha: true,
-      npwp: true,
-      activity: {
+      certificate: {
         select: {
-          module: { select: { title: true } },
-          posttestStart: true,
+          number: true,
+          name: true,
+          company: true,
+          npwp: true,
+          moduleTitle: true,
+          examDate: true,
         },
       },
     },
   });
 
-  if (!participant || !participant.certificateNumber) {
+  if (!participant?.certificate) {
     return NextResponse.json({ error: "Sertifikat tidak ditemukan" }, { status: 404 });
   }
 
-  const examDate = participant.activity.posttestStart
-    ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(
-        participant.activity.posttestStart
-      )
+  const cert = participant.certificate;
+  const examDate = cert.examDate
+    ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(cert.examDate)
     : "";
 
   const values = {
-    number: participant.certificateNumber,
-    name: participant.nama,
-    company: participant.badanUsaha,
-    npwp: formatNpwp(participant.npwp),
-    module: participant.activity.module.title,
+    number: cert.number,
+    name: cert.name,
+    company: cert.company,
+    npwp: formatNpwp(cert.npwp),
+    module: cert.moduleTitle,
     date: examDate,
   } as Record<CertificateFieldKey, string>;
 
@@ -55,7 +54,7 @@ export async function GET(
       "Cache-Control": "public, max-age=3600",
       "Content-Disposition": `${
         isDownload ? "attachment" : "inline"
-      }; filename="sertifikat-${participant.certificateNumber}.png"`,
+      }; filename="sertifikat-${cert.number}.png"`,
     },
   });
 }

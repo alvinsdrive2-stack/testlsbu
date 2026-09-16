@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { EmailStatus } from "@/app/api/check-email/route";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-type Status = "idle" | "checking" | "taken" | "ok" | "error";
+type Status = "idle" | "checking" | EmailStatus | "error";
 
-export function EmailField() {
+export function EmailField({ activityId }: { activityId: string }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
 
@@ -20,24 +21,26 @@ export function EmailField() {
     const t = setTimeout(async () => {
       try {
         const res = await fetch(
-          `/api/check-email?email=${encodeURIComponent(value)}`
+          `/api/check-email?email=${encodeURIComponent(value)}&activityId=${encodeURIComponent(activityId)}`
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data: { taken: boolean } = await res.json();
-        setStatus(data.taken ? "taken" : "ok");
+        const data: { status: EmailStatus } = await res.json();
+        setStatus(data.status);
       } catch {
         setStatus("error");
       }
     }, 500);
     return () => clearTimeout(t);
-  }, [email]);
+  }, [email, activityId]);
 
   const borderClass =
     status === "taken"
       ? "border-flag focus:border-flag focus:ring-flag/20"
-      : status === "ok"
-        ? "border-success focus:border-success focus:ring-success/20"
-        : "";
+      : status === "known"
+        ? "border-accent focus:border-accent focus:ring-accent/20"
+        : status === "ok"
+          ? "border-success focus:border-success focus:ring-success/20"
+          : "";
 
   return (
     <div>
@@ -68,12 +71,19 @@ export function EmailField() {
       ) : null}
       {status === "taken" ? (
         <p role="alert" className="mt-1.5 text-[13px] font-medium text-flag">
-          Email ini sudah terdaftar. Silakan gunakan nomor WA yang sama dengan
-          pendaftaran sebelumnya untuk masuk langsung, atau{" "}
+          Email ini sudah terdaftar di kegiatan ini. Silakan gunakan nomor WA yang
+          sama dengan pendaftaran sebelumnya untuk masuk langsung, atau{" "}
           <a href="/login" className="underline hover:opacity-80">
             login di sini
           </a>
           .
+        </p>
+      ) : null}
+      {status === "known" ? (
+        <p className="mt-1.5 text-[13px] font-medium text-accent">
+          Email ini sudah dipakai di kegiatan lain. Isi dengan nomor WA yang sama
+          seperti pendaftaran sebelumnya, lalu daftar — tidak masalah, kegiatan kamu
+          yang lain tetap aman.
         </p>
       ) : null}
       {status === "ok" ? (

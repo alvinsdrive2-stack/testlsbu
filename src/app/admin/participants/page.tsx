@@ -38,23 +38,44 @@ export default async function AdminParticipantsPage({
   const where: Prisma.ParticipantWhereInput = q
     ? {
         OR: [
-          { nama: { contains: q } },
-          { badanUsaha: { contains: q } },
-          { email: { contains: q } },
-          { wa: { contains: q } },
-          { npwp: { contains: q } },
+          { user: { nama: { contains: q } } },
+          { user: { badanUsaha: { contains: q } } },
+          { user: { email: { contains: q } } },
+          { user: { wa: { contains: q } } },
+          { user: { npwp: { contains: q } } },
         ],
       }
     : {};
+
+  // Nama & badan usaha sekarang milik `user`, jadi pengurutannya lewat relasi.
+  const orderBy: Prisma.ParticipantOrderByWithRelationInput =
+    sort === "nama"
+      ? { user: { nama: dir } }
+      : sort === "badanUsaha"
+        ? { user: { badanUsaha: dir } }
+        : sort === "stage"
+          ? { stage: dir }
+          : { createdAt: dir };
 
   const [total, participants] = await Promise.all([
     prisma.participant.count({ where }),
     prisma.participant.findMany({
       where,
-      orderBy: { [sort]: dir },
+      orderBy,
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { activity: { select: { id: true, title: true } } },
+      include: {
+        activity: { select: { id: true, title: true } },
+        user: {
+          select: {
+            nama: true,
+            badanUsaha: true,
+            wa: true,
+            npwp: true,
+            email: true,
+          },
+        },
+      },
     }),
   ]);
 
@@ -183,15 +204,15 @@ export default async function AdminParticipantsPage({
                 {participants.map((p) => (
                   <tr key={p.id} className="border-b border-hairline">
                     <td className="py-3 pr-6">
-                      <p className="font-medium text-ink">{p.nama}</p>
-                      <p className="text-[13px] text-ink-secondary">{p.email}</p>
+                      <p className="font-medium text-ink">{p.user.nama}</p>
+                      <p className="text-[13px] text-ink-secondary">{p.user.email}</p>
                     </td>
-                    <td className="py-3 pr-6 text-ink-secondary">{p.badanUsaha}</td>
+                    <td className="py-3 pr-6 text-ink-secondary">{p.user.badanUsaha}</td>
                     <td className="py-3 pr-6 whitespace-nowrap tabular-nums text-ink-secondary">
-                      {p.wa}
+                      {p.user.wa}
                     </td>
                     <td className="py-3 pr-6 whitespace-nowrap tabular-nums text-ink-secondary">
-                      {formatNpwp(p.npwp)}
+                      {formatNpwp(p.user.npwp)}
                     </td>
                     <td className="py-3 pr-6">{STAGE_LABEL[p.stage]}</td>
                     <td className="py-3 pr-6">

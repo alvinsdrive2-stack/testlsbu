@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { parseParticipantRows, type ImportRowError } from "@/lib/participant-import";
+import { dedupeByEmail } from "@/lib/enrollment";
 
 const MAX_FILE_BYTES = 4 * 1024 * 1024; // samakan dengan serverActions.bodySizeLimit
 
@@ -14,6 +15,11 @@ export type ImportState = {
   /** Jumlah baris yang emailnya sudah ada di kegiatan ini — tidak diblokir,
    *  hanya dilaporkan supaya admin sadar kalau file ter-upload dua kali. */
   duplicateInActivity?: number;
+  /** Identitas baru yang dibuat dari file ini. */
+  newUsers?: number;
+  /** Peserta yang sudah punya akun (dari kegiatan lain) — datanya dipakai
+   *  ulang, tidak ditimpa file Excel. */
+  reusedUsers?: number;
   errors?: ImportRowError[];
 };
 
@@ -86,28 +92,55 @@ export async function importParticipants(
       errors: parse.errors,
     };
 
-  const inserted = await prisma.participant.createMany({
-    data: parse.rows.map((r) => ({
-      activityId,
-      nama: r.nama,
-      badanUsaha: r.badanUsaha,
-      npwp: r.npwp,
-      wa: r.wa,
-      email: r.email,
-      isGapensiMember: false,
-    })),
+  // Email adalah kunci identitas, jadi satu email yang muncul dua kali di
+  // file harus berakhir jadi satu user — bukan dua baris participant.
+  const rows = dedupeByEmail(parse.rows);
+  const emails = rows.map((r) => r.email);
+
+  // Dihitung SEBELUM insert, jadi angkanya benar-benar berarti "sudah ada di
+  // kegiatan ini dari sebelumnya" (penanda file ter-upload dua kali).
+  const alreadyEnrolled = await prisma.participant.count({
+    where: { activityId, user: { email: { in: emails } } },
   });
 
-  // Deteksi duplikat di kegiatan ini HANYA untuk laporan — tidak memblokir.
-  const existing = await prisma.participant.findMany({
-    where: { activityId, email: { in: parse.rows.map((r) => r.email) } },
-    select: { email: true },
+  const existingUsers = await prisma.user.findMany({
+    where: { email: { in: emails } },
+    select: { id: true, email: true },
   });
-  const uniqueImported = new Set(parse.rows.map((r) => r.email));
-  const uniqueExisting = new Set(existing.map((e) => e.email));
-  const duplicateInActivity = [...uniqueImported].filter((e) =>
-    uniqueExisting.has(e)
-  ).length;
+  const userIdByEmail = new Map(existingUsers.map((u) => [u.email, u.id]));
+  const newUsers = rows.filter((r) => !userIdByEmail.has(r.email));
+
+  const inserted = await prisma.$transaction(async (tx) => {
+    if (newUsers.length > 0) {
+      // User yang sudah ada TIDAK ditimpa: data yang diisi sendiri oleh
+      // peserta lewat form pendaftaran lebih dipercaya daripada Excel admin.
+      await tx.user.createMany({
+        data: newUsers.map((r) => ({
+          email: r.email,
+          nama: r.nama,
+          badanUsaha: r.badanUsaha,
+          npwp: r.npwp,
+          wa: r.wa,
+          isGapensiMember: false,
+        })),
+      });
+      const created = await tx.user.findMany({
+        where: { email: { in: newUsers.map((r) => r.email) } },
+        select: { id: true, email: true },
+      });
+      for (const u of created) userIdByEmail.set(u.email, u.id);
+    }
+
+    // skipDuplicates: orang yang sudah terdaftar di kegiatan ini dilewati,
+    // tidak bikin pendaftaran kedua (unique activityId + userId).
+    return tx.participant.createMany({
+      data: rows.map((r) => ({
+        activityId,
+        userId: userIdByEmail.get(r.email)!,
+      })),
+      skipDuplicates: true,
+    });
+  });
 
   revalidatePath(`/admin/activities/${activityId}`);
 
@@ -115,7 +148,9 @@ export async function importParticipants(
     ok: true,
     inserted: inserted.count,
     failedRows: parse.errors.length,
-    duplicateInActivity,
+    duplicateInActivity: alreadyEnrolled,
+    newUsers: newUsers.length,
+    reusedUsers: rows.length - newUsers.length,
     errors: parse.errors,
   };
 }

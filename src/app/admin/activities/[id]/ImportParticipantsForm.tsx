@@ -69,10 +69,19 @@ export function ImportParticipantsForm({ activityId }: { activityId: string }) {
           <p className="text-sm font-semibold text-success">
             {state.inserted} peserta berhasil diimport.
           </p>
+          {state.newUsers || state.reusedUsers ? (
+            <p className="mt-1 text-sm text-ink-secondary">
+              {state.newUsers ?? 0} identitas baru
+              {state.reusedUsers
+                ? `, ${state.reusedUsers} peserta yang sudah punya akun dari kegiatan lain (datanya tidak diubah)`
+                : ""}
+              .
+            </p>
+          ) : null}
           {state.duplicateInActivity && state.duplicateInActivity > 0 ? (
             <p className="mt-1 text-sm font-medium text-flag">
-              Perhatian: {state.duplicateInActivity} email sudah ada di kegiatan
-              ini sebelumnya dan tetap didaftarkan lagi — pastikan file tidak
+              Perhatian: {state.duplicateInActivity} baris sudah terdaftar di
+              kegiatan ini sebelumnya dan dilewati — pastikan file tidak
               ter-upload dua kali.
             </p>
           ) : null}

@@ -62,7 +62,7 @@ export function JoinForm({ activityId }: { activityId: string }) {
       <Fieldset legend="Legal & kontak">
         <NpwpField />
         <TextField label="No WA" name="wa" required minLength={8} />
-        <EmailField />
+        <EmailField activityId={activityId} />
         <p className="text-[13px] leading-relaxed text-ink-secondary">
           Data hanya digunakan untuk keperluan pelatihan dan penerbitan
           sertifikat.

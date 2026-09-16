@@ -129,7 +129,7 @@ export default async function PosttestPage({
     where: { token },
     select: {
       id: true,
-      certificateNumber: true,
+      certificate: { select: { id: true } },
       activity: {
         select: {
           title: true,
@@ -166,7 +166,7 @@ export default async function PosttestPage({
 
   // Sertifikat sudah terbit (mis. penerbitan massal admin) — posttest selesai,
   // tidak ada ujian yang bisa dimulai lagi lewat link ini.
-  if (participant.certificateNumber) {
+  if (participant.certificate) {
     return (
       <ExamResult
         title="Posttest selesai"

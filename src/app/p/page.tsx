@@ -4,7 +4,7 @@ import { activityPhase, PHASE_LABEL } from "@/lib/activity-phase";
 import { getParticipantToken } from "@/lib/session";
 import { AutoRefresh } from "./AutoRefresh";
 import { ProfileMenu } from "@/components/ui/ProfileMenu";
-import { logout } from "./actions";
+import { logout, switchEnrollment } from "./actions";
 import { Button } from "@/components/ui/Button";
 import { TopBar } from "@/components/ui/TopBar";
 import { Backdrop } from "@/components/ui/Backdrop";
@@ -26,15 +26,20 @@ export default async function ParticipantDashboardPage() {
   const participant = await prisma.participant.findUnique({
     where: { token },
     select: {
-      nama: true,
-      badanUsaha: true,
-      npwp: true,
-      wa: true,
-      email: true,
+      id: true,
+      userId: true,
       token: true,
       stage: true,
-      certificateNumber: true,
-      certificateIssuedAt: true,
+      certificate: { select: { number: true, issuedAt: true } },
+      user: {
+        select: {
+          nama: true,
+          badanUsaha: true,
+          npwp: true,
+          wa: true,
+          email: true,
+        },
+      },
       activity: {
         select: {
           id: true,
@@ -79,6 +84,17 @@ export default async function ParticipantDashboardPage() {
     );
   }
 
+  // Satu orang boleh ikut beberapa pelatihan, jadi daftar pendaftaran milik
+  // user ini diambil untuk pemilih kegiatan di sidebar.
+  const enrollments = await prisma.participant.findMany({
+    where: { userId: participant.userId },
+    orderBy: [{ createdAt: "desc" }],
+    select: {
+      id: true,
+      activity: { select: { id: true, title: true } },
+    },
+  });
+
   const activity = participant.activity;
   const pretestScores = participant.attempts
     .filter((a) => a.section === "PRETEST" && a.score !== null)
@@ -95,7 +111,7 @@ export default async function ParticipantDashboardPage() {
   const materiDone = pretestDone && (phase === "MATERIAL" || phase === "POSTTEST");
 
   // Konten MediumText hanya diambil saat materi benar-benar ditampilkan
-  const materials = materiOpen && !participant.certificateNumber
+  const materials = materiOpen && !participant.certificate
     ? await prisma.material.findMany({
         where: { moduleId: activity.module.id },
         orderBy: { order: "asc" },
@@ -106,7 +122,7 @@ export default async function ParticipantDashboardPage() {
     { label: "Daftar", done: true },
     { label: "Pretest", done: pretestDone },
     { label: "Materi", done: materiDone },
-    { label: "Posttest", done: postPassed || Boolean(participant.certificateNumber) },
+    { label: "Posttest", done: postPassed || Boolean(participant.certificate) },
   ];
   const doneCount = stages.filter((s) => s.done).length;
   const progress = doneCount * 25;
@@ -130,7 +146,7 @@ export default async function ParticipantDashboardPage() {
   ].filter((r) => r.date !== null);
 
   let cta: React.ReactNode = null;
-  if (participant.certificateNumber) {
+  if (participant.certificate) {
     // Sertifikat sudah terbit (termasuk penerbitan massal oleh admin) —
     // peserta selesai, tidak ada lagi tombol ujian di fase mana pun.
     cta = (
@@ -203,10 +219,10 @@ export default async function ParticipantDashboardPage() {
     {
       label: "Posttest",
       href:
-        phase === "POSTTEST" && !participant.certificateNumber
+        phase === "POSTTEST" && !participant.certificate
           ? `/t/${participant.token}`
           : null,
-      disabledReason: participant.certificateNumber
+      disabledReason: participant.certificate
         ? "Selesai — sertifikat sudah terbit"
         : "Dibuka saat sesi posttest dimulai",
     },
@@ -233,13 +249,16 @@ export default async function ParticipantDashboardPage() {
   return (
     <div className="min-h-screen">
       <AutoRefresh boundaries={boundaries} />
-      <QueryToast success={{ joined: "Pendaftaran berhasil. Selamat datang!" }} />
+      <QueryToast
+        success={{ joined: "Pendaftaran berhasil. Selamat datang!" }}
+        error={{ denied: "Kegiatan itu bukan milik akunmu." }}
+      />
       <Backdrop />
       <TopBar
         title={activity.title}
         right={
           <ProfileMenu
-            name={participant.nama}
+            name={participant.user.nama}
             roleLabel="Peserta"
             logoutAction={logout}
           />
@@ -301,6 +320,47 @@ export default async function ParticipantDashboardPage() {
               )}
             </nav>
 
+            {enrollments.length > 1 ? (
+              <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-4 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
+                <p className="label-eyebrow text-ink-secondary">Kegiatan kamu</p>
+                <p className="mt-1 text-[13px] leading-relaxed text-ink-secondary">
+                  Kamu terdaftar di {enrollments.length} kegiatan. Pilih yang mau
+                  dibuka.
+                </p>
+                <ul className="mt-3 space-y-2">
+                  {enrollments.map((e) => (
+                    <li key={e.id}>
+                      {e.id === participant.id ? (
+                        <div className="rounded-md border border-accent/40 bg-accent-soft px-3 py-2">
+                          <p className="text-[15px] font-semibold text-accent">
+                            {e.activity.title}
+                          </p>
+                          <p className="text-[13px] text-ink-secondary">
+                            Sedang dibuka
+                          </p>
+                        </div>
+                      ) : (
+                        <form action={switchEnrollment}>
+                          <input
+                            type="hidden"
+                            name="participantId"
+                            value={e.id}
+                          />
+                          <Button
+                            type="submit"
+                            variant="secondary"
+                            className="w-full text-left"
+                          >
+                            {e.activity.title}
+                          </Button>
+                        </form>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-4 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
               <p className="label-eyebrow text-ink-secondary">Progres</p>
               <ol className="mt-3 space-y-2.5">
@@ -358,7 +418,7 @@ export default async function ParticipantDashboardPage() {
 
             <div className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 shadow-[0_1px_3px_rgba(15,20,25,0.06)]">
               <p className="label-eyebrow text-ink-secondary">Posttest</p>
-              {participant.certificateNumber ? (
+              {participant.certificate ? (
                 <p className="mt-2 text-[15px] font-semibold text-success">
                   Selesai — sertifikat sudah terbit
                 </p>
@@ -464,9 +524,9 @@ export default async function ParticipantDashboardPage() {
           <section id="materi" className="mt-8 scroll-mt-16">
             <div className="border border-hairline bg-surface p-6 shadow-[0_1px_3px_rgba(15,20,25,0.06)] sm:p-8">
               <p className="label-eyebrow text-ink-secondary">
-                {participant.certificateNumber ? "Sertifikat" : "Materi"}
+                {participant.certificate ? "Sertifikat" : "Materi"}
               </p>
-              {participant.certificateNumber ? (
+              {participant.certificate ? (
                 <div className="mt-4">
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -474,12 +534,12 @@ export default async function ParticipantDashboardPage() {
                         Sertifikat Kelulusan
                       </p>
                       <p className="mt-1 text-[15px] text-ink-secondary">
-                        Nomor: {participant.certificateNumber}
+                        Nomor: {participant.certificate.number}
                       </p>
-                      {participant.certificateIssuedAt ? (
+                      {participant.certificate.issuedAt ? (
                         <p className="mt-1 text-[13px] text-ink-secondary">
                           Diterbitkan{" "}
-                          {participant.certificateIssuedAt.toLocaleDateString("id-ID", {
+                          {participant.certificate.issuedAt.toLocaleDateString("id-ID", {
                             dateStyle: "long",
                           })}
                         </p>

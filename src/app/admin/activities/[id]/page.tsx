@@ -56,7 +56,12 @@ export default async function ActivityDetailPage({
   const where: Prisma.ParticipantWhereInput = {
     activityId: id,
     ...(q
-      ? { OR: [{ nama: { contains: q } }, { badanUsaha: { contains: q } }] }
+      ? {
+          OR: [
+            { user: { nama: { contains: q } } },
+            { user: { badanUsaha: { contains: q } } },
+          ],
+        }
       : {}),
     ...(STAGE_OPTIONS.some((o) => o.value === stage)
       ? { stage: stage as Stage }
@@ -73,12 +78,9 @@ export default async function ActivityDetailPage({
         take: PAGE_SIZE,
         select: {
           id: true,
-          nama: true,
-          badanUsaha: true,
-          wa: true,
           stage: true,
-          certificateNumber: true,
-          certificateIssuedAt: true,
+          certificate: { select: { number: true } },
+          user: { select: { nama: true, badanUsaha: true, wa: true } },
           attempts: { select: { section: true, score: true, passed: true } },
         },
       }),
@@ -88,7 +90,7 @@ export default async function ActivityDetailPage({
         _count: { _all: true },
       }),
       prisma.participant.count({
-        where: { activityId: id, certificateNumber: null },
+        where: { activityId: id, certificate: null },
       }),
     ]);
 
@@ -312,7 +314,7 @@ export default async function ActivityDetailPage({
                     return (
                       <tr key={p.id} className="border-b border-hairline">
                         <td className="py-3 pr-6">
-                          {p.stage === "POSTTEST_PASSED" && !p.certificateNumber ? (
+                          {p.stage === "POSTTEST_PASSED" && !p.certificate ? (
                             <ActionForm
                               action={generateCertificate}
                               inputs={{ participantId: p.id }}
@@ -324,16 +326,16 @@ export default async function ActivityDetailPage({
                                 Beri Sertifikat
                               </SubmitButton>
                             </ActionForm>
-                          ) : p.certificateNumber ? (
+                          ) : p.certificate ? (
                             <span className="text-xs text-accent">✓ Diberikan</span>
                           ) : null}
                         </td>
-                        <td className="py-3 pr-6 font-medium">{p.nama}</td>
+                        <td className="py-3 pr-6 font-medium">{p.user.nama}</td>
                         <td className="py-3 pr-6 text-ink-secondary">
-                          {p.badanUsaha}
+                          {p.user.badanUsaha}
                         </td>
                         <td className="py-3 pr-6 tabular-nums text-ink-secondary">
-                          {p.wa}
+                          {p.user.wa}
                         </td>
                         <td className="py-3 pr-6">{STAGE_LABEL[p.stage]}</td>
                         <td className="py-3 pr-6 tabular-nums">

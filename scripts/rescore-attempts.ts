@@ -45,7 +45,10 @@ async function main() {
 
   // Koreksi stage peserta berdasarkan hasil baru
   const participants = await prisma.participant.findMany({
-    include: { attempts: { where: { submittedAt: { not: null } } } },
+    include: {
+      attempts: { where: { submittedAt: { not: null } } },
+      user: { select: { nama: true } },
+    },
   });
   for (const p of participants) {
     const stage = p.attempts.some((a) => a.section === "POSTTEST" && a.passed)
@@ -55,7 +58,7 @@ async function main() {
         : "REGISTERED";
     if (stage !== p.stage) {
       await prisma.participant.update({ where: { id: p.id }, data: { stage } });
-      console.log(`${p.nama}: stage ${p.stage} -> ${stage}`);
+      console.log(`${p.user.nama}: stage ${p.stage} -> ${stage}`);
     }
   }
 }

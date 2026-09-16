@@ -11,26 +11,46 @@ export function sequenceRange(lastSequence: number, count: number): number[] {
 /**
  * Terbitkan sertifikat untuk banyak peserta sekaligus dalam SATU transaksi:
  * blok nomor urut dipesan sekali (bukan satu-satu), lalu tiap peserta
- * diberi nomor berurutan. Peserta yang ternyata sudah punya sertifikat
- * dilewati (nomornya jadi bolong, tapi tidak pernah dobel — kolom
- * certificateNumber unik).
+ * diberi nomor berurutan.
+ *
+ * Semua yang tercetak di sertifikat (nama, perusahaan, NPWP, modul, tanggal
+ * ujian) DISALIN dari kondisi user/activity saat ini ke baris `certificate`.
+ * Render sertifikat nanti membaca salinan itu, bukan `user`/`activity` lagi —
+ * jadi mengedit profil peserta atau jadwal kegiatan tidak mengubah sertifikat
+ * yang sudah di tangan peserta.
  *
  * stage ikut di-set POSTTEST_PASSED — jalur penerbitan satuan hanya
  * memanggil ini setelah cek lulus, jalur massal memanggil ini untuk semua.
  */
 export async function issueCertificates(participantIds: string[]): Promise<number> {
-  const count = participantIds.length;
-  if (count === 0) return 0;
+  if (participantIds.length === 0) return 0;
 
   const year = new Date().getFullYear();
   const counterId = `cert-seq-${year}`;
 
   return prisma.$transaction(
     async (tx) => {
-      const issuedThisYear = await tx.participant.count({
+      // Disaring dulu supaya jatah nomor tidak terbuang untuk peserta yang
+      // ternyata sudah punya sertifikat.
+      const pending = await tx.participant.findMany({
+        where: { id: { in: participantIds }, certificate: null },
+        select: {
+          id: true,
+          user: { select: { nama: true, badanUsaha: true, npwp: true } },
+          activity: {
+            select: {
+              posttestStart: true,
+              module: { select: { title: true } },
+            },
+          },
+        },
+      });
+      const count = pending.length;
+      if (count === 0) return 0;
+
+      const issuedThisYear = await tx.certificate.count({
         where: {
-          certificateNumber: { not: null },
-          certificateIssuedAt: {
+          issuedAt: {
             gte: new Date(`${year}-01-01T00:00:00`),
             lt: new Date(`${year + 1}-01-01T00:00:00`),
           },
@@ -54,15 +74,24 @@ export async function issueCertificates(participantIds: string[]): Promise<numbe
       const now = new Date();
       let issued = 0;
       for (let i = 0; i < count; i++) {
-        const res = await tx.participant.updateMany({
-          where: { id: participantIds[i], certificateNumber: null },
+        const p = pending[i];
+        await tx.certificate.create({
           data: {
-            certificateNumber: generateCertificateNumber(numbers[i]),
-            certificateIssuedAt: now,
-            stage: "POSTTEST_PASSED",
+            participantId: p.id,
+            number: generateCertificateNumber(numbers[i]),
+            name: p.user.nama,
+            company: p.user.badanUsaha,
+            npwp: p.user.npwp,
+            moduleTitle: p.activity.module.title,
+            examDate: p.activity.posttestStart,
+            issuedAt: now,
           },
         });
-        issued += res.count;
+        await tx.participant.update({
+          where: { id: p.id },
+          data: { stage: "POSTTEST_PASSED" },
+        });
+        issued++;
       }
       return issued;
     },

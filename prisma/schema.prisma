@@ -97,27 +97,64 @@ model Activity {
   @@map("activity")
 }
 
+/// Identitas peserta — satu baris per email, berlaku lintas kegiatan.
+/// Data di sini bukan milik satu pelatihan: peserta yang sama boleh ikut
+/// pelatihan di hari berbeda tanpa terdaftar sebagai orang baru.
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  wa              String
+  nama            String
+  badanUsaha      String
+  npwp            String
+  isGapensiMember Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  participants    Participant[]
+
+  @@index([wa])
+  @@map("user")
+}
+
+/// Pendaftaran peserta ke SATU kegiatan (pelatihan). Identitas orangnya
+/// dibaca dari relasi `user`, jadi email yang sama boleh muncul di banyak
+/// baris participant asal activityId-nya berbeda.
 model Participant {
   id              String           @id @default(cuid())
   activityId      String
   activity        Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   token           String           @unique @default(uuid())
-  nama            String
-  badanUsaha      String
-  npwp            String
-  wa              String
-  email           String
-  isGapensiMember Boolean
   stage           ParticipantStage @default(REGISTERED)
   attempts            Attempt[]
-  certificateNumber   String?          @unique
-  certificateIssuedAt DateTime?
+  certificate         Certificate?
   createdAt           DateTime         @default(now())
 
+  @@unique([activityId, userId])
   @@index([activityId])
-  @@index([email])
-  @@index([wa])
+  @@index([userId])
   @@map("participant")
+}
+
+/// Sertifikat yang sudah terbit. Semua yang tercetak di gambarnya (nama,
+/// perusahaan, NPWP, modul, tanggal ujian) DISALIN dari `user`/`activity`
+/// saat penerbitan, bukan dibaca ulang tiap kali dirender. Jadi mengubah
+/// profil peserta atau jadwal kegiatan tidak ikut mengubah sertifikat yang
+/// sudah di tangan peserta.
+model Certificate {
+  id            String      @id @default(cuid())
+  participantId String      @unique
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  number        String      @unique
+  name          String
+  company       String
+  npwp          String
+  moduleTitle   String
+  examDate      DateTime?
+  issuedAt      DateTime    @default(now())
+
+  @@map("certificate")
 }
 
 model Attempt {

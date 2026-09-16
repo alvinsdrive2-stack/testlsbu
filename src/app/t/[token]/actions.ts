@@ -17,7 +17,7 @@ export async function startPosttestRetry(
       where: { token },
       select: {
         id: true,
-        certificateNumber: true,
+        certificate: { select: { id: true } },
         activity: {
           select: {
             registrationStart: true,
@@ -39,7 +39,7 @@ export async function startPosttestRetry(
     ) {
       return { error: "Sesi posttest belum berlangsung atau sudah ditutup." };
     }
-    if (participant.certificateNumber) {
+    if (participant.certificate) {
       return { error: "Kamu sudah menerima sertifikat kegiatan ini." };
     }
 

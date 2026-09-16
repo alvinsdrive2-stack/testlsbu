@@ -18,13 +18,17 @@ export async function GET(
 
   const participants = await prisma.participant.findMany({
     where: { activityId: id },
-    orderBy: { nama: "asc" },
+    orderBy: { user: { nama: "asc" } },
     select: {
-      nama: true,
-      badanUsaha: true,
-      npwp: true,
-      wa: true,
-      email: true,
+      user: {
+        select: {
+          nama: true,
+          badanUsaha: true,
+          npwp: true,
+          wa: true,
+          email: true,
+        },
+      },
     },
   });
 
@@ -56,11 +60,11 @@ export async function GET(
   participants.forEach((p, i) => {
     worksheet.getRow(i + 6).values = [
       i + 1,
-      p.nama,
-      p.badanUsaha,
-      p.npwp || "-",
-      p.wa || "-",
-      p.email,
+      p.user.nama,
+      p.user.badanUsaha,
+      p.user.npwp || "-",
+      p.user.wa || "-",
+      p.user.email,
     ];
   });
 

@@ -52,32 +52,47 @@ export async function registerParticipant(
   }
 
   const email = parsed.data.email.trim().toLowerCase();
-  const existing = await prisma.participant.findFirst({
-    where: { email },
-    orderBy: { createdAt: "desc" },
-    select: { wa: true, token: true },
-  });
-  if (existing) {
-    if (existing.wa === parsed.data.wa) {
-      await createParticipantSession(existing.token);
-      redirect("/p?joined=1");
-    }
+  const profile = {
+    nama: parsed.data.nama,
+    badanUsaha: parsed.data.badanUsaha,
+    npwp: parsed.data.npwp,
+    wa: parsed.data.wa,
+    isGapensiMember: parsed.data.isGapensiMember,
+  };
+
+  // Identitas dicari lintas kegiatan. Email yang sudah dipakai di pelatihan
+  // lain BUKAN alasan menolak — peserta yang sama boleh ikut pelatihan di
+  // hari berbeda. Penjaganya cukup nomor WA: kalau beda, berarti ada orang
+  // lain yang memakai email ini.
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser && existingUser.wa !== parsed.data.wa) {
     return {
       error:
         "Email sudah digunakan oleh badan usaha lain. Silakan gunakan email lain atau login ke dashboard.",
     };
   }
 
+  // Data yang diketik peserta sendiri di form dianggap paling baru.
+  const user = existingUser
+    ? await prisma.user.update({
+        where: { id: existingUser.id },
+        data: profile,
+      })
+    : await prisma.user.create({ data: { email, ...profile } });
+
+  const enrollment = await prisma.participant.findUnique({
+    where: { activityId_userId: { activityId, userId: user.id } },
+    select: { token: true },
+  });
+  if (enrollment) {
+    // Sudah terdaftar di kegiatan ini — daftar ulang cukup masuk kembali,
+    // tidak bikin pendaftaran kedua.
+    await createParticipantSession(enrollment.token);
+    redirect("/p");
+  }
+
   const participant = await prisma.participant.create({
-    data: {
-      activityId,
-      nama: parsed.data.nama,
-      badanUsaha: parsed.data.badanUsaha,
-      npwp: parsed.data.npwp,
-      wa: parsed.data.wa,
-      email,
-      isGapensiMember: parsed.data.isGapensiMember,
-    },
+    data: { activityId, userId: user.id },
   });
 
   await createParticipantSession(participant.token);
