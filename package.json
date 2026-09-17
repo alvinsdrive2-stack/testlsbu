@@ -20,6 +20,7 @@
     "canvas": "^3.2.3",
     "exceljs": "^4.4.0",
     "jose": "^6.2.9",
+    "jszip": "^3.10.2",
     "next": "15.5.23",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/jszip": "^3.4.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

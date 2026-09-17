@@ -210,6 +210,16 @@ export default async function ActivityDetailPage({
               activityId={id}
               count={uncertifiedCount}
             />
+            {uncertifiedCount < totalParticipants ? (
+              <a
+                href={`/api/admin/activities/${id}/certificates-zip`}
+                className="inline-flex min-h-10 items-center rounded-md bg-accent px-4 text-sm font-semibold text-surface hover:brightness-110"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Download Semua KTA
+              </a>
+            ) : null}
             <Link
               href={`/admin/activities/${id}/export`}
               className="inline-flex min-h-10 items-center rounded-md bg-accent px-4 text-sm font-semibold text-surface hover:brightness-110"
