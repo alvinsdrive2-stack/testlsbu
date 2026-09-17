@@ -1,5 +1,5 @@
 import path from "path";
-import { createCanvas, loadImage, registerFont, type Canvas } from "canvas";
+import { createCanvas, loadImage, registerFont, type Canvas, type Image } from "canvas";
 import {
   CERTIFICATE_FIELDS,
   type CertificateFieldConfig,
@@ -19,6 +19,19 @@ function ensureFonts() {
   registerFont(path.join(process.cwd(), "public", "fonts", "Poppins-Light.ttf"), { family: "Poppins", weight: "300" });
   registerFont(path.join(process.cwd(), "public", "fonts", "Poppins-Bold.ttf"), { family: "Poppins", weight: "bold" });
   fontsRegistered = true;
+}
+
+// Template di-cache sekali — render massal (ZIP semua sertifikat) nggak perlu
+// baca + decode PNG dari disk tiap sertifikat. Promise aman dipakai ke
+// banyak canvas sekaligus karena loadImage sifatnya idempotent.
+let templatePromise: Promise<Image> | null = null;
+
+function loadTemplate() {
+  if (!templatePromise) {
+    templatePromise = loadImage(TEMPLATE_PATH);
+    templatePromise.catch(() => { templatePromise = null; });
+  }
+  return templatePromise;
 }
 
 export function drawCertificate(
@@ -55,10 +68,12 @@ export async function renderCertificate(
   fields: CertificateFieldConfig[] = CERTIFICATE_FIELDS
 ): Promise<Buffer> {
   ensureFonts();
-  const template = await loadImage(TEMPLATE_PATH);
+  const template = await loadTemplate();
   const canvas = createCanvas(template.width, template.height);
   const ctx = canvas.getContext("2d");
   ctx.drawImage(template, 0, 0);
   drawCertificate(canvas, values, fields);
-  return canvas.toBuffer("image/png");
+  // compressionLevel 0: skip re-encode deflate untuk template PNG yang
+  // sudah terkompresi — hemat waktu signifikan di render massal.
+  return canvas.toBuffer("image/png", { compressionLevel: 0 });
 }

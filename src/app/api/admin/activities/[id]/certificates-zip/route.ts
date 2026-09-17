@@ -61,7 +61,8 @@ export async function GET(
 
     const buffer = await renderCertificate(values, fields);
     const filename = `sertifikat-${cert.number}.png`;
-    zip.file(filename, buffer);
+    // compression "STORE": skip deflate — PNG sudah dikompresi, re-encode cuma buang CPU.
+    zip.file(filename, buffer, { compression: "STORE" });
   }
 
   const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
