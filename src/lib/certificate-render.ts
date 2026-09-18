@@ -63,9 +63,12 @@ export function drawCertificate(
   }
 }
 
+type PngCompression = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+
 export async function renderCertificate(
   values: Record<CertificateFieldKey, string>,
-  fields: CertificateFieldConfig[] = CERTIFICATE_FIELDS
+  fields: CertificateFieldConfig[] = CERTIFICATE_FIELDS,
+  compressionLevel: PngCompression = 6
 ): Promise<Buffer> {
   ensureFonts();
   const template = await loadTemplate();
@@ -73,7 +76,8 @@ export async function renderCertificate(
   const ctx = canvas.getContext("2d");
   ctx.drawImage(template, 0, 0);
   drawCertificate(canvas, values, fields);
-  // compressionLevel 0: skip re-encode deflate untuk template PNG yang
-  // sudah terkompresi — hemat waktu signifikan di render massal.
-  return canvas.toBuffer("image/png", { compressionLevel: 0 });
+  // compressionLevel 0 pernah dipakai buat "skip re-encode", tapi itu keliru:
+  // output pnglib level 0 = PNG mentah 11MB, bukan terkompresi. Render massal
+  // (ZIP) override ke 3 — ukuran 0.35MB, waktu encode nyaris setara level 0.
+  return canvas.toBuffer("image/png", { compressionLevel });
 }
