@@ -5,6 +5,11 @@ import { renderCertificate, type CertificateFieldKey } from "@/lib/certificate-r
 import { formatNpwp } from "@/lib/format";
 import JSZip from "jszip";
 
+// Sanitasi nama folder/file biar aman dari karakter ilegal di path ZIP.
+function sanitizeFilename(s: string) {
+  return s.replace(/[\\/:*?"<>|]/g, "_").trim();
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -60,9 +65,10 @@ export async function GET(
     } as Record<CertificateFieldKey, string>;
 
     const buffer = await renderCertificate(values, fields);
-    const filename = `sertifikat-${cert.number}.png`;
-    // compression "STORE": skip deflate — PNG sudah dikompresi, re-encode cuma buang CPU.
-    zip.file(filename, buffer, { compression: "STORE" });
+    const activityFolder = sanitizeFilename(activity.title);
+    const filename = `${sanitizeFilename(cert.number)} - ${sanitizeFilename(cert.name)}.png`;
+    // Struktur: KTA/<nama kegiatan>/<idkta> - <NAMA>.png
+    zip.file(`KTA/${activityFolder}/${filename}`, buffer, { compression: "STORE" });
   }
 
   const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
