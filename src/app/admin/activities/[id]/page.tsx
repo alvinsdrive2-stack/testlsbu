@@ -217,7 +217,7 @@ export default async function ActivityDetailPage({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Download Semua KTA
+                Download Semua Sertifikat
               </a>
             ) : null}
             <Link

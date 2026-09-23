@@ -79,8 +79,8 @@ export async function GET(
     // Kompresi PNG di canvas (level 3): 11.3MB mentah -> ~0.35MB.
     const buffer = await renderCertificate(values, fields, PNG_COMPRESSION);
     const filename = `${sanitizeFilename(cert.number)} - ${sanitizeFilename(cert.name)}.png`;
-    // Struktur: KTA/<nama kegiatan>/<idkta> - <NAMA>.png
-    zip.file(`KTA/${activityFolder}/${filename}`, buffer, {
+    // Struktur: <nama kegiatan>/<idkta> - <NAMA>.png
+    zip.file(`${activityFolder}/${filename}`, buffer, {
       compression: "DEFLATE",
       compressionOptions: { level: ZIP_COMPRESSION },
     });
@@ -94,7 +94,7 @@ export async function GET(
     compressionOptions: { level: ZIP_COMPRESSION },
   });
 
-  const filename = `sertifikat-${activity.title.replace(/[^a-zA-Z0-9]/g, "_")}.zip`;
+  const filename = `sertifikat-${activityFolder}.zip`;
 
   return new Response(new Uint8Array(zipBuffer), {
     headers: {
