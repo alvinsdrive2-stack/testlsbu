@@ -4,6 +4,7 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { syncCertificateModuleTitleByModule } from "@/lib/certificate-issue";
 import { moduleCreateSchema, moduleSettingsSchema } from "@/lib/schemas";
 import type { ActionFormState } from "@/components/ui/ActionForm";
 
@@ -93,7 +94,13 @@ export async function updateModuleSettings(
 
   const { moduleId, ...data } = parsed.data;
 
-  await prisma.module.update({ where: { id: moduleId }, data });
+  // moduleTitle di baris certificate itu salinan saat terbit, jadi rename judul
+  // modul tidak otomatis kebawa ke sertifikat yang sudah ada. Samakan di sini
+  // supaya download ulang sertifikat pakai nama modul terbaru.
+  await prisma.$transaction(async (tx) => {
+    await tx.module.update({ where: { id: moduleId }, data });
+    await syncCertificateModuleTitleByModule(moduleId, data.title, tx);
+  });
 
   revalidatePath(`/admin/modules/${moduleId}`);
 

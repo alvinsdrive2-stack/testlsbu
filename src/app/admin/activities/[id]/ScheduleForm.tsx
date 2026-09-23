@@ -70,10 +70,12 @@ const inputClass =
 
 export function ScheduleForm({
   activityId,
+  title,
   schedule,
   activePhase,
 }: {
   activityId: string;
+  title: string;
   schedule: Schedule;
   activePhase: ActivityPhase;
 }) {
@@ -88,6 +90,26 @@ export function ScheduleForm({
   return (
     <form action={formAction} className="mt-6">
       <input type="hidden" name="activityId" value={activityId} />
+      <div className="mb-6">
+        <label
+          htmlFor="activity-title"
+          className="text-sm font-semibold text-ink"
+        >
+          Judul Kegiatan
+        </label>
+        <input
+          id="activity-title"
+          name="title"
+          type="text"
+          required
+          minLength={3}
+          defaultValue={title}
+          className={`${inputClass} mt-1.5`}
+        />
+        <p className="mt-1 text-[13px] leading-relaxed text-ink-secondary">
+          Dipakai sebagai nama folder saat download semua sertifikat.
+        </p>
+      </div>
       <ol className="relative space-y-6">
         <span
           aria-hidden

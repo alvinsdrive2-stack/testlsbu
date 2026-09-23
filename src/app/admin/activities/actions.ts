@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { syncCertificateModuleTitleByActivity } from "@/lib/certificate-issue";
 import { jakartaInputToDate } from "@/lib/activity-phase";
 
 const SCHEDULE_FIELDS = [
@@ -98,13 +99,27 @@ export async function updateActivitySchedule(
   formData: FormData
 ): Promise<ScheduleState> {
   const activityId = String(formData.get("activityId"));
+  const title = String(formData.get("title") || "").trim();
+
+  if (title.length < 3) {
+    return { error: "Judul kegiatan minimal 3 karakter" };
+  }
 
   const parsed = parseSchedule(formData);
   if ("error" in parsed) {
     return { error: parsed.error };
   }
 
-  await prisma.activity.update({ where: { id: activityId }, data: parsed });
+  // moduleTitle di baris certificate itu salinan saat terbit. Judul kegiatan
+  // sendiri tidak tercetak di sertifikat, tapi modulnya bisa saja sudah diganti
+  // di kegiatan ini — samakan sekalian biar download ulang ikut nama terbaru.
+  await prisma.$transaction(async (tx) => {
+    await tx.activity.update({
+      where: { id: activityId },
+      data: { ...parsed, title },
+    });
+    await syncCertificateModuleTitleByActivity(activityId, tx);
+  });
 
   revalidatePath(`/admin/activities/${activityId}`);
   revalidatePath("/admin/activities");

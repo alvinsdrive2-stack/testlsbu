@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { generateCertificateNumber } from "@/lib/certificate";
 
 /** Deret nomor urut [last-count+1 .. last]. Dipisah supaya bisa diuji tanpa DB. */
@@ -6,6 +7,46 @@ export function sequenceRange(lastSequence: number, count: number): number[] {
   if (count <= 0 || lastSequence < count) return [];
   const start = lastSequence - count + 1;
   return Array.from({ length: count }, (_, i) => start + i);
+}
+
+/**
+ * Samakan `certificate.moduleTitle` dengan judul modul yang berlaku sekarang.
+ *
+ * moduleTitle di baris certificate itu SALINAN saat terbit — jadi rename modul
+ * tidak otomatis kebawa. Dipanggil setelah modul / kegiatan diubah supaya
+ * sertifikat yang di-download ULANG ikut nama terbaru.
+ *
+ * Nomor sertifikat tidak ikut berubah (nomor urut terbitan tetap), yang
+ * diperbarui cuma judul modulnya.
+ */
+export async function syncCertificateModuleTitleByModule(
+  moduleId: string,
+  moduleTitle: string,
+  tx: Prisma.TransactionClient = prisma
+): Promise<number> {
+  const { count } = await tx.certificate.updateMany({
+    where: { participant: { activity: { moduleId } } },
+    data: { moduleTitle },
+  });
+  return count;
+}
+
+/** Varian untuk satu kegiatan — dipakai saat judul KEGIATAN diubah. */
+export async function syncCertificateModuleTitleByActivity(
+  activityId: string,
+  tx: Prisma.TransactionClient = prisma
+): Promise<number> {
+  const activity = await tx.activity.findUnique({
+    where: { id: activityId },
+    select: { module: { select: { title: true } } },
+  });
+  if (!activity) return 0;
+
+  const { count } = await tx.certificate.updateMany({
+    where: { participant: { activityId } },
+    data: { moduleTitle: activity.module.title },
+  });
+  return count;
 }
 
 /**

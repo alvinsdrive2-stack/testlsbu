@@ -148,6 +148,7 @@ export default async function ActivityDetailPage({
         ) : null}
         <ScheduleForm
           activityId={activity.id}
+          title={activity.title}
           activePhase={phase}
           schedule={{
             registrationStart: activity.registrationStart,
